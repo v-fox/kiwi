@@ -3,6 +3,9 @@ Wed Nov  4 18:59:26 CET 2009 - ms@suse.de
 
 - added missing usb host controller module (ohci) to all
   boot image descriptions except vmxboot which doesn't need it
+- added support for timezone in JeOS
+- changed suseActivateDefaultServices() to activate services
+  only without calling the post scripts of installed RPM's
 
 -------------------------------------------------------------------
 Wed Oct 28 10:00:57 CET 2009 - ms@suse.de
