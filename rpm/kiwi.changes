@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Nov  6 16:12:02 CET 2009 - ms@suse.de
+
+- fixed xslt processing. The possible change to the XML
+  file is now written to /tmp to avoid writing into read-only
+  filesystem (bnc #552617)
+
+-------------------------------------------------------------------
 Wed Nov  4 18:59:26 CET 2009 - ms@suse.de
 
 - added missing usb host controller module (ohci) to all
