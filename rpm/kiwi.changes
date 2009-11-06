@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Nov  6 17:36:16 CET 2009 - ms@suse.de
+
+- fixed sysconfig/kernel setup for old mkinitrd (bnc #547571)
+
+-------------------------------------------------------------------
 Fri Nov  6 16:12:02 CET 2009 - ms@suse.de
 
 - fixed xslt processing. The possible change to the XML
