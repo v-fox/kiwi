@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Nov  9 12:33:42 CET 2009 - ms@suse.de
+
+- fixed spec file for s390 architecture
+
+-------------------------------------------------------------------
 Fri Nov  6 17:36:16 CET 2009 - ms@suse.de
 
 - fixed sysconfig/kernel setup for old mkinitrd (bnc #547571)
