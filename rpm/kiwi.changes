@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Nov 16 11:06:08 CET 2009 - ms@suse.de
+
+- don't require preinit to call init (bnc #521456)
+
+-------------------------------------------------------------------
 Thu Nov 12 16:04:51 CET 2009 - ms@suse.de
 
 - remove pivot root calls (old code) and changed preinit
