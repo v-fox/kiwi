@@ -2268,7 +2268,7 @@ sub setupBootDisk {
 	#==========================================
 	# Create boot loader configuration
 	#------------------------------------------
-	if (! $this -> setupBootLoaderConfiguration ($bootloader,$bootfix)) {
+	if (! $this -> setupBootLoaderConfiguration ($bootloader,$bootfix,$extra)) {
 		$this -> cleanTmp ();
 		return undef;
 	}
