@@ -1,7 +1,85 @@
 -------------------------------------------------------------------
-Wed Nov 25 13:01:16 CET 2009 - ms@suse.de
+Wed Nov 25 13:08:59 CET 2009 - ms@suse.de
 
 - fixed setup of xencons when building Xen domU images (bnc #557791)
+
+-------------------------------------------------------------------
+Tue Nov 24 11:32:47 CET 2009 - ms@suse.de
+
+- fixed root tree creation build inconsistencies due to missing
+  libraries at the beginning of the root tree creation. Any glibc
+  linked program uses /etc/nsswitch.conf and from there requires
+  /lib(64)/libnss* libraries to do user/group to id resolution.
+  If the operation happens chrooted, the libs needs to be there.
+  The fix will install the glibc package which provides these
+  libraries in a $root/baselibs directory first and moves them
+  to $root. After that process the package manager is again called
+  to install the bootstrap listed packages follewed by the rest
+  of the specified packages (bnc #536256)
+
+-------------------------------------------------------------------
+Mon Nov 23 11:50:01 CET 2009 - ms@suse.de
+
+- fixed clicfs boot by preventing root filesystem checks via
+  ROOTFS_FSCK="0", also don't use run-init for clic (bnc #557661)
+
+-------------------------------------------------------------------
+Thu Nov 19 17:02:26 CET 2009 - ms@suse.de
+
+- fixed umount calls before init is called. Due to this
+  fix the df information after login should be correct
+
+-------------------------------------------------------------------
+Wed Nov 18 11:01:08 CET 2009 - ms@suse.de
+
+- fixed search for gfxboot file du to changes in the
+  gfxboot-devel package for 11.2 (bnc #556130)
+
+-------------------------------------------------------------------
+Tue Nov 17 14:53:09 CET 2009 - ms@suse.de
+
+- added LVM feature to allow parts of the filesystem
+  in a separate volume. The setup of volumes happens
+  in the new <lvmvolumes> section
+
+-------------------------------------------------------------------
+Mon Nov 16 11:06:08 CET 2009 - ms@suse.de
+
+- don't require preinit to call init (bnc #521456)
+
+-------------------------------------------------------------------
+Thu Nov 12 16:04:51 CET 2009 - ms@suse.de
+
+- remove pivot root calls (old code) and changed preinit
+  handling to let preinit run like init. If preinit runs the
+  kernel already knows the system image root as / and preinit
+  always ends with exec init (bnc #521456)
+
+-------------------------------------------------------------------
+Wed Nov 11 12:52:51 CET 2009 - ms@suse.de
+
+- fixed exit code evaluation in Dialog function. The value of the
+  evaluated exit code was undefined because it depended on which
+  subshell finished first. The solution is to prevent parameter
+  subshells when building the dialog parameterlist (bnc #547864)
+
+-------------------------------------------------------------------
+Mon Nov  9 12:33:42 CET 2009 - ms@suse.de
+
+- fixed spec file for s390 architecture
+
+-------------------------------------------------------------------
+Fri Nov  6 17:36:16 CET 2009 - ms@suse.de
+
+- fixed sysconfig/kernel setup for old mkinitrd (bnc #547571)
+
+-------------------------------------------------------------------
+Fri Nov  6 16:12:02 CET 2009 - ms@suse.de
+
+- fixed xslt processing. The possible change to the XML
+  file is now written to /tmp to avoid writing into read-only
+  filesystem (bnc #552617)
+>>>>>>> 71b18c084f5d0434fd56f2544ba2a1a551132ed5:rpm/kiwi.changes
 
 -------------------------------------------------------------------
 Wed Nov  4 18:59:26 CET 2009 - ms@suse.de

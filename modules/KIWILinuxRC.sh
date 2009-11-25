@@ -50,22 +50,26 @@ function Dialog {
 	local code=1
 	export DIALOG_CANCEL=1
 	if [ -e /dev/fb0 ];then
-		code=$(fbiterm -m $UFONT -- dialog \
-			--ok-label "$(getText "OK")" \
-			--cancel-label "$(getText "Cancel")" \
-			--yes-label "$(getText "Yes")" \
-			--no-label "$(getText "No")" \
-			--exit-label "$(getText "Exit")" \
-			"$@";echo $?)
-		code=$(echo $code | cut -c5-)
+		cat > /tmp/fbcode <<- EOF
+			dialog \
+				--ok-label "$TEXT_OK" \
+				--cancel-label "$TEXT_CANCEL" \
+				--yes-label "$TEXT_YES" \
+				--no-label "$TEXT_NO" \
+				--exit-label "$TEXT_EXIT" \
+				$@
+			echo \$? > /tmp/fbcode
+		EOF
+		fbiterm -m $UFONT -- bash /tmp/fbcode
+		code=$(cat /tmp/fbcode)
 	else
-		dialog \
-			--ok-label "$(getText "OK")" \
-			--cancel-label "$(getText "Cancel")" \
-			--yes-label "$(getText "Yes")" \
-			--no-label "$(getText "No")" \
-			--exit-label "$(getText "Exit")" \
-			"$@"
+		eval dialog \
+			--ok-label "$TEXT_OK" \
+			--cancel-label "$TEXT_CANCEL" \
+			--yes-label "$TEXT_YES" \
+			--no-label "$TEXT_NO" \
+			--exit-label "$TEXT_EXIT" \
+			$@
 		code=$?
 	fi
 	return $code
@@ -91,7 +95,7 @@ function Echo {
 	if [ $ELOG_STOPPED = 0 ];then
 		set +x
 	fi
-	if [ ! $UTIMER = 0 ];then
+	if [ ! $UTIMER = 0 ] && kill -0 $UTIMER &>/dev/null;then
 		kill -HUP $UTIMER
 		local prefix=$(cat /tmp/utimer)
 	else
@@ -316,17 +320,14 @@ function createInitialDevices {
 function mountSystemFilesystems {
 	mount -t proc  proc   /proc
 	mount -t sysfs sysfs  /sys
-	mount -t tmpfs -o mode=0755 udev /dev
-	createInitialDevices /dev
-	mount -t devpts devpts /dev/pts
 }
 #======================================
 # umountSystemFilesystems
 #--------------------------------------
 function umountSystemFilesystems {
-	umount /dev/pts >/dev/null
-	umount /sys     >/dev/null
-	umount /proc    >/dev/null
+	umount /dev/pts &>/dev/null
+	umount /sys     &>/dev/null
+	umount /proc    &>/dev/null
 }
 #======================================
 # createFramebufferDevices
@@ -430,6 +431,12 @@ function udevStart {
 		rm -f /lib/udev/rules.d/*-drivers.rules
 		HAVE_MODULES_ORDER=0
 	fi
+	# nodes in a tmpfs
+	mount -t tmpfs -o mode=0755 udev /dev
+	# static nodes
+	createInitialDevices /dev
+	# terminal devices
+	mount -t devpts devpts /dev/pts
 	# start the udev daemon
 	udevd --daemon udev_log="debug"
 	# wait for pending triggered udev events.
@@ -1084,7 +1091,9 @@ function setupBootLoaderGrub {
 	local rdisk=""
 	local fbmode=$vga
 	local xencons=$xencons
-	local gdevreco=$(expr $recoid - 1)
+	if [ ! -z "$OEM_RECOVERY" ];then
+		local gdevreco=$(expr $recoid - 1)
+	fi
 	if [ -z "$fbmode" ];then
 		fbmode=$DEFAULT_VGA
 	fi
@@ -1552,6 +1561,19 @@ function updateRootDeviceFstab {
 	else
 		echo "/dev/root / defaults 0 0" >> $nfstab
 	fi
+	#======================================
+	# check for LVM volume setup
+	#--------------------------------------
+	if [ "$haveLVM" = "yes" ];then
+		for i in find /dev/kiwiVG/LV*;do
+			local volume=$(echo $i | cut -c15-)
+			local mpoint=$(echo $volume | tr _ /)
+			if [ ! $volume = "Root" ] && [ ! $volume = "Comp" ];then
+				echo "/dev/kiwiVG/LV$volume /$mpoint $FSTYPE defaults 0 0" \
+				>> $nfstab
+			fi
+		done
+	fi
 }
 #======================================
 # updateSwapDeviceFstab
@@ -1682,6 +1704,16 @@ function setupKernelModules {
 		"reboot"
 	fi
 	cp $ktempl $syskernel
+	if [ ! -e $srcprefix/lib/mkinitrd/scripts/boot-usb.sh ];then
+		# /.../
+		# if boot-usb.sh does not exist we are based on an old
+		# mkinitrd version which requires all modules as part of
+		# sysconfig/kernel. Therefore we include all USB modules
+		# required to support USB storage like USB sticks
+		# ----
+		local USB_MODULES="ehci-hcd ohci-hcd uhci-hcd usbcore usb-storage sd"
+		INITRD_MODULES="$INITRD_MODULES $USB_MODULES"
+	fi
 	sed -i -e \
 		s"@^INITRD_MODULES=.*@INITRD_MODULES=\"$INITRD_MODULES\"@" \
 	$syskernel
@@ -3725,6 +3757,15 @@ function mountSystemStandard {
 	else
 		mount $mountDevice /mnt >/dev/null
 	fi
+	if [ "$haveLVM" = "yes" ];then
+		for i in find /dev/kiwiVG/LV*;do
+			local volume=$(echo $i | cut -c15-)
+			local mpoint=$(echo $volume | tr _ /)
+			if [ ! $volume = "Root" ] && [ ! $volume = "Comp" ];then
+				mount /dev/kiwiVG/LV$volume /mnt/$mpoint
+			fi
+		done
+	fi
 	return $?
 }
 #======================================
@@ -4301,21 +4342,64 @@ function activateImage {
 	#======================================
 	# run preinit stage
 	#--------------------------------------
-	Echo "Calling preinit phase..."
-	cd /mnt
-	/mnt/sbin/pivot_root . mnt >/dev/null 2>&1
-	if test $? != 0;then
-		PIVOT=false
-		cleanInitrd && mount --move . / && chroot . ./preinit
-		chroot . rm -f  ./preinit
-		chroot . rm -f  ./include
-		chroot . rm -rf ./image
-	else
-		PIVOT=true
-		./preinit
-		rm -f  ./preinit
-		rm -f  ./include
-		rm -rf ./image
+	Echo "Preparing preinit phase..."
+	if ! cp /preinit /mnt;then
+		systemException "Failed to copy preinit code" "reboot"
+	fi
+	if ! cp /include /mnt;then
+		systemException "Failed to copy include code" "reboot"
+	fi
+	if [ ! -x /lib/mkinitrd/bin/run-init ];then
+		systemException "Can't find run-init program" "reboot"
+	fi
+	#======================================
+	# kill boot timer
+	#--------------------------------------
+	if [ ! $UTIMER = 0 ] && kill -0 $UTIMER &>/dev/null;then
+		kill $UTIMER
+	fi
+}
+#======================================
+# cleanImage
+#--------------------------------------
+function cleanImage {
+	# /.../
+	# remove preinit code from system image before real init
+	# is called
+	# ----
+	#======================================
+	# remove preinit code from system image
+	#--------------------------------------
+	rm -f /preinit
+	rm -f /include
+	rm -rf /image
+	#======================================
+	# don't call root filesystem check
+	#--------------------------------------
+	if [ "$haveClicFS" = "yes" ];then
+		# FIXME: clicfs doesn't like this umount tricks
+		export ROOTFS_FSCK="0"
+		return
+	fi
+	#======================================
+	# umount non busy fstab listed entries
+	#--------------------------------------
+	umount -a &>/dev/null
+	#======================================
+	# umount LVM root parts lazy
+	#--------------------------------------
+	if [ "$haveLVM" = "yes" ]; then
+		for i in /dev/kiwiVG/LV*;do
+			if [ ! -e $i ];then
+				continue
+			fi
+			if \
+				[ ! $i = "/dev/kiwiVG/LVRoot" ] && \
+				[ ! $i = "/dev/kiwiVG/LVComp" ]
+			then
+				umount -l $i &>/dev/null
+			fi
+		done
 	fi
 }
 #======================================
@@ -4345,26 +4429,20 @@ function bootImage {
 	#======================================
 	# directly boot/reboot
 	#--------------------------------------
-	# /.../
-	# we already checked the filesystem
-	# no reason for boot.rootfsck to try again
-	# ----
-	if [ ! $UTIMER = 0 ];then
-		kill $UTIMER
-	fi
-	export ROOTFS_FSCK="0"
-	mount -n -o remount,rw / &>/dev/null
-	exec < dev/console >dev/console 2>&1
-	if [ $PIVOT = "true" ];then
-		umount -n -l /mnt
-	fi
 	umount proc &>/dev/null && \
 	umount proc &>/dev/null
 	if [ $reboot = "yes" ];then
 		Echo "Reboot requested... rebooting now"
-		exec chroot . /sbin/reboot -f -i
+		exec /lib/mkinitrd/bin/run-init -c /dev/console /mnt /sbin/reboot -f -i
 	else
-		exec chroot . /sbin/init $option
+		# FIXME: clicfs doesn't like run-init
+		if [ ! "$haveClicFS" = "yes" ];then
+			exec /lib/mkinitrd/bin/run-init -c /dev/console /mnt /bin/bash -c \
+				"/preinit ; . /include ; cleanImage ; exec /sbin/init $option"
+		else
+			cd /mnt && exec chroot . /bin/bash -c \
+				"/preinit ; . /include ; cleanImage ; exec /sbin/init $option"
+		fi
 	fi
 }
 #======================================
@@ -4539,7 +4617,7 @@ function luksOpen {
 		if [ ! -e /tmp/luks ];then
 			Dialog \
 				--stdout --insecure \
-				--passwordbox "$(getText "Enter LUKS passphrase")" 10 60 |\
+				--passwordbox "\"$TEXT_LUKS\"" 10 60 |\
 				cat > /tmp/luks
 		fi
 		info=$(cat /tmp/luks | cryptsetup luksOpen $ldev $name 2>&1)
@@ -4628,12 +4706,39 @@ function selectLanguage {
 		done
 		if [ "$list" = "$list_orig" ];then
 			DIALOG_LANG=en_US
-			return
+		else
+			DIALOG_LANG=$(runInteractive \
+				"--stdout --no-cancel --radiolist $title 20 40 10 $list"
+			)
 		fi
-		DIALOG_LANG=$(runInteractive \
-			"--stdout --no-cancel --radiolist $title 20 40 10 $list"
-		)
 	fi
+	#======================================
+	# Exports (Texts)
+	#--------------------------------------
+	export TEXT_OK=$(
+		getText "OK")
+	export TEXT_CANCEL=$(
+		getText "Cancel")
+	export TEXT_YES=$(
+		getText "Yes")
+	export TEXT_NO=$(
+		getText "No")
+	export TEXT_EXIT=$(
+		getText "Exit")
+	export TEXT_LUKS=$(
+		getText "Enter LUKS passphrase")
+	export TEXT_LICENSE=$(
+		getText "Do you accept the license agreement ?")
+	export TEXT_RESTORE=$(
+		getText "Do you want to start the System-Restore ?")
+	export TEXT_REPAIR=$(
+		getText "Do you want to start the System-Recovery ?")
+	export TEXT_RECOVERYTITLE=$(
+		getText "Restoring base operating system...")
+	export TEXT_CDPULL=$(
+		getText "Please eject the install CD/DVD before continuing")
+	export TEXT_USBPULL=$(
+		getText "Please pull out the install USB stick before continuing")	
 }
 #======================================
 # getText
@@ -4689,10 +4794,10 @@ function displayEULA {
 	while true;do
 		Dialog --textbox $code 20 70 \
 			--and-widget --extra-button \
-			--extra-label "$(getText "No")" \
-			--ok-label "$(getText "Yes")" \
-			--cancel-label "$(getText "Cancel")" \
-			--yesno "$(getText "Do you accept the license agreement ?")" \
+			--extra-label "$TEXT_NO" \
+			--ok-label "$TEXT_YES" \
+			--cancel-label "$TEXT_CANCEL" \
+			--yesno "$TEXT_LICENSE" \
 			5 45
 		case $? in
 			0 ) break

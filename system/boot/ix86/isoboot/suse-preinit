@@ -34,3 +34,4 @@ updateMTAB
 # 3) create framebuffer devices
 #--------------------------------------
 createFramebufferDevices
+

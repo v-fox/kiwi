@@ -105,13 +105,11 @@ sub new {
 	#------------------------------------------
 	foreach my $template (@main::SchemaCVT) {
 		my $data = qxx (
-			"xsltproc -o $controlFile-next $template $controlFile 2>&1"
+			"xsltproc -o /tmp/config.xml $template $controlFile 2>&1"
 		);
 		my $code = $? >> 8;
-		if (($code == 0) && (-f "$controlFile-next")) {
-			my @info = stat ($controlFile);
-			qxx ("mv $controlFile-next $controlFile");
-			chown $info[4], $info[5], $controlFile;
+		if (($code == 0) && (-f "/tmp/config.xml")) {
+			$controlFile = "/tmp/config.xml";
 		} elsif ($code > 10) {
 			$kiwi -> error ("XSL: $data");
 			$kiwi -> failed ();
@@ -155,6 +153,7 @@ sub new {
 	my $profilesNodeList;
 	my $vmwarecNodeList;
 	my $xenconfNodeList;
+	my $volumesNodeList;
 	eval {
 		$systemTree = $systemXML
 			-> parse_file ( $controlFile );
@@ -171,6 +170,7 @@ sub new {
 		$instsrcNodeList = $systemTree -> getElementsByTagName ("instsource");
 		$vmwarecNodeList = $systemTree -> getElementsByTagName ("vmwareconfig");
 		$xenconfNodeList = $systemTree -> getElementsByTagName ("xenconfig");
+		$volumesNodeList = $systemTree -> getElementsByTagName ("lvmvolumes");
 		$partitionsNodeList = $systemTree 
 			-> getElementsByTagName ("partitions");
 		$configfileNodeList = $systemTree 
@@ -385,6 +385,7 @@ sub new {
 	$this->{profilesNodeList}   = $profilesNodeList;
 	$this->{vmwarecNodeList}    = $vmwarecNodeList;
 	$this->{xenconfNodeList}    = $xenconfNodeList;
+	$this->{volumesNodeList}    = $volumesNodeList;
 	$this->{reqProfiles}        = $reqProfiles;
 	$this->{havemd5File}        = $havemd5File;
 	$this->{arch}               = $arch;
@@ -453,7 +454,7 @@ sub updateXML {
 sub getConfigName {
 	my $this = shift;
 	my $name = $this->{controlFile};
-	return basename ($name);
+	return ($name);
 }
 
 #==========================================
@@ -760,6 +761,7 @@ sub getImageTypeAndAttributes {
 		}
 		$record{type}          = $node -> string_value();
 		$record{luks}          = $node -> getAttribute("luks");
+		$record{lvm}           = $node -> getAttribute("lvm");
 		$record{compressed}    = $node -> getAttribute("compressed");
 		$record{boot}          = $node -> getAttribute("boot");
 		$record{volid}         = $node -> getAttribute("volid");
@@ -2326,6 +2328,48 @@ sub getPackageAttributes {
 		$result{patternType} = $ptype;
 		$result{patternPackageType} = $ppactype;
 		$result{type} = $type;
+	}
+	return %result;
+}
+
+#==========================================
+# getLVMVolumes
+#------------------------------------------
+sub getLVMVolumes {
+	# ...
+	# Create list of LVM volume names for sub volume
+	# setup. Each volume name will end up in an own
+	# LVM volume when the LVM setup is requested
+	# ---
+	my $this = shift;
+	my $kiwi = $this->{kiwi};
+	my $node = $this->{volumesNodeList} -> get_node(1);
+	my %result = ();
+	if (! defined $node) {
+		return %result;
+	}
+	my @vollist = $node -> getElementsByTagName ("volume");
+	foreach my $volume (@vollist) {
+		my $name = $volume -> getAttribute ("name");
+		my $free = $volume -> getAttribute ("freespace");
+		if (($free) && ($free =~ /(\d+)([MG]*)/)) {
+			my $byte = int $1;
+			my $unit = $2;
+			if ($unit eq "G") {
+				$free = $byte * 1024;
+			} else {
+				# no or unknown unit, assume MB...
+				$free = $byte;
+			}
+		}
+		$name =~ s/^\///;
+		if ($name =~ /^(proc|sys|dev|boot|mnt|lib|bin|sbin|etc|lost\+found)/) {
+			$kiwi -> warning ("LVM: Directory $name is not allowed");
+			$kiwi -> skipped ();
+			next;
+		}
+		$name =~ s/\//_/g;
+		$result{$name} = $free;
 	}
 	return %result;
 }
