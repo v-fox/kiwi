@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Nov 26 16:41:23 CET 2009 - ms@suse.de
+
+- call images.sh / config.sh scripts in POSIX env (bnc #558693)
+- fixed invalid link setup in createImageLiveCD() (bnc #558666)
+- fixed size / inode calcuation due to wrong unit (bnc #555688)
+
+-------------------------------------------------------------------
 Wed Nov 25 13:08:59 CET 2009 - ms@suse.de
 
 - fixed setup of xencons when building Xen domU images (bnc #557791)
