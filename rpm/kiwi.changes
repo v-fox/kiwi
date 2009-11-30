@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Nov 30 11:58:16 CET 2009 - ms@suse.de
+
+- removed kernel-ec2-extra from xenboot,  not needed (bnc #559106)
+
+-------------------------------------------------------------------
 Mon Nov 30 11:33:17 CET 2009 - ms@suse.de
 
 - fixed size setup which was ignored due to last fix (bnc #559098)
