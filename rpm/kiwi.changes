@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Nov 30 17:45:46 CET 2009 - ms@suse.de
+
+- added options --fs-max-mount-count and --fs-check-interval
+  as well as the XML type attribute fsnocheck which deactivates
+  the filesystem check at all.
+
+-------------------------------------------------------------------
 Mon Nov 30 15:59:08 CET 2009 - ms@suse.de
 
 - fixed root device setup for xenboot in EC2 (bnc #559143)
