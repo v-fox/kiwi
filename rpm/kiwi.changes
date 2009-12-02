@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Dec  2 16:46:49 CET 2009 - ms@suse.de
+
+- added support for custom LVM group name. Default is kiwiVG
+- fixed LVM based recovery workflow. the recovery needs to know
+  about the separate boot partition. Additionally the recovery
+  partition must be a separate partition outside LVM
+
+-------------------------------------------------------------------
 Mon Nov 30 17:45:46 CET 2009 - ms@suse.de
 
 - added options --fs-max-mount-count and --fs-check-interval
