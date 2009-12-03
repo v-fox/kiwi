@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Thu Dec  3 16:32:37 CET 2009 - ms@suse.de
+
+- added busybox for to netboot descriptions and changed
+  compressed tftp download to busybox tftp because only this
+  implementations allows to work with pipes (bnc #559830)
+- removed 10.3 support
+
+-------------------------------------------------------------------
 Wed Dec  2 16:46:49 CET 2009 - ms@suse.de
 
 - added support for custom LVM group name. Default is kiwiVG
