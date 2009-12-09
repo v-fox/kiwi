@@ -1514,11 +1514,11 @@ sub collectProducts
   # This will become nicer when we switched to rpm-md as product repo format
   my $found_product = 0;
   foreach my $i(grep($_ =~ /-release$/,keys(%{$this->{m_repoPacks}}))) {
+      next if not defined($this->{m_repoPacks}->{$i}->{'arch'}); # package does not exist, but was listed in kiwi
       if(!mkpath("$tmp", { mode => 0755 } )) {
         $this->logMsg("E", "can't create dir <$tmp>");
       }
       my $file = $this->{m_repoPacks}->{$i}->{'newpath'}."/".$this->{m_repoPacks}->{$i}->{'newfile'};
-      $this->logMsg("I", "Unpacking product release package ".$file);
       $this->logMsg("I", "Unpacking product release package ".$file." ".$tmp);
       $this->{m_util}->unpac_package($file, $tmp);
 
