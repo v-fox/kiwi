@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Dec  9 12:45:16 CET 2009 - ms@suse.de
+
+- fixed home device fstab entry, uses disk by id now
+
+-------------------------------------------------------------------
 Wed Dec  9 10:38:16 CET 2009 - ms@suse.de
 
 - fixed user/group setup for multiple users (bnc #561749)
