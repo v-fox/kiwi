@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Dec  9 10:38:16 CET 2009 - ms@suse.de
+
+- fixed user/group setup for multiple users (bnc #561749)
+
+-------------------------------------------------------------------
 Tue Dec  8 09:50:10 UTC 2009 - adrian@suse.de
 
 - fix variable check for detecting iso creation skip
