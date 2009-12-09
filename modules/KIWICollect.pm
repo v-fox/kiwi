@@ -1524,7 +1524,11 @@ sub collectProducts
 
       # get all .prod files
       local *D;
-      opendir(D, $tmp."/etc/products.d/") || return ();
+      if (not opendir(D, $tmp."/etc/products.d/")) {
+        # cleanup
+        qx(rm -rf $tmp);
+        next;
+      }
       my @r = grep {$_ =~ '\.prod$'} readdir(D);
       closedir D;
 
@@ -1538,7 +1542,12 @@ sub collectProducts
          my $sp_version;
          $sp_version = $tree->getElementsByTagName( "patchlevel" ) if $tree->getElementsByTagName( "patchlevel" )->get_node(1);
 
-         die( "ERROR: No handling of multiple products on one media supported yet (spec for content file missing)!" ) if $found_product;
+         die( "ERROR: No handling of multiple products on one media supported yet (spec for content file missing)!" ) if $found_product &&
+            ( $this->{m_proddata}->getInfo("RELEASE") != $release ||
+              $this->{m_proddata}->getInfo("LABEL") != $label ||
+              $this->{m_proddata}->getVar("PRODUCT_NAME") != $product_name ||
+              $this->{m_proddata}->getVar("PRODUCT_VERSION") != $version ||
+              $this->{m_proddata}->getVar("SP_VERSION") != $sp_version );
          $found_product = 1;
 
          # overwrite data with informations from prod file.
