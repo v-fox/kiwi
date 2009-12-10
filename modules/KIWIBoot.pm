@@ -67,6 +67,7 @@ sub new {
 	my $sysird    = 0;
 	my $zipped    = 0;
 	my $vga       = "0x314";
+	my $vgroup    = "kiwiVG";
 	my $vmmbyte;
 	my $kernel;
 	my $knlink;
@@ -171,8 +172,9 @@ sub new {
 	#==========================================
 	# Store object data (1)
 	#------------------------------------------
-	$this->{tmpdir} = $tmpdir;
-	$this->{loopdir}= $loopdir;
+	$this->{tmpdir}   = $tmpdir;
+	$this->{loopdir}  = $loopdir;
+	$this->{lvmgroup} = $vgroup;
 
 	#==========================================
 	# setup pointer to XML configuration
@@ -214,6 +216,17 @@ sub new {
 				#------------------------------------------
 				my $dmap = $this->{loop}; $dmap =~ s/dev\///;
 				my $sdev = "/dev/mapper".$dmap."p1";
+				for (my $try=0;$try<=3;$try++) {
+					if (defined (my $lvroot = glob ("/dev/mapper/*-LVRoot"))) {
+						$this->{lvm} = 1;
+						$sdev = $lvroot;
+						if ($lvroot =~ /mapper\/(.*)-.*/) {
+							$this->{lvmgroup} = $1;
+						}
+						last;
+					}
+					sleep 1;
+				}
 				if (! main::mount($sdev, $tmpdir)) {
 					$kiwi -> error ("System image mount failed: $status");
 					$kiwi -> failed ();
@@ -229,9 +242,7 @@ sub new {
 				#==========================================
 				# clean up
 				#------------------------------------------
-				main::umount();
-				$this -> cleanLoopMaps();
-				qxx ("losetup -d $this->{loop}");
+				$this -> cleanLoop ("keep-mountpoints");
 			} else {
 				#==========================================
 				# loop mount system image
@@ -259,7 +270,7 @@ sub new {
 	}
 	#==========================================
 	# find Xen domain configuration
-	#==========================================
+	#------------------------------------------
 	if ($isxen && defined $xml) {
 		my %xenc = $xml -> getXenConfig();
 		if (defined $xenc{xen_domain}) {
@@ -384,7 +395,6 @@ sub new {
 	$this->{xml}       = $xml;
 	$this->{xendomain} = $xendomain;
 	$this->{profile}   = $profile;
-	$this->{lvmgroup}  = "kiwiVG";
 	return $this;
 }
 
@@ -1378,7 +1388,7 @@ sub setupBootStick {
 	# deactivate volume group
 	#------------------------------------------
 	if ($lvm) {
-		qxx ("vgchange -an 2>&1");
+		qxx ("vgchange -an $this->{lvmgroup} 2>&1");
 	}
 	#==========================================
 	# Install boot loader on USB stick
@@ -1462,6 +1472,10 @@ sub setupInstallCD {
 	#------------------------------------------
 	if ($gotsys) {
 		#==========================================
+		# build label from xml data
+		#------------------------------------------
+		$this->{bootlabel} = $xml -> getImageDisplayName();
+		#==========================================
 		# bind $system to loop device
 		#------------------------------------------
 		$kiwi -> info ("Binding virtual disk to loop device");
@@ -1493,6 +1507,17 @@ sub setupInstallCD {
 		if (! -e $sdev) {
 			$sdev = "/dev/mapper".$dmap."p1";
 		}
+		for (my $try=0;$try<=3;$try++) {
+			if (defined (my $lvroot = glob ("/dev/mapper/*-LVRoot"))) {
+				$this->{lvm} = 1;
+				$sdev = $lvroot;
+				if ($lvroot =~ /mapper\/(.*)-.*/) {
+					$this->{lvmgroup} = $1;
+				}
+				last;
+			}
+			sleep 1;
+		}
 		if (! main::mount ($sdev, $tmpdir)) {
 			$kiwi -> error ("Failed to mount system partition: $status");
 			$kiwi -> failed ();
@@ -1502,7 +1527,7 @@ sub setupInstallCD {
 		if (-f "$tmpdir/rootfs.tar") {
 			$imgtype = "split";
 		}
-		$this -> cleanLoop();
+		$this -> cleanLoop("keep-mountpoints");
 	}
 	$this->{imgtype} = $imgtype;
 	#==========================================
@@ -1678,6 +1703,7 @@ sub setupInstallStick {
 	my $loopdir   = $this->{loopdir};
 	my $zipped    = $this->{zipped};
 	my $isxen     = $this->{isxen};
+	my $xml       = $this->{xml};
 	my $irdsize   = -s $initrd;
 	my $diskname  = $system.".install.raw";
 	my $md5name   = $system;
@@ -1723,6 +1749,10 @@ sub setupInstallStick {
 	#------------------------------------------
 	if ($gotsys) {
 		#==========================================
+		# build label from xml data
+		#------------------------------------------
+		$this->{bootlabel} = $xml -> getImageDisplayName();
+		#==========================================
 		# bind $system to loop device
 		#------------------------------------------
 		$kiwi -> info ("Binding virtual disk to loop device");
@@ -1754,6 +1784,17 @@ sub setupInstallStick {
 		if (! -e $sdev) {
 			$sdev = "/dev/mapper".$dmap."p1";
 		}
+		for (my $try=0;$try<=3;$try++) {
+			if (defined (my $lvroot = glob ("/dev/mapper/*-LVRoot"))) {
+				$this->{lvm} = 1;
+				$sdev = $lvroot;
+				if ($lvroot =~ /mapper\/(.*)-.*/) {
+					$this->{lvmgroup} = $1;
+				}
+				last;
+			}
+			sleep 1;
+		}
 		if (! main::mount ($sdev, $tmpdir)) {
 			$kiwi -> error  ("Failed to mount system partition: $status");
 			$kiwi -> failed ();
@@ -1763,16 +1804,7 @@ sub setupInstallStick {
 		if (-f "$tmpdir/rootfs.tar") {
 			$imgtype = "split";
 		}
-		main::umount();
-		$this -> cleanLoopMaps();
-		$status = qxx ("/sbin/losetup -d $this->{loop} 2>&1");
-		$result = $? >> 8;
-		if ($result != 0) {
-			$kiwi -> error  ("Failed to umount system partition: $status");
-			$kiwi -> failed ();
-			$this -> cleanLoop ();
-			return undef;
-		}
+		$this -> cleanLoop("keep-mountpoints");
 	}
 	$this->{imgtype} = $imgtype;
 	$this->{bootpart}= 0;
@@ -2037,14 +2069,7 @@ sub setupInstallStick {
 		$this -> cleanLoop ();
 		$this -> cleanTmp();
 	}
-	#==========================================
-	# cleanup temp directory
-	#------------------------------------------
-	qxx ("rm -rf $tmpdir");
-	#==========================================
-	# cleanup loop setup and device mapper
-	#------------------------------------------
-	qxx ("/sbin/losetup -d $this->{loop}");
+	$this -> cleanLoop();
 	$kiwi -> info ("Created $diskname to be dd'ed on Stick");
 	$kiwi -> done ();
 	return $this;
@@ -2824,7 +2849,7 @@ sub setupBootDisk {
 	# cleanup device maps and part mount
 	#------------------------------------------
 	if ($lvm) {
-		qxx ("vgchange -an 2>&1");
+		qxx ("vgchange -an $this->{lvmgroup} 2>&1");
 	}
 	$this -> cleanLoopMaps();
 	#==========================================
@@ -2848,7 +2873,7 @@ sub setupBootDisk {
 			if ($format eq "iso") {
 				$this -> {system} = $diskname;
 				$kiwi -> info ("Creating install ISO image\n");
-				$this -> cleanLoop ();
+				$this -> cleanLoop ("keep-mountpoints");
 				if (! $this -> setupInstallCD()) {
 					return undef;
 				}
@@ -2856,7 +2881,7 @@ sub setupBootDisk {
 			if ($format eq "usb") {
 				$this -> {system} = $diskname;
 				$kiwi -> info ("Creating install USB Stick image\n");
-				$this -> cleanLoop ();
+				$this -> cleanLoop ("keep-mountpoints");
 				if (! $this -> setupInstallStick()) {
 					return undef;
 				}
@@ -3258,7 +3283,7 @@ sub cleanDbus {
 sub cleanTmp {
 	my $this = shift;
 	if ($this->{lvm}) {
-		qxx ("vgchange -an 2>&1");
+		qxx ("vgchange -an $this->{lvmgroup} 2>&1");
 	}
 	my $tmpdir = $this->{tmpdir};
 	my $loopdir= $this->{loopdir};
@@ -3272,20 +3297,26 @@ sub cleanTmp {
 #------------------------------------------
 sub cleanLoop {
 	my $this = shift;
+	my $rmdir= shift;
 	my $tmpdir = $this->{tmpdir};
 	my $loop   = $this->{loop};
+	my $lvm    = $this->{lvm};
 	my $loopdir= $this->{loopdir};
 	main::umount();
 	if (defined $loop) {
-		if ($this->{lvm}) {
-			qxx ("vgchange -an 2>&1");
+		if (defined $lvm) {
+			qxx ("vgchange -an $this->{lvmgroup} 2>&1");
 		}
 		$this -> cleanLoopMaps();
 		qxx ("/sbin/losetup -d $loop 2>&1");
-		undef $this->{loop};
+		if (! defined $rmdir) {
+			undef $this->{loop};
+		}
 	}
-	qxx ("rm -rf $tmpdir");
-	qxx ("rm -rf $loopdir");
+	if (! defined $rmdir) {
+		qxx ("rm -rf $tmpdir");
+		qxx ("rm -rf $loopdir");
+	}
 	return $this;
 }
 
