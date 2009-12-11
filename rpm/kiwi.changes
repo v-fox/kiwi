@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Dec 11 15:07:52 CET 2009 - ms@suse.de
+
+- added adaptec-firmware to iso/net and oemboot (bnc #562224)
+
+-------------------------------------------------------------------
 Thu Dec 10 12:31:56 CET 2009 - ms@suse.de
 
 - fixed install stick creation
