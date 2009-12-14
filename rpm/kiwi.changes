@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Dec 14 11:17:31 CET 2009 - ms@suse.de
+
+- show disk size value in MB and only if > 0 (bnc #562190)
+- put install progress information into dialog (bnc #562185)
+- track restored files in percentage (bnc #562188)
+
+-------------------------------------------------------------------
 Fri Dec 11 15:07:52 CET 2009 - ms@suse.de
 
 - added adaptec-firmware to iso/net and oemboot (bnc #562224)
