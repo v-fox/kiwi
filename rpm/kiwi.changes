@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Dec 14 15:57:00 CET 2009 - ms@suse.de
+
+- added parted to oemboot boot images
+
+-------------------------------------------------------------------
 Mon Dec 14 11:17:31 CET 2009 - ms@suse.de
 
 - show disk size value in MB and only if > 0 (bnc #562190)
