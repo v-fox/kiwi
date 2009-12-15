@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Tue Dec 15 12:45:28 CET 2009 - ms@suse.de
+
+- call scripts in C env for LC_ALL and LANG (bnc #558693)
+- fixed handling of dir:// and file:// (bnc #561855)
+- bind mount /var/run/dbus into chroot (bnc #519764)
+
+-------------------------------------------------------------------
 Mon Dec 14 15:57:00 CET 2009 - ms@suse.de
 
 - added parted to oemboot boot images
