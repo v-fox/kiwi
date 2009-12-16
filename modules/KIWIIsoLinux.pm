@@ -402,7 +402,7 @@ sub createLegacySortFile {
 	foreach my $file (@list) {
 		print $FD "$file 1"."\n";
 	}
-	print $FD "$src/boot/isolinux.bin 2"."\n";
+	print $FD $src."/".$base{$arch}{boot}."/loader/isolinux.bin 2"."\n";
 	close $FD;
 	return $sort;
 }
@@ -527,11 +527,9 @@ sub createISO {
 	my $para = $this -> {params};
 	my $ldir = $this -> {tmpdir};
 	my $prog = $this -> {tool};
-
-        my $cmdln = "$prog $para -o $dest $ldir $src 2>&1";
-        $kiwi -> info ( "Calling: $cmdln\n" );
+	my $cmdln= "$prog $para -o $dest $ldir $src 2>&1";
+	$kiwi -> info ( "Calling: $cmdln\n" );
 	my $data = qxx ( $cmdln	);
-
 	my $code = $? >> 8;
 	if ($code != 0) {
 		$kiwi -> error  ("Failed to call $prog: $data");
