@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Dec 17 12:04:12 CET 2009 - ms@suse.de
+
+- removed adaptec-firmware from SLED boot images. The package
+  does not exist on SLED (bnc #562224)
+
+-------------------------------------------------------------------
 Wed Dec 16 14:37:16 CET 2009 - ms@suse.de
 
 - kiwi inst-source chnages: Changed mkisofs parameters in KIWICollect.pm
