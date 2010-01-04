@@ -3,6 +3,7 @@ Mon Jan  4 10:28:45 CET 2010 - ms@suse.de
 
 - fixed dirPath() function, related to (bnc #561855)
 - fixed KIWIURL::quote() for special '$' char (bnc #561855)
+- use default inode count for lvmparts (bnc #567580)
 
 -------------------------------------------------------------------
 Thu Dec 17 12:04:12 CET 2009 - ms@suse.de
