@@ -1892,8 +1892,8 @@ function waitForUSBDeviceScan {
 		sleep 1
 		devices=$(( $devices + 1 ))
 	done
-	udevPending
 	echo
+	udevPending
 }
 #======================================
 # probeUSB
@@ -4015,6 +4015,7 @@ function waitForStorageDevice {
 	# ----
 	local device=$1
 	local check=0
+	udevPending
 	while true;do
 		partitionSize $device &>/dev/null
 		if [ $? = 0 ];then
@@ -4040,6 +4041,7 @@ function waitForBlockDevice {
 	# ----
 	local device=$1
 	local check=0
+	udevPending
 	while true;do
 		if [ -b $device ] || [ $check -eq 4 ];then
 			break
