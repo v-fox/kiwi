@@ -11,6 +11,12 @@ Mon Jan  4 10:28:45 CET 2010 - ms@suse.de
 - use default inode count for lvmparts (bnc #567580)
 
 -------------------------------------------------------------------
+Fri Dec 18 12:34:20 UTC 2009 - adrian@suse.de
+
+- fix boot of efi systems (like ia64)
+- fix volumeid generation for isos, no longer than 32 bytes anymore
+
+-------------------------------------------------------------------
 Thu Dec 17 12:04:12 CET 2009 - ms@suse.de
 
 - removed adaptec-firmware from SLED boot images. The package
