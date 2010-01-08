@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Jan  8 13:32:26 CET 2010 - ms@suse.de
+
+- fixed handling of oem-reboot request. preinit needs to run
+  before this request is processed (bnc #563864)
+
+-------------------------------------------------------------------
 Thu Jan  7 13:52:31 CET 2010 - ms@suse.de
 
 - added udevPending() to waitFor* functions (bnc #547862)
