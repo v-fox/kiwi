@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Jan  8 15:54:54 CET 2010 - ms@suse.de
+
+- fixed use of uninitialized value (bnc #569191)
+
+-------------------------------------------------------------------
 Fri Jan  8 13:32:26 CET 2010 - ms@suse.de
 
 - fixed handling of oem-reboot request. preinit needs to run
