@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Jan 13 13:30:50 CET 2010 - ug@suse.de
+
+- more KIWIURL::quote() fixes (bnc #561855)
+
+-------------------------------------------------------------------
 Mon Jan 11 17:08:08 CET 2010 - ms@suse.de
 
 - again fixed KIWIURL::quote(). perl file checks doesn't
