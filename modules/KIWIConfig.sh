@@ -1411,3 +1411,15 @@ function suseSetupProduct {
 	fi
 	popd
 }
+
+#======================================
+# suseRemovePackagesMarkedForDeletion
+#--------------------------------------
+function suseRemovePackagesMarkedForDeletion {
+	# /.../
+	# This function removes all packages which are
+	# added into the <packages type="delete"> section
+	# ----
+	rpm -e --nodeps \
+		$(rpm -q `baseGetPackagesForDeletion` | grep -v "is not installed")
+}
