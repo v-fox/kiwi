@@ -211,6 +211,7 @@ sub x86_64_legacy {
 	$para.= " -b $loader -c $boot/boot.catalog";
 	$para.= " -hide $boot/boot.catalog -hide-joliet $boot/boot.catalog";
 	$this -> {params} = $para;
+	$this -> {relocate_catalog} = 1;
 	$this -> createISOLinuxConfig ($boot);
 }
 
@@ -229,6 +230,7 @@ sub ix86_legacy {
 	$para.= " -b $loader -c $boot/boot.catalog";
 	$para.= " -hide $boot/boot.catalog -hide-joliet $boot/boot.catalog";
 	$this -> {params} = $para;
+	$this -> {relocate_catalog} = 1;
 	$this -> createISOLinuxConfig ($boot);
 }
 
@@ -247,6 +249,8 @@ sub x86_64_efi {
 	$para.= " -boot-load-size 1";
 	$para.= " -b $loader";
 	$this -> {params} = $para;
+	$this -> {fix_catalog} = 1;
+	$this -> {relocate_catalog} = 1;
 }
 
 #==========================================
@@ -264,6 +268,8 @@ sub ix86_efi {
 	$para.= " -boot-load-size 1";
 	$para.= " -b $loader";
 	$this -> {params} = $para;
+	$this -> {fix_catalog} = 1;
+	$this -> {relocate_catalog} = 1;
 }
 
 #==========================================
@@ -277,14 +283,13 @@ sub ia64_efi {
 	my $boot  = $base{$arch}{boot};
 	my $loader= $base{$arch}{efi};
 	my $sort  = $this -> createLegacySortFile ("ia64");
-
 	$para.= " -no-emul-boot";
 	$para.= " -boot-load-size 1";
 	$para.= " -sort $sort";
 	$para.= " -b $loader";
 	$para.= " -c $boot/boot.catalog";
 	$para.= " -hide $boot/boot.catalog -hide-joliet $boot/boot.catalog";
-
+	$this -> {fix_catalog} = 1;
 	$this -> {params} = $para;
 }
 
@@ -332,9 +337,8 @@ sub ppc64_default {
 	my $para  = $this -> {params};
 	my $src  = $this -> {source};
 	my $boot  = $base{$arch}{boot};
-
 	$para.= " -chrp-boot";
-        $para.= " -hfs-bless $src/$boot"; # CHECK: maybe $src is not necessary
+	$para.= " -hfs-bless $src/$boot"; # CHECK: maybe $src is not necessary
 	$para.= " -hfs-volid FIXME"; # FIXME should be same as value of -A
 	$para.= " -l";
 	$para.= " --macbin";
@@ -554,6 +558,8 @@ sub createISO {
 		$this -> cleanISO();
 		return undef;
 	}
+	$this -> fixCatalog() if $this -> {fix_catalog};
+	$this -> relocateCatalog() if $this -> {relocate_catalog};
 	$this -> cleanISO();
 	return $this;
 }
