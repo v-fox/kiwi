@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Jan 20 11:44:13 CET 2010 - ms@suse.de
+
+- fixed missing ddn call to solve the device node (bnc #571948)
+
+-------------------------------------------------------------------
 Tue Jan 19 14:40:49 CET 2010 - ms@suse.de
 
 - fixed baselibs setup for 64bit image builds
