@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Jan 21 13:28:11 UTC 2010 - adrian@suse.de
+
+- Added missing requires for sysopen constants from cwh
+
+-------------------------------------------------------------------
 Wed Jan 20 11:44:13 CET 2010 - ms@suse.de
 
 - fixed missing ddn call to solve the device node (bnc #571948)
