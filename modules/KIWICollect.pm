@@ -1,5 +1,5 @@
 #================
-# FILE          : KIWICollect2.pm
+# FILE          : KIWICollect.pm
 #----------------
 # PROJECT       : OpenSUSE Build-Service
 # COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH, Germany
