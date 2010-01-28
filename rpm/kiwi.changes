@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
 Thu Jan 28 14:24:16 CET 2010 - ms@suse.de
 
+- fixed inode calculation (bnc #574660)
 - fixed backtrace creation. A trace can be switched off
   completely with deactivateBackTrace()
 
