@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Jan 28 14:24:16 CET 2010 - ms@suse.de
+
+- fixed backtrace creation. A trace can be switched off
+  completely with deactivateBackTrace()
+
+-------------------------------------------------------------------
 Thu Jan 21 13:28:11 UTC 2010 - adrian@suse.de
 
 - Added missing requires for sysopen constants from cwh
