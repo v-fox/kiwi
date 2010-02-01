@@ -1,6 +1,7 @@
 -------------------------------------------------------------------
 Mon Feb  1 13:01:08 CET 2010 - ms@suse.de
 
+- fixed incorrect handling of unit="G" values (bnc #574660)
 - added kernel/initrd update hotfix mechanism based on kexec
   It is possible to put the kernel file named linux.kexec and
   the initrd file named initrd.kexec on the first partition of
