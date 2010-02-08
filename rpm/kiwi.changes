@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Feb  8 18:07:59 CET 2010 - ms@suse.de
+
+- handle reboot request only if we are not in recovery mode
+
+-------------------------------------------------------------------
 Mon Feb  1 13:01:08 CET 2010 - ms@suse.de
 
 - fixed incorrect handling of unit="G" values (bnc #574660)
