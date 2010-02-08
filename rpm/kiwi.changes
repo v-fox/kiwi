@@ -1,7 +1,7 @@
 -------------------------------------------------------------------
 Mon Feb  8 18:07:59 CET 2010 - ms@suse.de
 
-- handle reboot request only if we are not in recovery mode
+- handle reboot request only if we are not in recovery mode (bnc #573403)
 
 -------------------------------------------------------------------
 Mon Feb  1 13:01:08 CET 2010 - ms@suse.de
