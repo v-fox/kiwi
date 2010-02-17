@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Feb 17 15:41:58 UTC 2010 - adrian@suse.de
+
+- fix arch condition handling for meta package handling in instsource medias
+
+-------------------------------------------------------------------
 Mon Feb 15 17:36:22 CET 2010 - ms@suse.de
 
 - fixed xen building with empty or no type=xen packages
