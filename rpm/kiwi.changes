@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Feb 23 14:27:39 CET 2010 - ms@suse.de
+
+- removed imagewriter from kiwi packages, it is provided as
+  separate package now maintained by mbarringer@novell.com
+
+-------------------------------------------------------------------
 Mon Feb 22 11:45:14 CET 2010 - ms@suse.de
 
 - fixed display of EULA messages
