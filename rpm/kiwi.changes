@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Feb 23 18:28:51 CET 2010 - ro@suse.de
+
+- KIWICollect: fix links for packages below /boot (bnc#579936)
+
+-------------------------------------------------------------------
 Tue Feb 23 14:27:39 CET 2010 - ms@suse.de
 
 - removed imagewriter from kiwi packages, it is provided as
