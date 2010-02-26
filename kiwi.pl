@@ -1338,6 +1338,12 @@ sub init {
 	if (! defined $FSInodeRatio) {
 		$FSInodeRatio = 16384;
 	}
+	#========================================
+	# set default inode size for ext2/3
+	#----------------------------------------
+	if (! defined $FSInodeSize) {
+		$FSInodeSize = 256;
+	}
 	#==========================================
 	# non root task: Create crypted password
 	#------------------------------------------
@@ -2380,7 +2386,9 @@ sub checkFSOptions {
 			#------------------------------------------
 			/ext[432]/   && do {
 				if ($FSBlockSize)   {$blocksize   = "-b $FSBlockSize"}
-				if ($FSInodeSize)   {$inodesize   = "-I $FSInodeSize"}
+				if (($FSInodeSize) && ($FSInodeSize != 256)) {
+					$inodesize = "-I $FSInodeSize"
+				}
 				if ($FSInodeRatio)  {$inoderatio  = "-i $FSInodeRatio"}
 				if ($FSJournalSize) {$journalsize = "-J size=$FSJournalSize"}
 				if ($FSMaxMountCount) {

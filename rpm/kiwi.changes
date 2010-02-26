@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Feb 26 18:27:04 CET 2010 - ms@suse.de
+
+- fixed getSize() function. The size of the inodes are
+  part of the size calculation now
+
+-------------------------------------------------------------------
 Thu Feb 25 12:24:29 UTC 2010 - adrian@suse.de
 
 - Continue if metapackage was found for any architecture
