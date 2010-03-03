@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Mar  3 12:47:28 CET 2010 - ms@suse.de
+
+- added 'boot from harddrive' as default menu selection for
+  the installation images (CD+USB). Thus remove the request to
+  remove the media after the image dump to the hard drive is
+  complete. (bnc #583212)
+
+-------------------------------------------------------------------
 Tue Mar  2 15:41:53 CET 2010 - ug@suse.de
 
 - fixed a quoting bug (bnc#584651)
