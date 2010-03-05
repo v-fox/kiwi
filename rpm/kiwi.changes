@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Mar  5 15:24:40 CET 2010 - ms@suse.de
+
+- fixed root tree creation build inconsistencies because of
+  missing libraries at the beginning of the root tree creation.
+  The first fix for this bug did not work in mixed arch
+  environments (bnc #536256)
+
+-------------------------------------------------------------------
 Wed Mar  3 12:43:53 UTC 2010 - adrian@suse.de
 
 - fix multiarch medias, when using metapackages with onlyarch
