@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Fri Mar 12 17:44:57 CET 2010 - ms@suse.de
+
+- fixed quoting in baseUpdateSysConfig (bnc #587132)
+- turn destdir into absolute path directly after
+  the option parser (bnc #584200)
+- remove empty dirs in rpmLibs ("clean") (bnc #536256)
+
+-------------------------------------------------------------------
 Mon Mar  8 18:12:34 CET 2010 - ms@suse.de
 
 - fixed missing xen package in oemboot/suse-11.2 boot
