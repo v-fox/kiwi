@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Mar 15 11:34:33 CET 2010 - ms@suse.de
+
+- fixed getSize() function taking journal size into account
+- fixed getSize() function round values not truncate them
+
+-------------------------------------------------------------------
 Fri Mar 12 17:49:18 CET 2010 - ms@suse.de
 
 - fixed quoting in baseUpdateSysConfig (bnc #587132)
