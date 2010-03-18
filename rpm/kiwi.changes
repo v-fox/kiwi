@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Mar 18 16:24:42 CET 2010 - ms@suse.de
+
+- only recommend squashfs don't require it (bnc #589400)
+
+-------------------------------------------------------------------
 Tue Mar 16 18:14:25 CET 2010 - ms@suse.de
 
 - added Xen dom0 hypervisor check if domain="dom0" is set
