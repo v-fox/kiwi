@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Mar 19 13:36:15 CET 2010 - ms@suse.de
+
+- added "Select disk for installation" to getText (bnc #589667)
+- fixed runInteractive() exit code handling
+
+-------------------------------------------------------------------
 Thu Mar 18 16:24:42 CET 2010 - ms@suse.de
 
 - only recommend squashfs don't require it (bnc #589400)
