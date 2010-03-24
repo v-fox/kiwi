@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Wed Mar 24 14:49:29 CET 2010 - ms@suse.de
+
+- added setterm -powersave off -blank 0 for boot images (bnc #586698)
+- fixed long startup time because of ldconfig running when
+  KIWILinuxRC is sourced from the shell
+
+-------------------------------------------------------------------
 Wed Mar 24 08:35:02 CET 2010 - ms@suse.de
 
 - added bootnext program which implements a small boot loader

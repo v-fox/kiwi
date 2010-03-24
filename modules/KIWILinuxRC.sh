@@ -41,14 +41,6 @@ test -z "$UTIMER"             && export UTIMER=0
 test -z "$VGROUP"             && export VGROUP=kiwiVG
 
 #======================================
-# Start boot timer
-#--------------------------------------
-if [ -x /usr/bin/utimer ];then
-	/usr/bin/utimer
-	export UTIMER=$(cat /var/run/utimer.pid)
-fi
-
-#======================================
 # Dialog
 #--------------------------------------
 function Dialog {
@@ -4321,11 +4313,6 @@ function reloadKernel {
 }
 
 #======================================
-# Check for hotfix kernel
-#--------------------------------------
-reloadKernel
-
-#======================================
 # getDiskID
 #--------------------------------------
 function getDiskID {
@@ -5252,4 +5239,25 @@ function SAPStartMediaChanger {
 	stoppX
 	test -e /tmp/runme_at_boot && mv /tmp/runme_at_boot $runme
 	test -e /tmp/install.inf && mv /tmp/install.inf $ininf
+}
+
+#======================================
+# initialize
+#--------------------------------------
+function initialize {
+	#======================================
+	# Check for hotfix kernel
+	#--------------------------------------
+	reloadKernel
+	#======================================
+	# Prevent blank screen
+	#--------------------------------------
+	setterm -powersave off -blank 0
+	#======================================
+	# Start boot timer
+	#--------------------------------------
+	if [ -x /usr/bin/utimer ];then
+		/usr/bin/utimer
+		export UTIMER=$(cat /var/run/utimer.pid)
+	fi
 }
