@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Mar 25 16:34:35 CET 2010 - ms@suse.de
+
+- use bootnext 'boot from hard disk' for ISO's too (bnc #583212)
+
+-------------------------------------------------------------------
 Wed Mar 24 14:49:29 CET 2010 - ms@suse.de
 
 - added setterm -powersave off -blank 0 for boot images (bnc #586698)
