@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Mar 30 15:35:48 CEST 2010 - ms@suse.de
+
+- added iputils package to 11.2 JeOS
+
+-------------------------------------------------------------------
 Thu Mar 25 16:34:35 CET 2010 - ms@suse.de
 
 - use bootnext 'boot from hard disk' for ISO's too (bnc #583212)
