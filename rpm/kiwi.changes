@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Apr  7 16:50:05 CEST 2010 - ms@suse.de
+
+- fixed bootnext boot from harddrive feature (bnc #583212)
+
+-------------------------------------------------------------------
 Tue Mar 30 15:35:48 CEST 2010 - ms@suse.de
 
 - added iputils package to 11.2 JeOS
