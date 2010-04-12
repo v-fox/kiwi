@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon Apr 12 10:26:46 CEST 2010 - ug@suse.de
+
+- calling mkinitrd in netboot image doesn't work 
+  if /sbin/update-bootloader is missing (bnc#595073)
+
+-------------------------------------------------------------------
 Wed Apr  7 16:50:05 CEST 2010 - ms@suse.de
 
 - fixed bootnext boot from harddrive feature (bnc #583212)
