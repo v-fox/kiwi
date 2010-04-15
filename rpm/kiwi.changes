@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Apr 15 16:52:02 CEST 2010 - ms@suse.de
+
+- changed info module to print XML output
+
+-------------------------------------------------------------------
 Thu Apr 15 11:31:10 CEST 2010 - ms@suse.de
 
 - fixed info module to work with loop media like iso://

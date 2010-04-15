@@ -100,9 +100,8 @@ our $KMigrate = $BasePath."/modules/KIWIMigrate.txt";
 our $KSplit   = $BasePath."/modules/KIWISplit.txt";
 our $Revision = $BasePath."/.revision";
 our $TestBase = $BasePath."/tests";
-our @SchemaCVT= (
-	$BasePath."/xsl/master.xsl"
-);
+our @SchemaCVT= $BasePath."/xsl/master.xsl";
+our $Pretty   = $BasePath."/xsl/print.xsl";
 
 #==========================================
 # Globals (Supported filesystem names)
@@ -1830,6 +1829,10 @@ sub listXMLInfo {
 	}
 	*cleanMount = newCleanMount (@mountlist);
 	#==========================================
+	# Initialize XML imagescan element
+	#------------------------------------------
+	my $scan = new XML::LibXML::Element ("imagescan");
+	#==========================================
 	# Walk through selection list
 	#------------------------------------------
 	foreach my $info (@listXMLInfoSelection) {
@@ -1850,9 +1853,13 @@ sub listXMLInfo {
 					my @patterns = qxx (
 						"dumpsolv $solfile|grep 'name: pattern'|cut -f4 -d :"
 					);
-					$kiwi -> info ("Available patterns in repository set\n");
 					foreach my $p (@patterns) {
-						$kiwi -> info ("--> $p");
+						next if ($p eq "\n");
+						$p =~ s/^\s+//;
+						$p =~ s/\s+$//;
+						my $pattern = new XML::LibXML::Element ("repopattern");
+						$pattern -> setAttribute ("name","$p");
+						$scan -> appendChild ($pattern);
 					}
 				}
 				last SWITCH;
@@ -1870,19 +1877,16 @@ sub listXMLInfo {
 						exit 1;
 					}
 				}
-				my @pats;
-				my @solved = @{$satlist};
-				foreach my $s (@solved) {
-					if ($s =~ /pattern:(.*)/) {
-						 push (@pats,$1);
-					}
-				}
-				if (! @pats) {
-					$kiwi -> info ("No patterns configured\n");
+				if (! keys %{$meta}) {
+					$kiwi -> info ("No packages/patterns solved\n");
 				} else {
-					$kiwi -> info ("Image Patterns:\n");
-					foreach my $pattern (@pats) {
-						$kiwi -> info ("--> $pattern\n");
+					foreach my $p (sort keys %{$meta}) {
+						if ($p =~ /pattern:(.*)/) {
+							my $name = $1;
+							my $pattern = new XML::LibXML::Element ("pattern");
+							$pattern -> setAttribute ("name","$name");
+							$scan -> appendChild ($pattern);
+ 						}
 					}
 				}
 				last SWITCH;
@@ -1891,14 +1895,15 @@ sub listXMLInfo {
 			# types
 			#------------------------------------------
 			/^types/         && do {
-				$kiwi -> info ("Image Types:\n");
 				foreach my $t ($xml -> getTypes()) {
 					my %type = %{$t};
-					$kiwi -> info ("--> $type{type} primary=$type{primary}");
+					my $type = new XML::LibXML::Element ("type");
+					$type -> setAttribute ("name","$type{type}");
+					$type -> setAttribute ("primary","$type{primary}");
 					if (defined $type{boot}) {
-						$kiwi -> note (" boot=$type{boot}");
+						$type -> setAttribute ("boot","$type{boot}");
 					}
-					$kiwi -> note ("\n");
+					$scan -> appendChild ($type);
 				}
 				last SWITCH;
 			};
@@ -1907,7 +1912,9 @@ sub listXMLInfo {
 			#------------------------------------------
 			/^sources/       && do {
 				foreach my $url (@{$xml->{urllist}}) {
-					$kiwi -> info ("Source URL: $url\n");
+					my $source = new XML::LibXML::Element ("source");
+					$source -> setAttribute ("path","$url");
+					$scan -> appendChild ($source);
 				}
 				last SWITCH;
 			};
@@ -1930,8 +1937,9 @@ sub listXMLInfo {
 					my @metalist = split (/:/,$meta{$p});
 					$size += $metalist[0];
 				}
+				my $sizenode = new XML::LibXML::Element ("size");
 				if ($size > 0) {
-					$kiwi->info ("Estimated root tree size: $size kB\n");
+					$sizenode -> setAttribute ("rootsizeKB","$size");
 				}
 				$size = 0;
 				if ($delete) {
@@ -1943,8 +1951,9 @@ sub listXMLInfo {
 					}
 				}
 				if ($size > 0) {
-					$kiwi -> info ("Estimated deletion size; $size kB\n");
+					$sizenode -> setAttribute ("deletionsizeKB","$size");
 				}
+				$scan -> appendChild ($sizenode);
 				last SWITCH;
 			};
 			#==========================================
@@ -1963,14 +1972,16 @@ sub listXMLInfo {
 				if (! keys %{$meta}) {
 					$kiwi -> info ("No packages/patterns solved\n");
 				} else {
-					$kiwi -> info ("Image Packages:\n\n");
 					foreach my $p (sort keys %{$meta}) {
 						if ($p =~ /pattern:.*/) {
 							next;
 						}
 						my @m = split (/:/,$meta->{$p});
-						my $l = sprintf ("=> %-20s | %-8s | %s",$p,$m[1],$m[2]);
-						$kiwi -> note ("$l\n");
+						my $pacnode = new XML::LibXML::Element ("package");
+						$pacnode -> setAttribute ("name","$p");
+						$pacnode -> setAttribute ("arch","$m[1]");
+						$pacnode -> setAttribute ("version","$m[2]");
+						$scan -> appendChild ($pacnode);
 					}
 				}
 				last SWITCH;
@@ -1982,17 +1993,30 @@ sub listXMLInfo {
 				my @profiles = $xml -> getProfiles ();
 				if ((scalar @profiles) == 0) {
 					$kiwi -> info ("No profiles available\n");
-				}
-				foreach my $profile (@profiles) {
-					my $name = $profile -> {name};
-					my $desc = $profile -> {description};
-					$kiwi -> info ("$name: [ $desc ]\n");
+				} else {
+					foreach my $profile (@profiles) {
+						my $name = $profile -> {name};
+						my $desc = $profile -> {description};
+						my $pnode = new XML::LibXML::Element ("profile");
+						$pnode -> setAttribute ("name","$name");
+						$pnode -> setAttribute ("description","$desc");
+						$scan -> appendChild ($pnode);
+					}
 				}
 				last SWITCH;
 			};
 		}
 	}
+	#==========================================
+	# Cleanup mount list
+	#------------------------------------------
 	cleanMount();
+	#==========================================
+	# print scan results
+	#------------------------------------------
+	open (my $F, "|xsltproc $main::Pretty -");
+	print $F $scan->toString();
+	close $F;
 	exit 0;
 }
 
