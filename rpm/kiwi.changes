@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Apr 15 11:31:10 CEST 2010 - ms@suse.de
+
+- fixed info module to work with loop media like iso://
+- added package version and architecture information when
+  requesting the solved packages list via --info
+
+-------------------------------------------------------------------
 Mon Apr 12 10:26:46 CEST 2010 - ug@suse.de
 
 - calling mkinitrd in netboot image doesn't work 

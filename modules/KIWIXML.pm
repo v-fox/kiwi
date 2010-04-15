@@ -473,6 +473,7 @@ sub createURLList {
 	my $kiwi = $this->{kiwi};
 	my %repository  = ();
 	my @urllist     = ();
+	my %urlhash     = ();
 	my @sourcelist  = ();
 	%repository = $this->getRepository();
 	if (! %repository) {
@@ -487,8 +488,10 @@ sub createURLList {
 		my $urlHandler  = new KIWIURL ($kiwi,undef);
 		my $publics_url = $urlHandler -> normalizePath ($source);
 		push (@urllist,$publics_url);
+		$urlhash{$source} = $publics_url;
 	}
 	$this->{urllist} = \@urllist;
+	$this->{urlhash} = \%urlhash;
 	return $this;
 }
 

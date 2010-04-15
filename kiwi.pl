@@ -1767,7 +1767,7 @@ sub listXMLInfo {
 		exit 1;
 	}
 	$kiwi -> info ("Reading image description [ListXMLInfo]...\n");
-	my $xml  = new KIWIXML ($kiwi,$listXMLInfo);
+	my $xml  = new KIWIXML ($kiwi,$listXMLInfo,undef,undef,\@Profiles);
 	if (! defined $xml) {
 		exit 1;
 	}
@@ -1796,6 +1796,40 @@ sub listXMLInfo {
 		);
 	}
 	#==========================================
+	# Setup loop sources
+	#------------------------------------------
+	my @mountlist = ();
+	if ($xml->{urlhash}) {
+		foreach my $source (keys %{$xml->{urlhash}}) {
+			#==========================================
+			# iso:// sources
+			#------------------------------------------
+			if ($source =~ /^iso:\/\/(.*)/) {
+				my $iso  = $1;
+				my $dir  = $xml->{urlhash}->{$source};
+				my $data = qxx ("mkdir -p $dir; mount -o loop $iso $dir 2>&1");
+				my $code = $? >> 8;
+				if ($code != 0) {
+					$kiwi -> failed ();
+					$kiwi -> error  ("Failed to loop mount ISO path: $data");
+					$kiwi -> failed ();
+					rmdir $dir;
+					exit 1;
+				}
+				push (@mountlist,$dir);
+			}
+		}
+	}
+	sub newCleanMount {
+		my @list = shift;
+		return sub {
+			foreach my $dir (@list) {
+				qxx ("umount $dir ; rmdir $dir 2>&1");
+			}
+		}
+	}
+	*cleanMount = newCleanMount (@mountlist);
+	#==========================================
 	# Walk through selection list
 	#------------------------------------------
 	foreach my $info (@listXMLInfoSelection) {
@@ -1808,6 +1842,7 @@ sub listXMLInfo {
 					($meta,$delete,$solfile,$satlist) = $xml->getInstallSize();
 					if (! $meta) {
 						$kiwi -> failed();
+						cleanMount();
 						exit 1;
 					}
 				}
@@ -1831,6 +1866,7 @@ sub listXMLInfo {
 						$xml->getInstallSize();
 					if (! $meta) {
 						$kiwi -> failed();
+						cleanMount();
 						exit 1;
 					}
 				}
@@ -1884,13 +1920,15 @@ sub listXMLInfo {
 						$xml->getInstallSize();
 					if (! $meta) {
 						$kiwi -> failed();
+						cleanMount();
 						exit 1;
 					}
 				}
 				my $size = 0;
 				my %meta = %{$meta};
 				foreach my $p (keys %meta) {
-					$size += $meta{$p};
+					my @metalist = split (/:/,$meta{$p});
+					$size += $metalist[0];
 				}
 				if ($size > 0) {
 					$kiwi->info ("Estimated root tree size: $size kB\n");
@@ -1899,7 +1937,8 @@ sub listXMLInfo {
 				if ($delete) {
 					foreach my $del (@{$delete}) {
 						if ($meta{$del}) {
-							$size += $meta{$del};
+							my @metalist = split (/:/,$meta{$del});
+							$size += $metalist[0];
 						}
 					}
 				}
@@ -1917,23 +1956,21 @@ sub listXMLInfo {
 						$xml->getInstallSize();
 					if (! $meta) {
 						$kiwi -> failed();
+						cleanMount();
 						exit 1;
 					}
 				}
-				my @packs;
-				my @solved = @{$solp};
-				foreach my $s (@solved) {
-					if ($s =~ /pattern:.*/) {
-						next;
-					}
-					push (@packs,$s);
-				}
-				if (! @packs) {
-					$kiwi -> info ("No packages solved\n");
+				if (! keys %{$meta}) {
+					$kiwi -> info ("No packages/patterns solved\n");
 				} else {
-					$kiwi -> info ("Image Packages:\n");
-					foreach my $package (@packs) {
-						$kiwi -> info ("--> $package\n");
+					$kiwi -> info ("Image Packages:\n\n");
+					foreach my $p (sort keys %{$meta}) {
+						if ($p =~ /pattern:.*/) {
+							next;
+						}
+						my @m = split (/:/,$meta->{$p});
+						my $l = sprintf ("=> %-20s | %-8s | %s",$p,$m[1],$m[2]);
+						$kiwi -> note ("$l\n");
 					}
 				}
 				last SWITCH;
@@ -1955,6 +1992,7 @@ sub listXMLInfo {
 			};
 		}
 	}
+	cleanMount();
 	exit 0;
 }
 
