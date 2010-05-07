@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri May  7 10:11:26 CEST 2010 - ms@suse.de
+
+- fixed mkinitrd call, check if the option -B exists and
+  don't pass it if it doesn't (bnc #603338)
+
+-------------------------------------------------------------------
 Wed Apr 28 17:56:36 CEST 2010 - ms@suse.de
 
 - don't use --follow-symlinks for iso type if old live iso
