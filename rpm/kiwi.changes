@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Mon May 10 10:54:48 CEST 2010 - ms@suse.de
+
+- image size calculation fixes:
+  * fixed size calculation in KIWIBoot.pm which did not take
+    the journal size into account
+  * minimum journal size set to 12 MB
+  * spare space set to 1.5 (former 1.3)
+  * min inode count is twice times the file count
+  All this is for bug (bnc #587361)
+
+-------------------------------------------------------------------
 Fri May  7 11:45:46 CEST 2010 - ms@suse.de
 
 - fixed old live iso type (no flags set) to work again.

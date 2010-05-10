@@ -287,7 +287,8 @@ sub new {
 		my $minInodes;
 		my $sizeXMLBytes = 0;
 		my $cmdlBytes    = 0;
-		my $spare        = 1.3;
+		my $spare        = 1.5;
+		my $journal      = 12 * 1024 * 1024;
 		#==========================================
 		# Calculate minimum size of the system
 		#------------------------------------------
@@ -295,9 +296,12 @@ sub new {
 			# System is specified as a directory...
 			$minInodes = qxx ("find $system | wc -l");
 			$sizeBytes = qxx ("du -s --block-size=1 $system | cut -f1");
+			chomp $minInodes;
 			chomp $sizeBytes;
+			$minInodes*= 2;
 			$sizeBytes+= $minInodes * $main::FSInodeSize;
 			$sizeBytes*= $spare;
+			$sizeBytes+= $journal;
 		} else {
 			# system is specified as a file...
 			$sizeBytes = -s $system;
@@ -347,7 +351,7 @@ sub new {
 			# ----
 			$this->{inodes} = int ($sizeBytes / $main::FSInodeRatio);
 			$kiwi -> loginfo (
-				"Using ".$this->{inodes}." for the root filesystem\n"
+				"Using ".$this->{inodes}." inodes for the root filesystem\n"
 			);
 		}
 		#==========================================
