@@ -193,6 +193,7 @@ sub new {
 	$this->{kiwi}            = $kiwi;
 	$this->{foreignRepo}     = $foreignRepo;
 	$this->{optionsNodeList} = $optionsNodeList;
+	$this->{imgnameNodeList} = $imgnameNodeList;
 	$this->{systemTree}      = $systemTree;
 	#==========================================
 	# Add default split section if not defined
@@ -362,10 +363,18 @@ sub new {
 			$this -> setForeignOptionsElement ("oem-recoveryID");
 		}
 		#==========================================
-		# foreign attributes
+		# foreign type attributes
 		#------------------------------------------
 		if (defined $foreignRepo->{"hybrid"}) {
 			$this -> setForeignTypeAttribute ("hybrid");
+		}
+		#==========================================
+		# foreign image attributes
+		#------------------------------------------
+		if (defined $foreignRepo->{"displayname"}) {
+			$this -> setForeignImageAttribute (
+				"displayname",$foreignRepo->{"displayname"}
+			);
 		}
 	}
 	#==========================================
@@ -377,7 +386,6 @@ sub new {
 	$this->{usrdataNodeList}    = $usrdataNodeList;
 	$this->{repositNodeList}    = $repositNodeList;
 	$this->{packageNodeList}    = $packageNodeList;
-	$this->{imgnameNodeList}    = $imgnameNodeList;
 	$this->{deploysNodeList}    = $deploysNodeList;
 	$this->{splitNodeList}      = $splitNodeList;
 	$this->{instsrcNodeList}    = $instsrcNodeList;
@@ -1184,6 +1192,29 @@ sub setForeignTypeAttribute {
 		}
 		$kiwi -> done ();
 	}
+	return $this;
+}
+
+#==========================================
+# setForeignImageAttribute
+#------------------------------------------
+sub setForeignImageAttribute {
+	# ...
+	# set given attribute to the image section
+	# ---
+	my $this = shift;
+	my $attr = shift;
+	my $val  = shift;
+	my $kiwi = $this->{kiwi};
+	my $inode= $this->{imgnameNodeList} -> get_node(1);
+	$kiwi -> info ("Including foreign image attribute: $attr");
+	if ($val) {
+		$inode -> setAttribute ("$attr","$val");
+	} else {
+		$inode -> setAttribute ("$attr","true");
+	}
+	$kiwi -> done ();
+	$this -> updateXML();
 	return $this;
 }
 
@@ -2184,6 +2215,7 @@ sub getImageConfig {
 	my $iver = getImageVersion ($this);
 	my $size = getImageSize    ($this);
 	my $name = getImageName    ($this);
+	my $dname= getImageDisplayName ($this);
 	if (@delp) {
 		$result{kiwi_delete} = join(" ",@delp);
 	}
@@ -2207,6 +2239,9 @@ sub getImageConfig {
 	}
 	if ($name) {
 		$result{kiwi_iname} = $name;
+	}
+	if ($dname) {
+		$result{kiwi_displayname} = $dname;
 	}
 	if ($iver) {
 		$result{kiwi_iversion} = $iver;

@@ -939,6 +939,12 @@ function setupBootLoaderSyslinux {
 		importFile < /.profile
 	fi
 	#======================================
+	# check for bootloader displayname
+	#--------------------------------------
+	if [ -z "$kiwi_oemtitle" ] && [ ! -z "$kiwi_displayname" ];then
+		kiwi_oemtitle=$kiwi_displayname
+	fi
+	#======================================
 	# check for system image .profile
 	#--------------------------------------
 	if [ -f $mountPrefix/image/.profile ];then
@@ -1138,6 +1144,12 @@ function setupBootLoaderGrub {
 	#--------------------------------------
 	if [ -f $mountPrefix/image/.profile ];then
 		importFile < $mountPrefix/image/.profile
+	fi
+	#======================================
+	# check for bootloader displayname
+	#--------------------------------------
+	if [ -z "$kiwi_oemtitle" ] && [ ! -z "$kiwi_displayname" ];then
+		kiwi_oemtitle=$kiwi_displayname
 	fi
 	#======================================
 	# check for grub device
@@ -1386,6 +1398,12 @@ function setupBootLoaderLilo {
 	#--------------------------------------
 	if [ -f /.profile ];then
 		importFile < /.profile
+	fi
+	#======================================
+	# check for bootloader displayname
+	#--------------------------------------
+	if [ -z "$kiwi_oemtitle" ] && [ ! -z "$kiwi_displayname" ];then
+		kiwi_oemtitle=$kiwi_displayname
 	fi
 	#======================================
 	# check for system image .profile

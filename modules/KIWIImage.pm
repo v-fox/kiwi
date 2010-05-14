@@ -1015,6 +1015,7 @@ sub createImageUSB {
 	$main::ForeignRepo{"oem-reboot"}     = $xml -> getOEMReboot();
 	$main::ForeignRepo{"oem-recovery"}   = $xml -> getOEMRecovery();
 	$main::ForeignRepo{"oem-recoveryID"} = $xml -> getOEMRecoveryID();
+	$main::ForeignRepo{"displayname"}    = $xml -> getImageDisplayName();
 	$main::ForeignRepo{"locale"}    = $xml -> getLocale();
 	$main::ForeignRepo{"boot-theme"}= $xml -> getBootTheme();
 	$main::ForeignRepo{"prepare"}   = $main::Prepare;
@@ -2824,6 +2825,7 @@ sub createImageSplit {
 	$main::ForeignRepo{"oem-reboot"}     = $xml -> getOEMReboot();
 	$main::ForeignRepo{"oem-recovery"}   = $xml -> getOEMRecovery();
 	$main::ForeignRepo{"oem-recoveryID"} = $xml -> getOEMRecoveryID();
+	$main::ForeignRepo{"displayname"}    = $xml -> getImageDisplayName();
 	$main::ForeignRepo{"locale"}    = $xml -> getLocale();
 	$main::ForeignRepo{"boot-theme"}= $xml -> getBootTheme();
 	$main::ForeignRepo{"prepare"}   = $main::Prepare;
