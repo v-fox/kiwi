@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Mon May 17 11:30:57 CEST 2010 - ms@suse.de
+
+- deactivate splash screen for initial deployment
+  in kiwi OEM boot images (bnc #600710)
+
+-------------------------------------------------------------------
 Fri May 14 16:53:52 CEST 2010 - ms@suse.de
 
 - added support for displayname for vmx type (bnc #605939)
