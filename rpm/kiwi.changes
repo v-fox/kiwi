@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue May 18 16:00:05 CEST 2010 - ms@suse.de
+
+- use tar command to copy overlay files which is more
+  error prune than the cp command (bnc #476117)
+
+-------------------------------------------------------------------
 Mon May 17 11:30:57 CEST 2010 - ms@suse.de
 
 - deactivate splash screen for initial deployment
