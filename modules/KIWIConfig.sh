@@ -30,7 +30,7 @@ function suseInsertService {
 	local service=$1
 	local result
 	while true;do
-		result=`/sbin/insserv $service 2>&1`
+		result=`/sbin/insserv $service 2>&1 | grep "^insserv: Service"`
 		if [ $? = 0 ];then
 			echo "Service $service inserted"
 			break
@@ -1424,3 +1424,5 @@ function suseRemovePackagesMarkedForDeletion {
 	rpm -e --nodeps \
 		$(rpm -q `baseGetPackagesForDeletion` | grep -v "is not installed")
 }
+
+# vim: set noexpandtab:
