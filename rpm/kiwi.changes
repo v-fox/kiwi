@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue May 25 16:39:44 CEST 2010 - ms@suse.de
+
+- fixed clicfs resize operation. The command is now based
+  on a 512 byte sector size value instead of a 4k filesystem block
+  size value which might be wrong depending on the size of the
+  filesystem (bnc #604646)
+
+-------------------------------------------------------------------
 Fri May 21 15:34:34 CEST 2010 - ug@suse.de
 
 - fixes endless building problem if function

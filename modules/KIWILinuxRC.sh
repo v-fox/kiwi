@@ -3680,7 +3680,7 @@ function mountSystemClicFS {
 	# mount root over clic
 	#--------------------------------------
 	size=`stat -c %s $roDir/fsdata.ext3`
-	size=$((size/4096))
+	size=$((size/512))
 	# we don't want reserved blocks...
 	tune2fs -m 0 $roDir/fsdata.ext3
 	# we don't want automatic filesystem check...
@@ -3689,7 +3689,7 @@ function mountSystemClicFS {
 		e2fsck -p $roDir/fsdata.ext3
 	fi
 	if [ $LOCAL_BOOT = "no" ];then
-		resize2fs $roDir/fsdata.ext3 $size
+		resize2fs $roDir/fsdata.ext3 $size"s"
 	fi
 	mount -o loop,noatime,nodiratime,errors=remount-ro,barrier=0 \
 		$roDir/fsdata.ext3 /mnt
