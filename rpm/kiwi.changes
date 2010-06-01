@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Jun  1 14:45:07 CEST 2010 - ms@suse.de
+
+- make sure boot image has enough space (bnc #610596)
+
+-------------------------------------------------------------------
 Mon May 31 15:52:17 CEST 2010 - ms@suse.de
 
 - don't touch modules in updates and weak-updates (bnc #609879)
