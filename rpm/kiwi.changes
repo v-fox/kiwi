@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Jun  2 16:03:33 CEST 2010 - ms@suse.de
+
+- fixed CDMountOption() to use blkid type check (bnc #610649)
+
+-------------------------------------------------------------------
 Tue Jun  1 14:45:07 CEST 2010 - ms@suse.de
 
 - make sure boot image has enough space (bnc #610596)
