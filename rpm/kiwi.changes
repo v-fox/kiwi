@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Jun  7 16:21:43 CEST 2010 - ms@suse.de
+
+- setup xencons only for domU setup (bnc #561635)
+
+-------------------------------------------------------------------
 Wed Jun  2 16:03:33 CEST 2010 - ms@suse.de
 
 - fixed CDMountOption() to use blkid type check (bnc #610649)
