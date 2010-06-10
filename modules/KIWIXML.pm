@@ -356,6 +356,9 @@ sub new {
 		if (defined $foreignRepo->{"oem-reboot"}) {
 			$this -> setForeignOptionsElement ("oem-reboot");
 		}
+		if (defined $foreignRepo->{"oem-dumphalt"}) {
+			$this -> setForeignOptionsElement ("oem-dumphalt");
+		}
 		if (defined $foreignRepo->{"oem-recovery"}) {
 			$this -> setForeignOptionsElement ("oem-recovery");
 		}
@@ -1367,6 +1370,22 @@ sub getOEMReboot {
 }
 
 #==========================================
+# getOEMDumpHalt
+#------------------------------------------
+sub getOEMDumpHalt {
+	# ...
+	# Obtain the oem-dumphalt value or return undef
+	# ---
+	my $this = shift;
+	my $node = $this -> getPreferencesNodeByTagName ("oem-dumphalt");
+	my $halt = $node -> getElementsByTagName ("oem-dumphalt");
+	if ((! defined $halt) || ("$halt" eq "")) {
+		return undef;
+	}
+	return $halt;
+}
+
+#==========================================
 # getOEMSwap
 #------------------------------------------
 sub getOEMSwap {
@@ -2293,6 +2312,7 @@ sub getImageConfig {
 		my $oemkboot = $element -> getElementsByTagName ("oem-kiwi-initrd");
 		my $oemsap   = $element -> getElementsByTagName ("oem-sap-install");
 		my $oemreboot= $element -> getElementsByTagName ("oem-reboot");
+		my $oemhalt  = $element -> getElementsByTagName ("oem-dumphalt");
 		my $oemreco  = $element -> getElementsByTagName ("oem-recovery");
 		my $oemrecoid= $element -> getElementsByTagName ("oem-recoveryID");
 		if ((defined $keytable) && ("$keytable" ne "")) {
@@ -2329,6 +2349,9 @@ sub getImageConfig {
 		}
 		if ((defined $oemreboot) && ("$oemreboot" eq "true")) {
 			$result{kiwi_oemreboot} = $oemreboot;
+		}
+		if ((defined $oemhalt) && ("$oemhalt" eq "true")) {
+			$result{kiwi_oemdumphalt} = $oemhalt;
 		}
 		if ((defined $oemreco) && ("$oemreco" eq "true")) {
 			$result{kiwi_oemrecovery} = $oemreco;

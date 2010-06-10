@@ -335,4 +335,18 @@ function OEMInstall {
 	export imageDiskExclude=$instDisk
 	export imageDiskDevice=$imageDevice
 	unset stickSerial
+	#======================================
+	# Check for halt request
+	#--------------------------------------
+	if [ ! -z "$OEM_DUMPHALT" ];then
+		if [ "$OEMInstallType" = "CD" ];then
+			Echo "Please remove the CD/DVD and press enter for reboot !"
+			read
+			CDEject
+		else
+			Echo "Please unplug the USB stick and press enter for reboot !"
+			read
+		fi
+		exec /sbin/reboot -f -i
+	fi
 }

@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Jun 10 10:03:32 CEST 2010 - ms@suse.de
+
+- added oem-dumphalt element which reboots the system after
+  the image was dumped (installed) on the target device. A message
+  appears and the system waits for a key event before reboot
+
+-------------------------------------------------------------------
 Mon Jun  7 16:21:43 CEST 2010 - ms@suse.de
 
 - setup xencons only for domU setup (bnc #561635)
