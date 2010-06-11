@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Jun 11 09:50:34 CEST 2010 - ug@suse.de
+
+- kiwi overwrites /etc/sysconfig/firstboot (bnc#604705)
+
+-------------------------------------------------------------------
 Thu Jun 10 10:03:32 CEST 2010 - ms@suse.de
 
 - added oem-dumphalt element which reboots the system after
