@@ -340,14 +340,6 @@ function OEMInstall {
 	#--------------------------------------
 	if [ ! -z "$OEM_RECOVERY_INPLACE" ];then
 		setupInitialDeviceNames
-		probeFileSystem $imageRootDevice
-		Echo "Resize $FSTYPE filesystem to full partition space..."
-		luksResize $imageRootDevice
-		if [ "$FSTYPE" = "reiserfs" ];then
-			resize_reiserfs -q $imageRootDevice
-		else
-			resize2fs -f -F -p $imageRootDevice
-		fi
 		if ! mountSystem $imageRootDevice;then
 			systemException "Failed to mount root filesystem" "reboot"
 		fi
