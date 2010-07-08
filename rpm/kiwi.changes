@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Jul  8 10:33:39 CEST 2010 - ms@suse.de
+
+- added oem-inplace-recovery option which allows creation
+  of the recovery tarball at first deployment instead of
+  creating the tarball and store it inside the image (bnc #620777)
+
+-------------------------------------------------------------------
 Thu Jul  8 09:57:16 CEST 2010 - ms@suse.de
 
 - fixed this path evaluation (bnc #619482)

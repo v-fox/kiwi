@@ -81,13 +81,14 @@ sub new {
 # setupRecoveryArchive
 #------------------------------------------
 sub setupRecoveryArchive {
-	my $this  = shift;
-	my $fstype= shift;
-	my $kiwi  = $this->{kiwi};
-	my $dest  = $this->{imageDest};
-	my $xml   = $this->{xml};
-	my $root  = $this->{root};
-	my $start = $xml -> getOEMRecovery();
+	my $this    = shift;
+	my $fstype  = shift;
+	my $kiwi    = $this->{kiwi};
+	my $dest    = $this->{imageDest};
+	my $xml     = $this->{xml};
+	my $root    = $this->{root};
+	my $start   = $xml -> getOEMRecovery();
+	my $inplace = $xml -> getOEMRecoveryInPlace();
 	my $FD;
 	if ((! defined $start) || ("$start" eq "false")) {
 		return $this;
@@ -98,6 +99,9 @@ sub setupRecoveryArchive {
 		return undef;
 	}
 	$kiwi -> info ("Creating recovery archive...");
+	#==========================================
+	# Create tar archive from root tree .tar
+	#------------------------------------------
 	my $topts  = "--numeric-owner -czpf";
 	my $excld  = "--exclude ./dev --exclude ./proc --exclude ./sys";
 	my $status = qxx (
@@ -110,6 +114,9 @@ sub setupRecoveryArchive {
 		$kiwi -> error  ("Failed to create recovery archive: $status");
 		return undef;
 	}
+	#==========================================
+	# Create file count information
+	#------------------------------------------
 	$status = qxx (
 		"tar -tf $root/recovery.tar.gz | wc -l > $root/recovery.tar.files"
 	);
@@ -119,6 +126,23 @@ sub setupRecoveryArchive {
 		$kiwi -> error  ("Failed to create recovery file count: $status");
 		return undef;
 	}
+	#==========================================
+	# Create recovery partition size info
+	#------------------------------------------
+	if (! open ($FD,">$root/recovery.partition.size")) {
+		$kiwi -> failed ();
+		$kiwi -> error  ("Failed to create recovery partition size info: $!");
+		return undef;
+	}
+	my $psize = -s "$root/recovery.tar.gz";
+	$psize /= 1048576;
+	$psize += 100;
+	$psize = sprintf ("%.0f", $psize);
+	print $FD $psize;
+	close $FD;
+	#==========================================
+	# Create destination filesystem information
+	#------------------------------------------
 	if (! open ($FD,">$root/recovery.tar.filesystem")) {
 		$kiwi -> failed ();
 		$kiwi -> error  ("Failed to create recovery filesystem info: $!");
@@ -126,6 +150,12 @@ sub setupRecoveryArchive {
 	}
 	print $FD $fstype;
 	close $FD;
+	#==========================================
+	# Remove tarball for later recreation
+	#------------------------------------------
+	if (defined $inplace) {
+		qxx ("rm -f $root/recovery.tar.gz 2>&1");
+	}
 	$kiwi -> done ();
 	return $this;
 }

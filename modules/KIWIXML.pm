@@ -365,6 +365,9 @@ sub new {
 		if (defined $foreignRepo->{"oem-recoveryID"}) {
 			$this -> setForeignOptionsElement ("oem-recoveryID");
 		}
+		if (defined $foreignRepo->{"oem-inplace-recovery"}) {
+			$this -> setForeignOptionsElement ("oem-inplace-recovery");
+		}
 		#==========================================
 		# foreign type attributes
 		#------------------------------------------
@@ -1434,6 +1437,22 @@ sub getOEMRecoveryID {
 }
 
 #==========================================
+# getOEMRecoveryInPlace
+#------------------------------------------
+sub getOEMRecoveryInPlace {
+	# ...
+	# Obtain the oem-inplace-recovery value or return undef
+	# ---
+	my $this = shift;
+	my $node = $this -> getPreferencesNodeByTagName ("oem-inplace-recovery");
+	my $inplace = $node -> getElementsByTagName ("oem-inplace-recovery");
+	if ((! defined $inplace) || ("$inplace" eq "")) {
+		return undef;
+	}
+	return $inplace;
+}
+
+#==========================================
 # getOEMHome
 #------------------------------------------
 sub getOEMHome {
@@ -2315,6 +2334,7 @@ sub getImageConfig {
 		my $oemhalt  = $element -> getElementsByTagName ("oem-dumphalt");
 		my $oemreco  = $element -> getElementsByTagName ("oem-recovery");
 		my $oemrecoid= $element -> getElementsByTagName ("oem-recoveryID");
+		my $inplace  = $element -> getElementsByTagName ("oem-inplace-recovery");
 		if ((defined $keytable) && ("$keytable" ne "")) {
 			$result{kiwi_keytable} = $keytable;
 		}
@@ -2358,6 +2378,9 @@ sub getImageConfig {
 		}
 		if ((defined $oemrecoid) && ("$oemrecoid" ne "")) {
 			$result{kiwi_oemrecoveryID} = $oemrecoid;
+		}
+		if ((defined $inplace) && ("$inplace" eq "true")) {
+			$result{kiwi_oemrecoveryInPlace} = $inplace;
 		}
 	}
 	#==========================================
