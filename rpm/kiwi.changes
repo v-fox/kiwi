@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Jul  8 09:57:16 CEST 2010 - ms@suse.de
+
+- fixed this path evaluation (bnc #619482)
+
+-------------------------------------------------------------------
 Fri Jun 11 09:50:34 CEST 2010 - ug@suse.de
 
 - kiwi overwrites /etc/sysconfig/firstboot (bnc#604705)
