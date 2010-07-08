@@ -336,6 +336,47 @@ function OEMInstall {
 	export imageDiskDevice=$imageDevice
 	unset stickSerial
 	#======================================
+	# create recovery archive if requested
+	#--------------------------------------
+	if [ ! -z "$OEM_RECOVERY_INPLACE" ];then
+		setupInitialDeviceNames
+		probeFileSystem $imageRootDevice
+		Echo "Resize $FSTYPE filesystem to full partition space..."
+		luksResize $imageRootDevice
+		if [ "$FSTYPE" = "reiserfs" ];then
+			resize_reiserfs -q $imageRootDevice
+		else
+			resize2fs -f -F -p $imageRootDevice
+		fi
+		if ! mountSystem $imageRootDevice;then
+			systemException "Failed to mount root filesystem" "reboot"
+		fi
+		if [ ! -f /mnt/recovery.partition.size ];then
+			systemException "Can't find recovery part size info" "reboot"
+		fi
+		recoMByte=$(cat /mnt/recovery.partition.size)
+		haveMByte=$(
+			df -B1M $imageRootDevice | tail -n 1 | column -t |\
+			sed -e s@"  "@:@g | cut -f 4 -d:
+		)
+		if [ "$haveMByte" -gt "$recoMByte" ];then
+			pushd /mnt
+			Echo "Creating recovery root tarball..."
+			touch recovery.tar.gz
+			tar --numeric-owner -czpf recovery.tar.gz . \
+				--exclude "./dev" \
+				--exclude "./proc" \
+				--exclude "./sys" \
+				--exclude "./recovery.*"
+			popd
+		else
+			Echo "Not enough space left to create recovery archive"
+			Echo "=> Warning: Postponed after repartitioning is done"
+			Echo "=> Warning: This moves the archive creation to first boot"
+		fi
+		umountSystem
+	fi
+	#======================================
 	# Check for halt request
 	#--------------------------------------
 	if [ ! -z "$OEM_DUMPHALT" ];then
