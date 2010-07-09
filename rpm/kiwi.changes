@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Jul  9 15:23:45 CEST 2010 - ms@suse.de
+
+- added volume label for recovery partition (bnc #618276)
+
+-------------------------------------------------------------------
 Thu Jul  8 15:22:16 CEST 2010 - ms@suse.de
 
 - moved in-place recovery file creation into suse-dump

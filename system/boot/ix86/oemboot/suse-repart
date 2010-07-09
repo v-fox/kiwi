@@ -812,7 +812,7 @@ function OEMRepart {
 	#--------------------------------------
 	if [ -z "$DONT_PARTITION" ] && [ -z "$OEM_WITHOUTHOME" ];then
 		Echo "Creating Home filesystem on $imageHomeDevice"
-		if ! mke2fs -T ext3 -j -q $imageHomeDevice >/dev/null 2>&1;then
+		if ! mke2fs -T ext3 -j -q $imageHomeDevice 1>&2;then
 			systemException "Failed to create Home filesystem" "reboot"
 		fi
 	fi
@@ -821,7 +821,7 @@ function OEMRepart {
 	#--------------------------------------
 	if [ -z "$DONT_PARTITION" ] && [ ! -z "$OEM_RECOVERY" ];then
 		Echo "Creating Recovery filesystem on $imageRecoveryDevice"
-		if ! mke2fs -T ext3 -j -q $imageRecoveryDevice >/dev/null 2>&1;then
+		if ! mke2fs -T ext2 -q -L recovery $imageRecoveryDevice 1>&2;then
 			systemException "Failed to create Recovery fs" "reboot"
 		fi
 	fi
