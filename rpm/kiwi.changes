@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Jul 15 11:25:24 CEST 2010 - ms@suse.de
+
+- fixed race condition resulting at times in message of not
+  finding the MBR and other times not finding the CD drive.
+
+-------------------------------------------------------------------
 Thu Jul 15 09:01:39 CEST 2010 - ms@suse.de
 
 - fixed type in getDeployTimeout function

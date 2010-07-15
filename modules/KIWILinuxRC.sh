@@ -2057,6 +2057,7 @@ function probeDevices {
 	for i in rd brd edd dm-mod xennet xenblk;do
 		modprobe $i &>/dev/null
 	done
+	udevPending
 }
 #======================================
 # CDDevice
