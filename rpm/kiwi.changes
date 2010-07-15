@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Jul 15 09:01:39 CEST 2010 - ms@suse.de
+
+- fixed type in getDeployTimeout function
+
+-------------------------------------------------------------------
 Tue Jul 13 12:44:57 CEST 2010 - ms@suse.de
 
 - remove unneeded initrd.vmx and linux.vmx files _before_

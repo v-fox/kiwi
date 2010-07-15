@@ -998,7 +998,7 @@ sub getDeployTimeout {
 	# Get the boot timeout, if specified
 	# ---
 	my $this = shift;
-	my $node = $this->{pxedeployNodeList} -> get_node(1);
+	my $node = $this->{deploysNodeList} -> get_node(1);
 	my $timeout = $node -> getElementsByTagName ("timeout");
 	if ((defined $timeout) && ! ("$timeout" eq "")) {
 		return $timeout;
