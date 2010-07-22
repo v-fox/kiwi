@@ -17,7 +17,7 @@
 		<oem-swap>false</oem-swap>
 		<oem-kiwi-initrd>true</oem-kiwi-initrd>
 		<oem-boot-title>USB</oem-boot-title>
-		<locale>en_US.UTF-8</locale>
+		<locale>en_US</locale>
 		<keytable>us.map.gz</keytable>
 		<timezone>Europe/Berlin</timezone>
 	</preferences>
