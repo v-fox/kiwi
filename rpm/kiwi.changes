@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Jul 26 17:29:52 CEST 2010 - ms@suse.de
+
+- fixed md5 file creation for clicfs images
+
+-------------------------------------------------------------------
 Thu Jul 22 10:01:39 CEST 2010 - ms@suse.de
 
 - fixed locale validation and documentation as well as
