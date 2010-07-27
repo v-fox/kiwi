@@ -1,5 +1,11 @@
 -------------------------------------------------------------------
-Mon Jul 26 17:17:48 CEST 2010 - ms@suse.de
+Tue Jul 27 07:23:38 CEST 2010 - ms@suse.de
+
+- don't create splash initrd if it already exists
+- fixed use of uninitialized value for $overlay
+
+-------------------------------------------------------------------
+Mon Jul 26 16:42:38 CEST 2010 - ms@suse.de
 
 - fixed setupBootPartition() to return with a bootid
   export in _any_ case. Default bootid is 1 (bnc #625379)
