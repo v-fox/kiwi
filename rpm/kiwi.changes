@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Jul 30 13:40:37 CEST 2010 - ms@suse.de
+
+- fixed build
+
+-------------------------------------------------------------------
 Thu Jul 29 11:01:08 CEST 2010 - ms@suse.de
 
 - fixed xslt conversion for schema v2.0 used by the
