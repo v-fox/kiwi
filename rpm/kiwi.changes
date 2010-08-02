@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Aug  2 15:45:21 CEST 2010 - ms@suse.de
+
+- added entire usb stack to initrd for SLE11 oemboot (bnc #627439)
+
+-------------------------------------------------------------------
 Fri Jul 30 13:40:37 CEST 2010 - ms@suse.de
 
 - fixed build
