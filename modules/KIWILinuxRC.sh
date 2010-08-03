@@ -4542,9 +4542,12 @@ function cleanImage {
 	#======================================
 	# don't call root filesystem check
 	#--------------------------------------
+	export ROOTFS_FSCK="0"
+	#======================================
+	# return early for special types
+	#--------------------------------------
 	if [ "$haveClicFS" = "yes" ];then
 		# FIXME: clicfs doesn't like this umount tricks
-		export ROOTFS_FSCK="0"
 		return
 	fi
 	#======================================
