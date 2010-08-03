@@ -4262,6 +4262,16 @@ sub getSize {
 			}
 			# convert MB to Byte
 			$xmlsize = $value * 1048576;
+			# check the size value with what kiwi thinks is the minimum
+			if ($xmlsize < $minsize) {
+				$kiwi -> warning (
+					"--> given xml size might be too small, using it anyhow !\n"
+				);
+				$kiwi -> warning (
+					"--> min size changed from $minsize to $xmlsize bytes\n"
+				);
+				$minsize = $xmlsize;
+			}
 		}
 	}
 	#==========================================
