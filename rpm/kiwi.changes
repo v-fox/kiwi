@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Aug  3 11:46:45 CEST 2010 - ms@suse.de
+
+- don't call root filesystem check for images (bnc #627021)
+
+-------------------------------------------------------------------
 Tue Aug  3 11:17:24 CEST 2010 - ms@suse.de
 
 - if a fixed xml size was set for a filesystem image we use if
