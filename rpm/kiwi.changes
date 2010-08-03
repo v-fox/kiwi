@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Tue Aug  3 14:00:45 CEST 2010 - ms@suse.de
+
+- fixed repartition code for fdisk (SLE10) (bnc #627807)
+- reverted last change:
+  don't call root filesystem check for images (bnc #627021)
+  this causes the fs to remount read-only on newer versions
+  if suse; what a crappy reaction
+
+-------------------------------------------------------------------
 Tue Aug  3 11:46:45 CEST 2010 - ms@suse.de
 
 - don't call root filesystem check for images (bnc #627021)
