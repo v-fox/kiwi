@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Aug  3 13:56:17 CEST 2010 - ms@suse.de
+
+- reverted last change:
+  don't call root filesystem check for images (bnc #627021)
+  this causes the fs to remount read-only on newer
+  versions of suse
+
+-------------------------------------------------------------------
 Tue Aug  3 11:53:57 CEST 2010 - ms@suse.de
 
 - don't call root filesystem check for images (bnc #627021)
