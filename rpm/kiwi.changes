@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Aug  4 10:00:12 CEST 2010 - ms@suse.de
+
+- fixed license display problem when no localized license files
+  exist but a license.txt file does
+
+-------------------------------------------------------------------
 Tue Aug  3 14:00:45 CEST 2010 - ms@suse.de
 
 - fixed repartition code for fdisk (SLE10) (bnc #627807)
