@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Wed Aug  4 15:08:15 CEST 2010 - ms@suse.de
+
+- don't check the return value of the e2fsck call. If the
+  filesystem check was forced for example by a wrong system
+  clock the check runs successfully but the return value is
+  not zero.
+
+-------------------------------------------------------------------
 Wed Aug  4 10:00:12 CEST 2010 - ms@suse.de
 
 - fixed license display problem when no localized license files
