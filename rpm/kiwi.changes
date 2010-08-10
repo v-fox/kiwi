@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Tue Aug 10 15:42:08 CEST 2010 - ms@suse.de
+
+- added acpi modules to kiwi's oemboot initrd. This is required
+  mostly for fan control on laptops and therefore very important
+  for the preload images running on laptops to prevent overheating
+  of the devices (bnc #623607)
+
+-------------------------------------------------------------------
 Tue Aug  3 13:56:17 CEST 2010 - ms@suse.de
 
 - reverted last change:
