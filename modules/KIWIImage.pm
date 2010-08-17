@@ -979,6 +979,9 @@ sub createImageUSB {
 	if ($type{bootloader}) {
 		$main::ForeignRepo{"bootloader"} = $type{bootloader};
 	}
+	if ($type{installboot}) {
+		$main::ForeignRepo{"installboot"} = $type{installboot};
+	}
 	$main::ForeignRepo{"xmlnode"} = $xml -> getForeignNodeList();
 	$main::ForeignRepo{"xmlpacnode"} = $xml -> getForeignPackageNodeList();
 	$main::ForeignRepo{"packagemanager"} = $xml -> getPackageManager();
@@ -2798,6 +2801,9 @@ sub createImageSplit {
 	}
 	if ($type{bootloader}) {
 		$main::ForeignRepo{"bootloader"} = $type{bootloader};
+	}
+	if ($type{installboot}) {
+		$main::ForeignRepo{"installboot"} = $type{installboot};
 	}
 	$main::ForeignRepo{"xmlnode"} = $xml -> getForeignNodeList();
 	$main::ForeignRepo{"xmlpacnode"} = $xml -> getForeignPackageNodeList();
