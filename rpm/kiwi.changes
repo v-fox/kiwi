@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Aug 13 14:24:25 CEST 2010 - ms@suse.de
+
+- disable filesystem check for kiwi managed partitions
+  by resetting the mount counter using using tune2fs
+  (bnc #627021)
+
+-------------------------------------------------------------------
 Tue Aug 10 15:42:08 CEST 2010 - ms@suse.de
 
 - added acpi modules to kiwi's oemboot initrd. This is required
