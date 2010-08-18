@@ -156,6 +156,7 @@
 		<package name="iputils"/>
 		<package name="atftp"/>
 		<package name="busybox"/>
+		<package name="atftp"/>
 		<package name="bind-libs"/>
 		<package name="bind-utils"/>
 		<package name="dhcpcd"/>
@@ -184,6 +185,7 @@
 		<package name="iputils"/>
 		<package name="atftp"/>
 		<package name="busybox"/>
+		<package name="atftp"/>
 		<package name="dhcpcd"/>
 		<package name="file"/>
 		<package name="hwinfo"/>
