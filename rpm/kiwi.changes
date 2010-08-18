@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Aug 18 14:42:29 CEST 2010 - ms@suse.de
+
+- fixed convert39to41.xsl schema conversion. The attributes
+  for the conversion from <deploy> to <pxedeploy> were missing
+
+-------------------------------------------------------------------
 Wed Aug 18 11:47:49 CEST 2010 - ms@suse.de
 
 - fixed shell exception handling after the move mount of
