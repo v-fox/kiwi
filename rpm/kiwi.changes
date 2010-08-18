@@ -1,4 +1,25 @@
 -------------------------------------------------------------------
+Wed Aug 18 11:47:49 CEST 2010 - ms@suse.de
+
+- fixed shell exception handling after the move mount of
+  devices. In that cases the tty devices are in /mnt/dev and
+  therefore any shell exception failed because the setctsid
+  call can't find the device. This is now fixed (bnc #608620)
+- fixed netboot building by providing atftp for SLE11 (bnc #632203)
+- added support for selecting the default boot entry for a
+  kiwi install image. The optional <type> attribute called
+  installboot can take the values 'install' for standard
+  installation, 'failsafe-install' for installation with
+  failsafe kernel parameters and 'harddisk' which is the
+  default anyway if no installboot attribute was
+  given (bnc #624228)
+- deactivate the filesystem check for initial boot
+  by resetting the mount counter. The function called
+  resetMountCounter() handles this and also checks
+  the filesystem type to be able to distinguish different
+  filesystem tools for the operation (bnc #627021)
+
+-------------------------------------------------------------------
 Wed Aug  4 15:08:15 CEST 2010 - ms@suse.de
 
 - don't check the return value of the e2fsck call. If the
