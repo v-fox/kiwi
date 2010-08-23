@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Aug 23 11:58:57 CEST 2010 - ms@suse.de
+
+- don't use mkclicfs from image root tree. That will fail in
+  any case where the image buildsystem libraries doesn't match
+  the ones required by the mkclicfs binary inside the root tree
+
+-------------------------------------------------------------------
 Wed Aug 18 14:42:29 CEST 2010 - ms@suse.de
 
 - fixed convert39to41.xsl schema conversion. The attributes
