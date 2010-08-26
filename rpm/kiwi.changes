@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Aug 26 13:51:57 CEST 2010 - ms@suse.de
+
+- allow setup of HWCLOCK in /etc/sysconfig/clock via the
+  preferences element <hwclock>utc|localtime</hwclock> (bnc #624651)
+
+-------------------------------------------------------------------
 Mon Aug 23 11:58:57 CEST 2010 - ms@suse.de
 
 - don't use mkclicfs from image root tree. That will fail in
