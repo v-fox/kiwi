@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Aug 26 14:56:00 CEST 2010 - ms@suse.de
+
+- fixed convert39to41.xsl to insert xenconfig and vmwareconfig
+  sections also for iso image type
+
+-------------------------------------------------------------------
 Thu Aug 26 13:51:57 CEST 2010 - ms@suse.de
 
 - allow setup of HWCLOCK in /etc/sysconfig/clock via the
