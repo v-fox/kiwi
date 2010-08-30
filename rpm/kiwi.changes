@@ -1,4 +1,15 @@
 -------------------------------------------------------------------
+Mon Aug 30 11:07:48 CEST 2010 - ms@suse.de
+
+- don't call the grub binary from the image this could lead
+  to problems when the grub binary is linked against a library
+  which doesn't exist on the build machine. Therefore we use
+  the grub binary installed on the build machine (kiwi requires
+  grub for vmx and oem now) and bind mount the grub stage
+  files in boot/grub from the image to the build machine
+  while grub is called (bnc #635084)
+
+-------------------------------------------------------------------
 Thu Aug 26 14:56:00 CEST 2010 - ms@suse.de
 
 - fixed convert39to41.xsl to insert xenconfig and vmwareconfig
