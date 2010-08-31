@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Aug 31 16:01:05 CEST 2010 - ms@suse.de
+
+- LVM: added 1% spare space for each volume to store the metadata
+- fixed check for boot sector inclusion
+
+-------------------------------------------------------------------
 Mon Aug 30 11:07:48 CEST 2010 - ms@suse.de
 
 - don't call the grub binary from the image this could lead
