@@ -1,4 +1,16 @@
 -------------------------------------------------------------------
+Thu Sep  2 11:45:17 CEST 2010 - ms@suse.de
+
+- added check for dhcpcd options. On sle10 we don't have
+  the options -p or --noipv4ll (bnc #636121)
+- call dhcpcd with the option --noipv4ll to be able to check the
+  return code of dhcpcd and to prevent the interface from an ip address
+  if there was a DHCP timeout (bnc #634057)
+- don't check the return code of dhcpcd it's always zero.
+  Therefore the check has been changed to check for the creation
+  of the /var/lib/dhcpcd/dhcpcd-$PXE_IFACE.info file (bnc #634057)
+
+-------------------------------------------------------------------
 Tue Aug 31 16:01:05 CEST 2010 - ms@suse.de
 
 - LVM: added 1% spare space for each volume to store the metadata
