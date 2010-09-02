@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Sep  2 12:16:13 CEST 2010 - ms@suse.de
+
+- added check for dhcpcd options. On sle10 we don't have
+  the options -p or --noipv4ll (bnc #636121)
+
+-------------------------------------------------------------------
 Fri Aug 13 14:24:25 CEST 2010 - ms@suse.de
 
 - disable filesystem check for kiwi managed partitions

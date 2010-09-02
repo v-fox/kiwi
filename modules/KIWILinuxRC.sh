@@ -39,6 +39,11 @@ test -z "$TERM"               && export TERM=linux
 test -z "$LANG"               && export LANG=en_US.utf8
 test -z "$UTIMER"             && export UTIMER=0
 test -z "$VGROUP"             && export VGROUP=kiwiVG
+test -z "$DHCPCD_HAVE_PERSIST"&& export DHCPCD_HAVE_PERSIST=1
+
+if dhcpcd -p 2>&1 | grep -q 'Usage';then
+	export DHCPCD_HAVE_PERSIST=0
+fi
 
 #======================================
 # Dialog
@@ -2584,6 +2589,7 @@ function setupNetwork {
 	local index=0
 	local hwicmd=/usr/sbin/hwinfo
 	local iface=eth0
+	local opts="--noipv4ll -p"
 	for i in `$hwicmd --netcard`;do
 		IFS=$IFS_ORIG
 		if echo $i | grep -q "HW Address:";then
@@ -2620,8 +2626,14 @@ function setupNetwork {
 		done
 	fi
 	export PXE_IFACE=$iface
-	dhcpcd -p $PXE_IFACE 1>&2
-	if test $? != 0;then
+	if $DHCPCD_HAVE_PERSIST -eq 0;then
+		# /.../
+		# older version of dhcpd which doesn't have the
+		# options we want to pass
+		# ----
+		unset opts
+	fi
+	if ! dhcpcd $opts $PXE_IFACE 1>&2;then
 		systemException \
 			"Failed to setup DHCP network interface !" \
 		"reboot"
