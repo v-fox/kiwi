@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Sep  9 13:17:28 CEST 2010 - ms@suse.de
+
+- fixed suseSetupProduct looking for a SUSE_ prefix too (bnc #637996)
+
+-------------------------------------------------------------------
 Thu Sep  2 12:16:13 CEST 2010 - ms@suse.de
 
 - added check for dhcpcd options. On sle10 we don't have
