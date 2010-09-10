@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Fri Sep 10 16:33:44 CEST 2010 - ms@suse.de
+
+- added 'rt' profile for oemboot pointing to kernel-rt (bnc #638512)
+
+-------------------------------------------------------------------
 Fri Sep 10 16:21:46 CEST 2010 - ms@suse.de
 
 - fixed disk increase per LVM volume (bnc #587361)
