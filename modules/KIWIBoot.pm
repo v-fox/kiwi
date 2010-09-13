@@ -2430,7 +2430,7 @@ sub setupBootDisk {
 				#------------------------------------------
 				if ($haveAbsolute) {
 					$vmsize = $this->{vmmbyte} + 30 + $diff;
-					$vmsize = sprintf ("%.0f", $vmsize * 1.05);
+					$vmsize = sprintf ("%.0f", $vmsize);
 				} else {
 					$vmsize = $this->{vmmbyte} + 30 + $space;
 					$vmsize = sprintf ("%.0f", $vmsize);
@@ -4727,7 +4727,7 @@ sub bindLoopDevice {
 sub getCylinderSizeAndCount {
 	# ...
 	# obtain cylinder size and count for the specified disk.
-	# The function returns the size in kB or zero on error
+	# The function returns the size in kB (10^3 B) or zero on error
 	# ---
 	my $this = shift;
 	my $disk = shift;
@@ -4789,7 +4789,7 @@ sub getCylinder {
 		return 0;
 	}
 	if ($size =~ /\+(.*)M$/) {
-		$cyls = sprintf ("%.0f",($size * 1024) / $csize);
+		$cyls = sprintf ("%.0f",($size * 1048576) / ($csize * 1000));
 	} else {
 		$cyls = $count;
 	}
