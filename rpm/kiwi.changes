@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Sep 14 15:34:25 CEST 2010 - ms@suse.de
+
+- added 'rt' kernel-rt profile for isoboot, netboot, usbboot
+  and vmxboot too (bnc #639217)
+
+-------------------------------------------------------------------
 Mon Sep 13 17:41:48 CEST 2010 - ms@suse.de
 
 - According to the documentation [1], parted uses SI prefixes when
