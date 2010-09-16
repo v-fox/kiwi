@@ -1256,7 +1256,7 @@ sub createImageXen {
 	my $kiwi = $this->{kiwi};
 	my $xml  = $this->{xml};
 	my %xenc = $xml  -> getXenConfig();
-	my $name = $this -> createImageUSB ($para,"Xen");
+	my $name = $this -> createImageUSB ($para,"XEN");
 	if (! defined $name) {
 		return undef;
 	}
