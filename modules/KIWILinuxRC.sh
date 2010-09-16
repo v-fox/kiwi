@@ -4592,10 +4592,6 @@ function cleanImage {
 		return
 	fi
 	#======================================
-	# umount non busy fstab listed entries
-	#--------------------------------------
-	umount -a &>/dev/null
-	#======================================
 	# umount LVM root parts lazy
 	#--------------------------------------
 	if [ "$haveLVM" = "yes" ]; then
