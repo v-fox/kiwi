@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Sep 16 15:26:19 CEST 2010 - ms@suse.de
+
+- removed umount -a call to prevent a read-only remount (bnc #635159)
+
+-------------------------------------------------------------------
 Tue Sep 14 15:34:25 CEST 2010 - ms@suse.de
 
 - added 'rt' kernel-rt profile for isoboot, netboot, usbboot
