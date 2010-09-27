@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Sep 27 12:51:47 CEST 2010 - ms@suse.de
+
+- fixed typo in DHCPCD option test
+
+-------------------------------------------------------------------
 Mon Sep 27 12:03:00 CEST 2010 - ms@suse.de
 
 - added support for partition alignment with fdisk. Thus support
