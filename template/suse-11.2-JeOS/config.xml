@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <image schemaversion="3.7" name="LimeJeOS-openSUSE-11.2">
-	<!-- Base Information -->
+<!-- Base Information -->
 	<description type="system">
 		<author>Marcus Schäfer</author>
 		<contact>ms@novell.com</contact>
@@ -10,12 +11,12 @@
 			distro by using zypper with the pre-defined repository 
 		</specification>
 	</description>
-	<!-- Profiles -->
+<!-- Profiles -->
 	<profiles>
 		<profile name="xenFlavour" description="VMX with Xen kernel"/>
 		<profile name="vmxFlavour" description="VMX with default kernel" import="true"/>
 	</profiles>
-	<!-- Image Type and Preferences -->
+<!-- Image Type and Preferences -->
 	<preferences>
 		<type primary="true" boot="isoboot/suse-11.2" flags="clic" hybrid="true">iso</type>
 		<version>1.11.2</version>
@@ -35,16 +36,16 @@
 	<preferences profiles="vmxFlavour">
 		<type filesystem="ext3" boot="vmxboot/suse-11.2" format="vmdk">vmx</type>
 		<type filesystem="ext3" boot="oemboot/suse-11.2" format="iso">oem</type>
-    </preferences>
-	<!-- Users setup -->
+	</preferences>
+<!-- Users setup -->
 	<users group="root">
 		<user pwd="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
 	</users>
-	<!-- Package Repositories -->
+<!-- Package Repositories -->
 	<repository type="yast2">
 		<source path="opensuse://11.2/repo/oss"/>
 	</repository>
-	<!-- Packages and Patterns -->
+<!-- Packages and Patterns -->
 	<packages type="image">
 		<package name="bootsplash-branding-openSUSE" bootinclude="true" bootdelete="true"/>
 		<package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>
@@ -69,7 +70,7 @@
 		<package name="cracklib-dict-full"/>
 		<package name="openssl-certs"/>
 	</packages>
-	<!-- Virtual Machine configurations -->
+<!-- Virtual Machine configurations -->
 	<vmwareconfig memory="512" guestOS="suse" HWversion="4">
 		<vmwaredisk controller="scsi" id="0"/>
 		<vmwarenic driver="e1000" interface="0" mode="bridged"/>

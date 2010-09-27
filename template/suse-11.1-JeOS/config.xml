@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <image schemaversion="3.7" name="LimeJeOS-openSUSE-11.1">
 	<description type="system">
 		<author>Christoph Thiel</author>
@@ -28,7 +29,6 @@
 		<type filesystem="ext3" boot="vmxboot/suse-11.1" format="vmdk">vmx</type>
 		<type filesystem="ext3" boot="oemboot/suse-11.1" format="iso">oem</type>
 	</preferences>
-
 	<users group="root">
 		<user pwd="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
 	</users>
@@ -84,8 +84,8 @@
 		<package name="glib2-branding-openSUSE"/>
 		<package name="bootsplash-branding-openSUSE" bootinclude="true" bootdelete="true"/>
 		<package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>
-		<!-- not on public media -->
-		<!--<package name="suse-build-key"/>-->
+<!-- not on public media -->
+<!--<package name="suse-build-key"/>-->
 	</packages>
 	<packages type="image" profiles="xenFlavour">
 		<package name="kernel-xen" replaces="kernel-default"/>

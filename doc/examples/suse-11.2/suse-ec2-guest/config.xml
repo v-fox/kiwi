@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <image schemaversion="3.7" name="suse-11.2-ec2-guest">
 	<description type="system">
 		<author>Marcus Schaefer</author>
@@ -17,7 +18,7 @@
 		<user pwd="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
 	</users>
 	<repository type="yast2">
-		<!--<source path="/image/CDs/full-11.2-i386"/>-->
+<!--<source path="/image/CDs/full-11.2-i386"/>-->
 		<source path="opensuse://11.2/repo/oss/"/>
 	</repository>
 	<packages type="image">
@@ -32,8 +33,7 @@
 		<package name="kernel-xen"/>
 		<package name="xen"/>
 	</packages>
-	<packages type="vmware">
-	</packages>
+	<packages type="vmware"/>
 	<xenconfig memory="512">
 		<xendisk device="/dev/sda"/>
 	</xenconfig>
@@ -41,7 +41,7 @@
 		<vmwaredisk controller="ide" id="0"/>
 	</vmwareconfig>
 	<packages type="bootstrap">
-		<package name="filesystem"/> 
+		<package name="filesystem"/>
 		<package name="glibc-locale"/>
 	</packages>
 </image>
