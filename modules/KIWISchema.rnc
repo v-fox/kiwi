@@ -936,6 +936,25 @@ div {
 }
 
 #==========================================
+# common element <oem-align-partition>
+#
+div {
+	k.oem-align-partition.content = xsd:boolean
+	k.oem-align-partition.attlist = empty
+	k.oem-align-partition =
+		## For oemboot driven images: Align partitions for 4k-sector HDD
+		[
+		db:para [
+			"For oemboot driven images: Align partitions for 4k-sector HDD"
+		]
+		]
+		element oem-align-partition {
+			k.oem-align-partition.attlist,
+			k.oem-align-partition.content
+		}
+}
+
+#==========================================
 # common element <oem-swap>
 #
 div {
@@ -2059,6 +2078,7 @@ div {
 			k.oem-recovery? &
 			k.oem-recoveryID? &
 			k.oem-inplace-recovery? &
+			k.oem-align-partition? &
 			k.oem-reboot? &
 			k.oem-dumphalt? &
 			k.packagemanager? &

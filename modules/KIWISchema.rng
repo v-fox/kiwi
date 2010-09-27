@@ -1338,6 +1338,27 @@ of the oem image</db:para>
   </div>
   <!--
     ==========================================
+    common element <oem-align-partition>
+    
+  -->
+  <div>
+    <define name="k.oem-align-partition.content">
+      <data type="boolean"/>
+    </define>
+    <define name="k.oem-align-partition.attlist">
+      <empty/>
+    </define>
+    <define name="k.oem-align-partition">
+      <element name="oem-align-partition">
+        <a:documentation>For oemboot driven images: Align partitions for 4k-sector HDD</a:documentation>
+        <db:para>For oemboot driven images: Align partitions for 4k-sector HDD</db:para>
+        <ref name="k.oem-align-partition.attlist"/>
+        <ref name="k.oem-align-partition.content"/>
+      </element>
+    </define>
+  </div>
+  <!--
+    ==========================================
     common element <oem-swap>
     
   -->
@@ -2999,6 +3020,9 @@ and also depends of the selected image output type.</db:para>
           </optional>
           <optional>
             <ref name="k.oem-inplace-recovery"/>
+          </optional>
+          <optional>
+            <ref name="k.oem-align-partition"/>
           </optional>
           <optional>
             <ref name="k.oem-reboot"/>

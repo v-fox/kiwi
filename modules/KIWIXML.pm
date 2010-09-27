@@ -335,6 +335,9 @@ sub new {
 		if (defined $foreignRepo->{"oem-swap"}) {
 			$this -> setForeignOptionsElement ("oem-swap");
 		}
+		if (defined $foreignRepo->{"oem-align-partition"}) {
+			$this -> setForeignOptionsElement ("oem-align-partition");
+		}
 		if (defined $foreignRepo->{"oem-swapsize"}) {
 			$this -> setForeignOptionsElement ("oem-swapsize");
 		}
@@ -1453,6 +1456,22 @@ sub getOEMRecoveryInPlace {
 }
 
 #==========================================
+# getOEMAlignPartition
+#------------------------------------------
+sub getOEMAlignPartition {
+	# ...
+	# Obtain the oem-align-partition value or return undef
+	# ---
+	my $this = shift;
+	my $node = $this -> getPreferencesNodeByTagName ("oem-align-partition");
+	my $palign = $node -> getElementsByTagName ("oem-align-partition");
+	if ((! defined $palign) || ("$palign" eq "")) {
+		return undef;
+	}
+	return $palign;
+}
+
+#==========================================
 # getOEMHome
 #------------------------------------------
 sub getOEMHome {
@@ -2326,6 +2345,7 @@ sub getImageConfig {
 		my $oemswapMB= $element -> getElementsByTagName ("oem-swapsize");
 		my $oemrootMB= $element -> getElementsByTagName ("oem-systemsize");
 		my $oemswap  = $element -> getElementsByTagName ("oem-swap");
+		my $oemalign = $element -> getElementsByTagName ("oem-align-partition");
 		my $oemhome  = $element -> getElementsByTagName ("oem-home");
 		my $oemtitle = $element -> getElementsByTagName ("oem-boot-title");
 		my $oemkboot = $element -> getElementsByTagName ("oem-kiwi-initrd");
@@ -2351,6 +2371,9 @@ sub getImageConfig {
 			$result{kiwi_oemswap} = "no";
 		} elsif ((defined $oemswapMB) && ("$oemswapMB" > 0)) {
 			$result{kiwi_oemswapMB} = $oemswapMB;
+		}
+		if ((defined $oemalign) && ("$oemalign" eq "true")) {
+			$result{kiwi_oemalign} = $oemalign;
 		}
 		if ((defined $oemhome) && ("$oemhome" eq "false")) {
 			$result{kiwi_oemhome} = "no";
