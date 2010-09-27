@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Sep 27 12:56:44 CEST 2010 - ms@suse.de
+
+- fixed typo in DHCPCD option test
+
+-------------------------------------------------------------------
 Thu Sep 16 15:26:19 CEST 2010 - ms@suse.de
 
 - removed umount -a call to prevent a read-only remount (bnc #635159)
