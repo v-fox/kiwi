@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Sep 30 14:42:58 CEST 2010 - ms@suse.de
+
+- fixed OEMRepartStandard(). Additionally to the last commit, fixed
+  the use of the suggested last cylinder for swap and recovery only
+  if no oem-systemsize is set
+
+-------------------------------------------------------------------
 Thu Sep 30 13:02:28 CEST 2010 - ms@suse.de
 
 - fixed OEMRepartStandard() to use the suggested last cylinder for
