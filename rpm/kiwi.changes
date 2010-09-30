@@ -1,4 +1,13 @@
 -------------------------------------------------------------------
+Thu Sep 30 13:02:28 CEST 2010 - ms@suse.de
+
+- fixed OEMRepartStandard() to use the suggested last cylinder for
+  the last partition to become created instead of a fixed value.
+  Also use the suggested last cylinder for the resize of the root
+  partition if there is no other partition to become created and
+  no oem-systemsize was specified
+
+-------------------------------------------------------------------
 Mon Sep 27 12:56:44 CEST 2010 - ms@suse.de
 
 - fixed typo in DHCPCD option test
