@@ -1,4 +1,16 @@
 -------------------------------------------------------------------
+Fri Oct  8 09:57:03 CEST 2010 - ms@suse.de
+
+- added vfb (virtual framebuffer configuration) to the xenconfig file
+  written by kiwi. This allows easy graphics console access with
+  the virt-viewer program. If you want to run the xen domU in text
+  mode you have to manually pass the option xencons=tty in the pygrub
+  boot menu
+- removed xencons boot option for domU creation in .xenconfig
+  and from the bootloader kernel options (bnc #644138)
+- call udevPending before checking /sys/bus/usb/devices
+
+-------------------------------------------------------------------
 Thu Sep 30 14:42:58 CEST 2010 - ms@suse.de
 
 - fixed OEMRepartStandard(). Additionally to the last commit, fixed
