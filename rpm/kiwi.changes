@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Oct 11 18:12:35 CEST 2010 - ms@suse.de
+
+- fixed use of satsolver if ensconce is used together with
+  pattern names. ensonce uses an already resolved manifest file
+  and thus it's not required to solve the patterns via
+  satsolver (bnc #643442)
+
+-------------------------------------------------------------------
 Fri Oct  8 09:57:03 CEST 2010 - ms@suse.de
 
 - added vfb (virtual framebuffer configuration) to the xenconfig file
