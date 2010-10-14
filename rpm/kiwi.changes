@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Oct 14 15:33:44 CEST 2010 - ms@suse.de
+
+- added setupConsole() function to activate xvc and/or hvc consoles
+  if their device nodes are present
+- fixed xenconfig creation, virtual framebuffer line wasn't written
+
+-------------------------------------------------------------------
 Mon Oct 11 18:12:35 CEST 2010 - ms@suse.de
 
 - fixed use of satsolver if ensconce is used together with
