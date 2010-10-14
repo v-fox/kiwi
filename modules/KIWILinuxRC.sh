@@ -1361,7 +1361,6 @@ function setupBootLoaderSyslinux {
 	local initrd=""
 	local title=""
 	local fbmode=$vga
-	local xencons=$xencons
 	if [ ! -z "$OEM_RECOVERY" ];then
 		local gdevreco=$recoid
 	fi
@@ -1488,8 +1487,10 @@ function setupBootLoaderSyslinux {
 				if [ ! -z "$swap" ];then
 					echo -n " resume=$swapByID"                >> $conf
 				fi
-				if [ ! -z "$xencons" ]; then
-					echo -n " xencons=$xencons"                >> $conf
+				if [ -e /dev/xvc0 ];then
+					echo -n " console=xvc console=tty"         >> $conf
+				elif [ -e /dev/hvc0 ];then
+					echo -n " console=hvc console=tty"         >> $conf
 				fi
 				echo -n " $KIWI_INITRD_PARAMS"                 >> $conf
 				echo -n " $KIWI_KERNEL_OPTIONS"                >> $conf
@@ -1519,8 +1520,10 @@ function setupBootLoaderSyslinux {
 				if [ ! -z "$swap" ];then
 					echo -n " resume=$swapByID"                >> $conf
 				fi
-				if [ ! -z "$xencons" ]; then
-					echo -n " xencons=$xencons"                >> $conf
+				if [ -e /dev/xvc0 ];then
+					echo -n " console=xvc console=tty"         >> $conf
+				elif [ -e /dev/hvc0 ];then
+					echo -n " console=hvc console=tty"         >> $conf
 				fi
 				echo -n " $KIWI_INITRD_PARAMS"                 >> $conf
 				echo -n " $KIWI_KERNEL_OPTIONS"                >> $conf
@@ -1589,7 +1592,6 @@ function setupBootLoaderGrub {
 	local title=""
 	local rdisk=""
 	local fbmode=$vga
-	local xencons=$xencons
 	if [ ! -z "$OEM_RECOVERY" ];then
 		local gdevreco=$(expr $recoid - 1)
 	fi
@@ -1700,8 +1702,10 @@ function setupBootLoaderGrub {
 				if [ ! -z "$swap" ];then
 					echo -n " resume=$swapByID"                   >> $menu
 				fi
-				if [ ! -z "$xencons" ]; then
-					echo -n " xencons=$xencons"                   >> $menu
+				if [ -e /dev/xvc0 ];then
+					echo -n " console=xvc console=tty"            >> $menu
+				elif [ -e /dev/hvc0 ];then
+					echo -n " console=hvc console=tty"            >> $menu
 				fi
 				echo -n " $KIWI_INITRD_PARAMS"                    >> $menu
 				echo -n " $KIWI_KERNEL_OPTIONS"                   >> $menu
@@ -1720,8 +1724,10 @@ function setupBootLoaderGrub {
 				if [ ! -z "$swap" ];then
 					echo -n " resume=$swapByID"                   >> $menu
 				fi
-				if [ ! -z "$xencons" ]; then
-					echo -n " xencons=$xencons"                   >> $menu
+				if [ -e /dev/xvc0 ];then
+					echo -n " console=xvc console=tty"            >> $menu
+				elif [ -e /dev/hvc0 ];then
+					echo -n " console=hvc console=tty"            >> $menu
 				fi
 				echo -n " $KIWI_INITRD_PARAMS"                    >> $menu
 				echo -n " $KIWI_KERNEL_OPTIONS"                   >> $menu
@@ -1752,8 +1758,10 @@ function setupBootLoaderGrub {
 				fi
 				echo -n " showopts ide=nodma apm=off acpi=off"    >> $menu
 				echo -n " noresume selinux=0 nosmp"               >> $menu
-				if [ ! -z "$xencons" ]; then
-					echo -n " xencons=$xencons"                   >> $menu
+				if [ -e /dev/xvc0 ];then
+					echo -n " console=xvc console=tty"            >> $menu
+				elif [ -e /dev/hvc0 ];then
+					echo -n " console=hvc console=tty"            >> $menu
 				fi
 				echo " noapic maxcpus=0 edd=off"                  >> $menu
 				echo " module /boot/$initrd"                      >> $menu
@@ -1771,8 +1779,10 @@ function setupBootLoaderGrub {
 				fi
 				echo -n " showopts ide=nodma apm=off acpi=off"    >> $menu
 				echo -n " noresume selinux=0 nosmp"               >> $menu
-				if [ ! -z "$xencons" ]; then
-					echo -n " xencons=$xencons"                   >> $menu
+				if [ -e /dev/xvc0 ];then
+					echo -n " console=xvc console=tty"            >> $menu
+				elif [ -e /dev/hvc0 ];then
+					echo -n " console=hvc console=tty"            >> $menu
 				fi
 				echo " noapic maxcpus=0 edd=off"                  >> $menu
 				echo " initrd $gdev/boot/$initrd"                 >> $menu
@@ -1850,7 +1860,6 @@ function setupBootLoaderLilo {
 	local title=""
 	local rdisk=""
 	local fbmode=$vga
-	local xencons=$xencons
 	if [ -z "$fbmode" ];then
 		fbmode=$DEFAULT_VGA
 	fi
@@ -1960,8 +1969,10 @@ function setupBootLoaderLilo {
 				if [ ! -z "$swap" ];then                     
 					echo -n " resume=$swapByID"               >> $conf
 				fi
-				if [ ! -z "$xencons" ]; then
-					echo -n " xencons=$xencons"               >> $conf
+				if [ -e /dev/xvc0 ];then
+					echo -n " console=xvc console=tty"        >> $conf
+				elif [ -e /dev/hvc0 ];then
+					echo -n " console=hvc console=tty"        >> $conf
 				fi
 				echo -n " $KIWI_INITRD_PARAMS"                >> $conf
 				echo -n " $KIWI_KERNEL_OPTIONS"               >> $conf
@@ -1991,8 +2002,10 @@ function setupBootLoaderLilo {
 				if [ ! -z "$swap" ];then
 					echo -n " resume=$swapByID"               >> $conf
 				fi
-				if [ ! -z "$xencons" ]; then
-					echo -n " xencons=$xencons"               >> $conf
+				if [ -e /dev/xvc0 ];then
+					echo -n " console=xvc console=tty"        >> $conf
+				elif [ -e /dev/hvc0 ];then
+					echo -n " console=hvc console=tty"        >> $conf
 				fi
 				echo -n " $KIWI_INITRD_PARAMS"                >> $conf
 				echo -n " $KIWI_KERNEL_OPTIONS"               >> $conf
@@ -5917,6 +5930,24 @@ function setupBootPartition {
 	mkdir  /mnt/boot
 	mount --bind \
 		/mnt/$mpoint/boot /mnt/boot
+}
+#======================================
+# setupConsole
+#--------------------------------------
+function setupConsole {
+	# /.../
+	# setup the xvc and/or hvc console if the device is present
+	# ----
+	local itab=/etc/inittab
+	local stty=/etc/securetty
+	if [ -e /dev/xvc0 ];then
+		echo "X0:12345:respawn:/sbin/mingetty --noclear xvc0 linux" >> $itab
+		echo xvc0 >> $stty
+	fi
+	if [ -e /dev/hvc0 ];then
+		echo "H0:12345:respawn:/sbin/mingetty --noclear hvc0 linux" >> $itab
+		echo hvc0 >> $stty
+	fi
 }
 #======================================
 # initialize
