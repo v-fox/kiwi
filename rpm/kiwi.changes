@@ -1,4 +1,18 @@
 -------------------------------------------------------------------
+Tue Nov  2 10:54:49 CET 2010 - ms@suse.de
+
+- keeping old boot files in /boot and trying to copy
+  in newly generated initrd + kernel during image startup
+  could result in not enough space on /boot partition for LVM
+  enabled builds. This patch fixes that by removing the old
+  kernel + initrd, before copying in the new one.
+- added languages nb_NO,da_DK,pt_PT and en_GB to the
+  selection list
+- don't let the recovery partition grow to the rest disk space
+  available. This is not intended as the recovery partition should
+  only be of the min size required to store the recovery data
+
+-------------------------------------------------------------------
 Thu Oct 14 15:33:44 CEST 2010 - ms@suse.de
 
 - added setupConsole() function to activate xvc and/or hvc consoles
