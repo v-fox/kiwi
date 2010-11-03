@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Wed Nov  3 10:14:13 CET 2010 - ms@suse.de
+
+- fixed check for xvc/hvc consoles (bnc #650667)
+
+-------------------------------------------------------------------
 Tue Nov  2 10:54:49 CET 2010 - ms@suse.de
 
 - keeping old boot files in /boot and trying to copy
