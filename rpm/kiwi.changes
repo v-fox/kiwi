@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Fri Dec  3 10:57:39 CET 2010 - ms@suse.de
+
+- fixed usbboot linuxrc code which did not write a bootloader
+  setup and also did not install the bootloader (bnc #654617)
+
+-------------------------------------------------------------------
 Tue Nov 23 13:16:55 CET 2010 - ms@suse.de
 
 - don't preserve rpm database on recovery. This could cause
