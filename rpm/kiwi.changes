@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Dec  7 12:33:08 CET 2010 - ms@suse.de
+
+- don't overwrite the zypp repo data when in recovery mode (bnc #657922)
+
+-------------------------------------------------------------------
 Fri Dec  3 10:57:39 CET 2010 - ms@suse.de
 
 - fixed usbboot linuxrc code which did not write a bootloader
