@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu Dec 23 12:48:31 CET 2010 - ms@suse.de
+
+- added check for first sector start after repartitioning via
+  fdisk. The start sector must be the same before and after the
+  repartitioning (bnc #659865)
+
+-------------------------------------------------------------------
 Tue Dec  7 12:33:08 CET 2010 - ms@suse.de
 
 - don't overwrite the zypp repo data when in recovery mode (bnc #657922)
