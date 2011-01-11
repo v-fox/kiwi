@@ -30,12 +30,12 @@ function suseInsertService {
 	local service=$1
 	local result
 	while true;do
-		result=`/sbin/insserv $service 2>&1 | grep "^insserv: Service"`
+		result=`/sbin/insserv $service 2>&1`
 		if [ $? = 0 ];then
 			echo "Service $service inserted"
 			break
 		else
-			result=`echo $result | head -n 1 | cut -f3 -d " "`
+			result=`echo "$result" | grep "^insserv: Service" | head -n 1 | cut -f3 -d " "`
 			if [ -f /etc/init.d/$result ];then
 				suseInsertService /etc/init.d/$result
 			else
