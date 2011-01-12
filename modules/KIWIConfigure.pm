@@ -106,7 +106,7 @@ sub setupRecoveryArchive {
 	my $excld  = "--exclude ./dev --exclude ./proc --exclude ./sys";
 	my $status = qxx (
 		"cd $root && tar $topts . $excld | $main::Gzip > $dest/.recovery.tar.gz &&
-		mv $dest/.recovery.tar.gz $root/recovery.tar.gz"
+		cd - && mv $dest/.recovery.tar.gz $root/recovery.tar.gz"
 	);
 	my $code = $? >> 8;
 	if ($code != 0) {

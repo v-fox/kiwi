@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Wed Jan 12 09:53:35 CET 2011 - ms@suse.de
+
+- fixed inclusion of recovery tarball which failed if a
+  relative destination directory was specified (bnc #663779)
+
+-------------------------------------------------------------------
 Tue Jan 11 14:54:15 CET 2011 - ug@suse.de
 
 - fix for bnc#605981
