@@ -1391,7 +1391,6 @@ sub setupBootStick {
 	#==========================================
 	# Copy boot data on system image
 	#------------------------------------------
-	$status = qxx ("rm -rf $loopdir/boot");
 	$status = qxx ("cp -dR $tmpdir/boot $loopdir 2>&1");
 	$result = $? >> 8;
 	if ($result != 0) {
