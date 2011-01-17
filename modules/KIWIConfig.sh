@@ -964,7 +964,7 @@ function suseStripInitrd {
 	#------------------------------------------
 	baseStripUnusedLibs \
 		librt libutil libsysfs libnss_files libnss_compat libnsl libpng \
-		libfontenc libutempter libfreetype libgcc_s
+		libfontenc libutempter libfreetype libgcc_s libresolv libnss_dns
 	#==========================================
 	# remove images.sh and /root
 	#------------------------------------------

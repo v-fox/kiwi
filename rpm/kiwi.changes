@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Jan 17 11:18:49 CET 2011 - ms@suse.de
+
+- don't remove libresolv and libnss_dns from initrd (bnc #664593)
+
+-------------------------------------------------------------------
 Mon Jan 17 10:56:59 CET 2011 - ms@suse.de
 
 - fixed bootstick deployment, don't remove existing boot data (bnc #654617)
