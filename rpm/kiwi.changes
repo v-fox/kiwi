@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Jan 18 09:45:21 CET 2011 - ms@suse.de
+
+- dont't overwrite firstboot.xml or autoconf.xml if they
+  exist as overlay files in the overlay root tree
+
+-------------------------------------------------------------------
 Wed Nov  3 10:14:13 CET 2010 - ms@suse.de
 
 - fixed check for xvc/hvc consoles (bnc #650667)
