@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Thu Jan 20 09:37:34 CET 2011 - ms@suse.de
+
+- fixed skip check for firstboot and autoyast descriptions
+
+-------------------------------------------------------------------
 Tue Jan 18 09:45:21 CET 2011 - ms@suse.de
 
 - dont't overwrite firstboot.xml or autoconf.xml if they
