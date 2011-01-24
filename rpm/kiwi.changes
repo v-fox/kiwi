@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Jan 24 14:47:30 CET 2011 - ms@suse.de
+
+- added support for raid 1 (mirroring) for pxe images
+
+-------------------------------------------------------------------
 Mon Jan 17 11:18:49 CET 2011 - ms@suse.de
 
 - don't remove libresolv and libnss_dns from initrd (bnc #664593)
