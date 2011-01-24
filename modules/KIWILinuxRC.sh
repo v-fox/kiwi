@@ -1142,6 +1142,9 @@ function setupBootLoaderGrub {
 	#--------------------------------------
 	local diskByID=`getDiskID $rdev`
 	local swapByID=`getDiskID $swap`
+	if [ ! -z "$RAID" ];then
+		diskByID=$imageDevice
+	fi
 	#======================================
 	# check for boot image .profile
 	#--------------------------------------
@@ -5063,6 +5066,21 @@ function dn {
 	echo $part
 }
 #======================================
+# nd
+#--------------------------------------
+function nd {
+	# /.../
+	# print the number of the disk device according to the
+	# device node name. 
+	# ----
+	local part=$(getDiskDevice $1)
+	local part_new=$(echo $part | sed -e 's@\(^.*\)p\(.*$\)@\2@')
+	if [ $part = $part_new ];then
+		part_new=$(echo $part | sed -e 's@\(^.*\)\([0-9].*$\)@\2@')
+	fi
+	echo $part_new
+}
+#======================================
 # runInteractive
 #--------------------------------------
 function runInteractive {
@@ -5306,7 +5324,380 @@ function SAPStartMediaChanger {
 	test -e /tmp/runme_at_boot && mv /tmp/runme_at_boot $runme
 	test -e /tmp/install.inf && mv /tmp/install.inf $ininf
 }
-
+#======================================
+# pxeSwapDevice
+#--------------------------------------
+function pxeSwapDevice {
+	local field=0
+	local count=0
+	local device
+	local IFS=","
+	for i in $PART;do
+		field=0
+		count=$((count + 1))
+		IFS=";" ; for n in $i;do
+		case $field in
+			0) partSize=$n   ; field=1 ;;
+			1) partID=$n     ; field=2 ;;
+			2) partMount=$n;
+		esac
+		done
+		if test $partID = "82" -o $partID = "S";then
+			device=$(ddn $DISK $count)
+			waitForStorageDevice $device
+			echo $device
+			return
+		fi
+	done
+}
+#======================================
+# pxeBootDevice
+#--------------------------------------
+function pxeBootDevice {
+	local field=0
+	local count=0
+	local device
+	local IFS=","
+	for i in $PART;do
+		field=0
+		count=$((count + 1))
+		IFS=";" ; for n in $i;do
+		case $field in
+			0) partSize=$n   ; field=1 ;;
+			1) partID=$n     ; field=2 ;;
+			2) partMount=$n;
+		esac
+		done
+		if [ $partMount = "/boot" ];then
+			device=$(ddn $DISK $count)
+			waitForStorageDevice $device
+			echo $device
+			return
+		fi
+	done
+}
+#======================================
+# callPartitioner
+#--------------------------------------
+function callPartitioner {
+	local input=$1
+	if [ $PARTITIONER = "sfdisk" ];then
+		Echo "Repartition the disk according to real geometry [ fdisk ]"
+		local pstart=$(checkFDiskFirstSector $imageDiskDevice)
+		fdisk $imageDiskDevice < $input 1>&2
+		if test $? != 0; then
+			systemException "Failed to create partition table" "reboot"
+		fi
+		local pstopp_new=$(checkFDiskEndSector   $imageDiskDevice)
+		local pstart_new=$(checkFDiskFirstSector $imageDiskDevice)
+		if [ $pstart_new -ne $pstart ];then
+			local fixpart=/part.input-fixupStartSector
+			local numpdevs=$(fdisk -ul $imageDiskDevice | grep '^/dev/' | wc -l)
+			echo "d"          > $fixpart
+			if [ $numpdevs -gt 1 ];then
+				echo "1"     >> $fixpart
+			fi
+			echo "n"         >> $fixpart
+			echo "p"         >> $fixpart
+			echo "1"         >> $fixpart
+			echo $pstart     >> $fixpart
+			echo $pstopp_new >> $fixpart
+			echo "w"         >> $fixpart
+			echo "q"         >> $fixpart
+			fdisk -u $imageDiskDevice < $fixpart 1>&2
+			if test $? != 0; then
+				systemException "Failed to fix partition table" "reboot"
+			fi
+		fi
+		if [ ! -z "$OEM_ALIGN" ];then
+			if [ ! -z "$haveLVM" ];then
+				vgchange -an
+			fi
+			fixupFDiskSectors $input $pstart
+		fi
+	else
+		# /.../
+		# nothing to do for parted here as we write
+		# imediately with parted and don't create a
+		# command input file as for fdisk
+		# ----
+		:
+	fi
+}
+#======================================
+# createPartitionerInput
+#--------------------------------------
+function createPartitionerInput {
+	if [ $PARTITIONER = "sfdisk" ];then
+		createFDiskInput $@
+	else
+		Echo "Repartition the disk according to real geometry [ parted ]"
+		partedInit $imageDiskDevice
+		createPartedInput $imageDiskDevice $@
+    fi
+}
+#======================================
+# checkFDiskFirstSector
+#--------------------------------------
+function checkFDiskFirstSector {
+	# /.../
+	# check number of start sector for first partition
+	# ----
+	local dev=$1
+	local p1=$(ddn $dev 1)
+	fdisk -ul ${dev} | grep '^'$p1 | \
+		sed -e's@'$p1'[ \*]*\([0-9]\+\) .*$@\1@'
+}
+#======================================
+# checkFDiskEndSector
+#--------------------------------------
+function checkFDiskEndSector {
+	# /.../
+	# check number of end sector for first partition
+	# ----
+	local dev=$1
+	local p1=$(ddn $dev 1)
+	fdisk -ul ${dev} | grep '^'$p1 | \
+		sed -e's@'$p1'[ \*]*\([0-9]\+\)[ \*]*\([0-9]\+\) .*$@\2@'
+}
+#======================================
+# fixupFDiskSectors
+#--------------------------------------
+function fixupFDiskSectors {
+	# /.../
+	# align the first partition start sector using fdisk
+	# ----
+	local input=$1
+	local palign=$2
+	local pstart pend act psize ptype rest
+	case "$palign" in
+		64) palign=8;;
+		2048) palign=2048;;
+		*) return;;
+	esac
+	local numpdevs=$(fdisk -ul $imageDiskDevice | grep '^/dev/' | wc -l)
+	rm -f $input
+	fdisk -ul $imageDiskDevice | grep '^/dev/' | \
+	while read pdev act pstart pend psize ptype rest; do
+		pdev=${pdev#$imageDiskDevice}
+		if [ "$act" != '*' ]; then
+			ptype="$psize"
+			pend="$pstart"
+			pstart="$act"
+		fi
+		local aligned=$(( ( $pstart + $palign - 1 ) / $palign * $palign ))
+		if [ "$aligned" -ne "$pstart" ]; then
+			echo "d" >> $input
+			test $numpdevs -gt 1 && echo "$pdev" >> $input
+			echo "n" >> $input
+			echo "p" >> $input
+			test $numpdevs -lt 4 && echo "$pdev" >> $input
+			echo "$aligned" >> $input
+			echo "$pend" >> $input
+			echo "t" >> $input
+			test $numpdevs -gt 1 && echo "$pdev" >> $input
+			echo "$ptype" >> $input
+			if [ "$act" = '*' ]; then
+				echo "a" >> $input
+				echo "$pdev" >> $input
+			fi
+		fi
+		# handle only the first partition
+		break
+	done
+	if [ -s $input ]; then
+		echo "w" >> $input
+		echo "q" >> $input
+		fdisk -u $imageDiskDevice < $input 1>&2
+		if test $? != 0; then
+			systemException "Failed to fix up partition table" "reboot"
+		fi
+	fi
+}
+#======================================
+# createFDiskInput
+#--------------------------------------
+function createFDiskInput {
+	local input=/part.input
+	rm -f $input
+	for cmd in $*;do
+		if [ $cmd = "." ];then
+			echo >> $input
+			continue
+		fi
+		echo $cmd >> $input
+	done
+}
+#======================================
+# partedInit
+#--------------------------------------
+function partedInit {
+	# /.../
+	# initialize current partition table output
+	# as well as the number of cylinders and the
+	# cyliner size in kB for this disk
+	# ----
+	local device=$1
+	local IFS=""
+	local parted=$(parted -m $device unit cyl print)
+	local header=$(echo $parted | head -n 3 | tail -n 1)
+	local ccount=$(echo $header | cut -f1 -d:)
+	local cksize=$(echo $header | cut -f4 -d: | cut -f1 -dk)
+	export partedOutput=$parted
+	export partedCylCount=$ccount
+	export partedCylKSize=$cksize
+}
+#======================================
+# partedWrite
+#--------------------------------------
+function partedWrite {
+	# /.../
+	# call parted with current command queue.
+	# This will immediately change the partition table
+	# ----
+	local device=$1
+	local cmds=$2
+	if ! parted -m $device unit cyl $cmds;then
+		systemException "Failed to create partition table" "reboot"
+	fi
+	partedInit $device
+}
+#======================================
+# partedStartCylinder
+#--------------------------------------
+function partedStartCylinder {
+	# /.../
+	# return start cylinder of given partition.
+	# lowest cylinder number is 0
+	# ----
+	local part=$(($1 + 3))
+	local IFS=""
+	local header=$(echo $partedOutput | head -n $part | tail -n 1)
+	local ccount=$(echo $header | cut -f2 -d: | tr -d cyl)
+	echo $ccount
+}
+#======================================
+# partedEndCylinder
+#--------------------------------------
+function partedEndCylinder {
+	# /.../
+	# return end cylinder of given partition, next
+	# partition must start at return value plus 1
+	# ----
+	local part=$(($1 + 3))
+	local IFS=""
+	local header=$(echo $partedOutput | head -n $part | tail -n 1)
+	local ccount=$(echo $header | cut -f3 -d: | tr -d cyl)
+	echo $ccount
+}
+#======================================
+# partedMBToCylinder
+#--------------------------------------
+function partedMBToCylinder {
+	# /.../
+	# convert size given in MB to cylinder count
+	# ----
+	local sizeKB=$(($1 * 1024))
+	local cylreq=$(($sizeKB / $partedCylKSize))
+	echo $cylreq
+}
+#======================================
+# createPartedInput
+#--------------------------------------
+function createPartedInput {
+	# /.../
+	# evaluate partition instructions and turn them
+	# into a parted command line queue. As soon as the
+	# geometry data would be changed according to the
+	# last partedInit() call the command queue is processed
+	# and the partedInit() will be called afterwards
+	# ----
+	local disk=$1
+	shift
+	local index=0
+	local pcmds
+	local partid
+	local pstart
+	local pstopp
+	local value
+	local cmdq
+	#======================================
+	# create list of commands
+	#--------------------------------------
+	for cmd in $*;do
+		pcmds[$index]=$cmd
+		index=$(($index + 1))
+	done
+	index=0
+	#======================================
+	# process commands
+	#--------------------------------------
+	for cmd in ${pcmds[*]};do
+		case $cmd in
+			#======================================
+			# delete partition
+			#--------------------------------------
+			"d")
+				partid=${pcmds[$index + 1]}
+				partid=$(($partid / 1))
+				if [ $partid -eq 0 ];then
+					partid=1
+				fi
+				cmdq="$cmdq rm $partid"
+				;;
+			#======================================
+			# create new partition
+			#--------------------------------------
+			"n")
+				partid=${pcmds[$index + 2]}
+				partid=$(($partid / 1))
+				if [ $partid -eq 0 ];then
+					partid=1
+				fi
+				pstart=${pcmds[$index + 3]}
+				if [ "$pstart" = "1" ];then
+					pstart=0
+				fi
+				if [ $pstart = "." ];then
+					# start is next cylinder according to previous partition
+					pstart=$(($partid - 1))
+					if [ $pstart -gt 0 ];then
+						pstart=$(partedEndCylinder $pstart)
+						pstart=$(($pstart + 1))
+					fi
+				fi
+				pstopp=${pcmds[$index + 4]}
+				if [ $pstopp = "." ];then
+					# use rest of the disk for partition end
+					pstopp=$partedCylCount
+				elif echo $pstopp | grep -qi M;then
+					# calculate stopp cylinder from size
+					pstopp=$(($partid - 1))
+					if [ $pstopp -gt 0 ];then
+						pstopp=$(partedEndCylinder $pstopp)
+					fi
+					value=$(echo ${pcmds[$index + 4]} | cut -f1 -dM | tr -d +)
+					value=$(partedMBToCylinder $value)
+					pstopp=$((1 + $pstopp + $value))
+				fi
+				cmdq="$cmdq mkpart primary $pstart $pstopp"
+				partedWrite "$disk" "$cmdq"
+				cmdq=""
+				;;
+			#======================================
+			# change partition ID
+			#--------------------------------------
+			"t")
+				ptypex=${pcmds[$index + 2]}
+				partid=${pcmds[$index + 1]}
+				cmdq="$cmdq set $partid type 0x$ptypex"
+				partedWrite "$disk" "$cmdq"
+				cmdq=""
+				;;
+		esac
+		index=$(($index + 1))
+	done
+}
 #======================================
 # initialize
 #--------------------------------------
@@ -5327,3 +5718,4 @@ function initialize {
 		export UTIMER=$(cat /var/run/utimer.pid)
 	fi
 }
+

@@ -178,6 +178,7 @@
 		<package name="bootsplash"/>
 		<package name="tar"/>
 		<package name="kiwi-tools"/>
+		<package name="mdadm"/>
 <!-- PACKAGES END DEFAULT AND XEN -->
 	</packages>
 	<packages type="image" profiles="diskless">
@@ -216,7 +217,6 @@
 		<package name="audit-libs"/>
 		<package name="blocxx"/>
 		<package name="cpio"/>
-		<package name="cyrus-sasl"/>
 		<package name="db"/>
 		<package name="diffutils"/>
 		<package name="expat"/>
@@ -236,7 +236,6 @@
 		<package name="limal"/>
 		<package name="limal-perl"/>
 		<package name="logrotate"/>
-		<package name="mdadm"/>
 		<package name="mingetty"/>
 		<package name="openldap2-client"/>
 		<package name="openslp"/>
@@ -280,7 +279,6 @@
 		<package name="pciutils"/>
 		<package name="krb5"/>
 		<package name="openldap2-client"/>
-		<package name="cyrus-sasl"/>
 		<package name="pam-modules"/>
 		<package name="pam-config"/>
 		<package name="PolicyKit"/>

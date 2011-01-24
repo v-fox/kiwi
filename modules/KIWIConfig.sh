@@ -877,7 +877,7 @@ function suseStripInitrd {
 		/usr/lib*/hal /usr/lib*/*.a /usr/lib*/*.la /usr/lib*/librpm*
 		/usr/lib*/libpanel* /usr/lib*/libmenu* /usr/src/packages/RPMS
 		/usr/lib*/X11 /var/X11R6 /usr/share/X11 /etc/X11
-		/usr/lib*/xorg /usr/lib*/libidn* /usr/share/locale-bundle
+		/usr/lib*/xorg /usr/share/locale-bundle
 		/etc/ppp /etc/xdg /etc/NetworkManager /lib*/YaST /lib*/security
 		/lib*/mkinitrd/boot /lib*/mkinitrd/dev /lib*/mkinitrd/scripts
 		/lib*/mkinitrd/setup
@@ -935,8 +935,7 @@ function suseStripInitrd {
 		tune2fs swapon swapoff shutdown sfdisk resize_reiserfs
 		reiserfsck reboot halt pivot_root modprobe modinfo rmmod
 		mkswap mkinitrd mkreiserfs mkfs.cramfs
-		losetup ldconfig insmod init ifconfig fdisk e2fsck fsck.ext2
-		fsck.ext3 fsck.ext4 dhcpcd mkfs.ext2 mkfs.ext3 mkfs.ext4
+		losetup ldconfig insmod init ifconfig fdisk e2fsck dhcpcd 
 		depmod atftpd klogconsole hwinfo xargs wc tail tac readlink
 		mkfifo md5sum head expr file free find env du dirname cut
 		column chroot atftp tr host test printf mount dd uname umount
@@ -953,7 +952,7 @@ function suseStripInitrd {
 		pvchange pvresize pvscan vgscan vgchange vgextend vgdisplay
 		lvchange lvresize lvextend lvcreate grub dcounter tty
 		dmsetup dialog awk gawk clicfs cryptsetup clear blkid fbiterm
-		gettext diff bc utimer cmp busybox kexec setterm
+		gettext diff bc utimer cmp busybox kexec setterm mdadm yes
 	"
 	tools="$tools $@"
 	for path in /sbin /usr/sbin /usr/bin /bin;do
