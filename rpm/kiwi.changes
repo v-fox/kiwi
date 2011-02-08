@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Feb  8 18:03:12 CET 2011 - ms@suse.de
+
+- fixed partition alignment code (bnc #670299)
+
+-------------------------------------------------------------------
 Wed Jan 26 10:01:49 CET 2011 - ms@suse.de
 
 - added missing ldconfig call in rpmLibs() function (bnc #667082)

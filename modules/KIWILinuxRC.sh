@@ -5383,37 +5383,15 @@ function callPartitioner {
 	local input=$1
 	if [ $PARTITIONER = "sfdisk" ];then
 		Echo "Repartition the disk according to real geometry [ fdisk ]"
-		local pstart=$(checkFDiskFirstSector $imageDiskDevice)
 		fdisk $imageDiskDevice < $input 1>&2
-		if test $? != 0; then
+		if [ ! $? = 0 ]; then
 			systemException "Failed to create partition table" "reboot"
-		fi
-		local pstopp_new=$(checkFDiskEndSector   $imageDiskDevice)
-		local pstart_new=$(checkFDiskFirstSector $imageDiskDevice)
-		if [ $pstart_new -ne $pstart ];then
-			local fixpart=/part.input-fixupStartSector
-			local numpdevs=$(fdisk -ul $imageDiskDevice | grep '^/dev/' | wc -l)
-			echo "d"          > $fixpart
-			if [ $numpdevs -gt 1 ];then
-				echo "1"     >> $fixpart
-			fi
-			echo "n"         >> $fixpart
-			echo "p"         >> $fixpart
-			echo "1"         >> $fixpart
-			echo $pstart     >> $fixpart
-			echo $pstopp_new >> $fixpart
-			echo "w"         >> $fixpart
-			echo "q"         >> $fixpart
-			fdisk -u $imageDiskDevice < $fixpart 1>&2
-			if test $? != 0; then
-				systemException "Failed to fix partition table" "reboot"
-			fi
 		fi
 		if [ ! -z "$OEM_ALIGN" ];then
 			if [ ! -z "$haveLVM" ];then
 				vgchange -an
 			fi
-			fixupFDiskSectors $input $pstart
+			alignFDiskSectors
 		fi
 	else
 		# /.../
@@ -5437,81 +5415,72 @@ function createPartitionerInput {
     fi
 }
 #======================================
-# checkFDiskFirstSector
+# alignFDiskSectors
 #--------------------------------------
-function checkFDiskFirstSector {
+function alignFDiskSectors {
 	# /.../
-	# check number of start sector for first partition
+	# align partition table using fdisk
 	# ----
-	local dev=$1
-	local p1=$(ddn $dev 1)
-	fdisk -ul ${dev} | grep '^'$p1 | \
-		sed -e's@'$p1'[ \*]*\([0-9]\+\) .*$@\1@'
-}
-#======================================
-# checkFDiskEndSector
-#--------------------------------------
-function checkFDiskEndSector {
-	# /.../
-	# check number of end sector for first partition
-	# ----
-	local dev=$1
-	local p1=$(ddn $dev 1)
-	fdisk -ul ${dev} | grep '^'$p1 | \
-		sed -e's@'$p1'[ \*]*\([0-9]\+\)[ \*]*\([0-9]\+\) .*$@\2@'
-}
-#======================================
-# fixupFDiskSectors
-#--------------------------------------
-function fixupFDiskSectors {
-	# /.../
-	# align the first partition start sector using fdisk
-	# ----
-	local input=$1
-	local palign=$2
-	local pstart pend act psize ptype rest
-	case "$palign" in
-		64) palign=8;;
-		2048) palign=2048;;
-		*) return;;
-	esac
-	local numpdevs=$(fdisk -ul $imageDiskDevice | grep '^/dev/' | wc -l)
-	rm -f $input
-	fdisk -ul $imageDiskDevice | grep '^/dev/' | \
-	while read pdev act pstart pend psize ptype rest; do
-		pdev=${pdev#$imageDiskDevice}
-		if [ "$act" != '*' ]; then
-			ptype="$psize"
-			pend="$pstart"
-			pstart="$act"
+	local IFS="
+	"
+	local id=1
+	local count
+	local start_s
+	local start_s_new
+	local stopp_s
+	local type_s
+	local geometry
+	local file=/part.aligned
+	for line in $(/sbin/fdisk -u -l $imageDiskDevice);do
+		line=$(echo $line | sed -e s@\*@@)
+		if echo $line | grep -q ^\/;then
+			IFS=" "
+			count=1
+			for i in $line;do
+				if [ $count = 2 ];then
+					start_s=$i
+					start_s_new=$(((start_s / 8) * 8))
+					if [ ! $start_s = $start_s_new ];then
+						start_s=$((start_s_new + 8))
+					fi
+				fi
+				if [ $count = 3 ];then
+					stopp_s=$i
+				fi
+				if [ $count = 5 ];then
+					type_s=$i
+				fi
+				count=$((count + 1))
+			done
+			geometry[$id]="$start_s $stopp_s $type_s"
+			id=$((id + 1))
 		fi
-		local aligned=$(( ( $pstart + $palign - 1 ) / $palign * $palign ))
-		if [ "$aligned" -ne "$pstart" ]; then
-			echo "d" >> $input
-			test $numpdevs -gt 1 && echo "$pdev" >> $input
-			echo "n" >> $input
-			echo "p" >> $input
-			test $numpdevs -lt 4 && echo "$pdev" >> $input
-			echo "$aligned" >> $input
-			echo "$pend" >> $input
-			echo "t" >> $input
-			test $numpdevs -gt 1 && echo "$pdev" >> $input
-			echo "$ptype" >> $input
-			if [ "$act" = '*' ]; then
-				echo "a" >> $input
-				echo "$pdev" >> $input
-			fi
-		fi
-		# handle only the first partition
-		break
 	done
-	if [ -s $input ]; then
-		echo "w" >> $input
-		echo "q" >> $input
-		fdisk -u $imageDiskDevice < $input 1>&2
-		if test $? != 0; then
-			systemException "Failed to fix up partition table" "reboot"
+	dd if=/dev/zero of=$imageDiskDevice bs=512 count=1 1>&2
+	dd if=/dev/null of=$file bs=1 count=1
+	count=1
+	IFS=""
+	for i in ${geometry[*]};do
+		start_s=$(echo $i | cut -f1 -d " ")
+		stopp_s=$(echo $i | cut -f2 -d " ")
+		type_s=$(echo $i | cut -f3 -d " ")
+		echo "n" >> $file
+		echo "p" >> $file
+		echo $count   >> $file
+		echo $start_s >> $file
+		echo $stopp_s >> $file
+		echo "t" >> $file
+		if [ $count -gt 1 ];then
+			echo $count >> $file
 		fi
+		echo $type_s >> $file
+		count=$((count + 1))
+	done
+	echo "w" >> $file
+	echo "q" >> $file
+	fdisk -u $imageDiskDevice < $file 1>&2
+	if [ ! $? = 0 ]; then
+		systemException "Failed to align partition table" "reboot"
 	fi
 }
 #======================================

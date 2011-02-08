@@ -4421,73 +4421,76 @@ sub setStoragePartition {
 				$kiwi -> loginfo ($status);
 				return undef;
 			}
+			#==========================================
+			# standard call without alignment
+			#------------------------------------------
+			$kiwi -> loginfo (
+				"FDISK input: $device [@commands]"
+			);
+			if (! open (FD,"|/sbin/fdisk $device &>$tmpdir/fdisk.log")) {
+				return undef;
+			}
+			foreach my $cmd (@commands) {
+				if ($cmd eq ".") {
+					print FD "\n";
+				} else {
+					print FD "$cmd\n";
+				}
+			}
+			close FD;
 			my $palign = $xml -> getOEMAlignPartition();
 			if (($palign) && ("$palign" eq "true")) {
 				#==========================================
 				# create aligned table
 				#------------------------------------------
-				my @commands_first = ();
-				my @commands_next  = ();
-				for (my $count=0;$count<@commands;$count++) {
-					if ($commands[$count] eq "n") {
-						if (($commands[$count+2] eq "1") &&
-						    ($commands[$count+3] eq ".")
-						) {
-							$commands[$count+3] = "64";
-							last;
+				# read current table and align
+				if (! open (FD,"/sbin/fdisk -u -l $device|")) {
+					return undef;
+				}
+				my %geometry;
+				my $count = 1;
+				while (my $line = <FD>) {
+					if ($line=~/^\/.*?[\s\*]+(\d+)\s+(\d+)\s+\d+\s+([\da-z]+)/){
+						my $start = $1;
+						my $stopp = $2;
+						my $type  = $3;
+						my $rest  = $start % 8;
+						if ($rest != 0) {
+							$start = int ($start / 8);
+							$start*= 8;
+							$start+= 8;
 						}
+						$geometry{$count}{start} = $start;
+						$geometry{$count}{stopp} = $stopp;
+						$geometry{$count}{type}  = $type;
+						$count++;
 					}
 				}
-				for (my $count=0;$count<=4;$count++) {
-					push @commands_first, $commands[$count];
-				}
-				push @commands_first, "w";
-				push @commands_first, "q";
-				for (my $count=5;$count<@commands;$count++) {
-					push @commands_next, $commands[$count];
-				}
-				$kiwi -> loginfo (
-					"FDISK input aligned: $device [@commands]"
-				);
+				close FD;
+				# write new aligned table
+				qxx ("dd if=/dev/zero of=$device bs=512 count=1 2>&1");
 				if (! open (FD,"|/sbin/fdisk -u $device &>$tmpdir/fdisk.log")) {
 					return undef;
 				}
-				foreach my $cmd (@commands_first) {
-					if ($cmd eq ".") {
-						print FD "\n";
-					} else {
-						print FD "$cmd\n";
+				$count = 1;
+				foreach my $p (sort keys %geometry) {
+					my $start = $geometry{$p}{start};
+					my $stopp = $geometry{$p}{stopp};
+					my $type  = $geometry{$p}{type};
+					print FD "n"."\n";
+					print FD "p"."\n";
+					print FD $p."\n";
+					print FD $start."\n";
+					print FD $stopp."\n";
+					print FD "t"."\n";
+					if ($count > 1) {
+						print FD $p."\n";
 					}
+					print FD $type."\n";
+					$count++;
 				}
-				close FD;
-				if (! open (FD,"|/sbin/fdisk $device &>$tmpdir/fdisk.log")) {
-					return undef;
-				}
-				foreach my $cmd (@commands_next) {
-					if ($cmd eq ".") {
-						print FD "\n";
-					} else {
-						print FD "$cmd\n";
-					}
-				}
-				close FD;
-			} else {
-				#==========================================
-				# standard call without alignment
-				#------------------------------------------
-				$kiwi -> loginfo (
-					"FDISK input: $device [@commands]"
-				);
-				if (! open (FD,"|/sbin/fdisk $device &>$tmpdir/fdisk.log")) {
-					return undef;
-				}
-				foreach my $cmd (@commands) {
-					if ($cmd eq ".") {
-						print FD "\n";
-					} else {
-						print FD "$cmd\n";
-					}
-				}
+				print FD "w"."\n";
+				print FD "q"."\n";
 				close FD;
 			}
 			$result = $? >> 8;
