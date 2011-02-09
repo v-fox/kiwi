@@ -4449,8 +4449,9 @@ sub setStoragePartition {
 				}
 				my %geometry;
 				my $count = 1;
+				my $exp   = '^\/.*?[\s\*]+(\d+)\s+(\d+)\s+[\d+-]+\s+([\da-z]+)';
 				while (my $line = <FD>) {
-					if ($line=~/^\/.*?[\s\*]+(\d+)\s+(\d+)\s+\d+\s+([\da-z]+)/){
+					if ($line =~ /$exp/) {
 						my $start = $1;
 						my $stopp = $2;
 						my $type  = $3;
