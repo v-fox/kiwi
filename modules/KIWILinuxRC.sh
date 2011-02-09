@@ -5303,7 +5303,7 @@ function SAPDataStorageSetup {
 	local diskpart=$(ddn $storage 1)
 	pvcreate -ff -y $diskpart
 	vgcreate data_vg $diskpart
-	lvcreate -l 100%FREE -n sapdata data_vg
+	lvcreate -l +100%FREE -n sapdata data_vg
 	mke2fs -T ext3 -j /dev/data_vg/sapdata
 	if test $? != 0; then
 		systemException "Failed to create sapdata volume" "reboot"

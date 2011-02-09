@@ -607,10 +607,10 @@ function OEMRepartLVM {
 		# Add LVHome if requested
 		#--------------------------------------
 		if [ -z "$OEM_WITHOUTHOME" ];then
-			lvcreate -l 100%FREE -n LVHome $VGROUP
+			lvcreate -l +100%FREE -n LVHome $VGROUP
 			export imageHomeDevice=/dev/$VGROUP/LVHome
 		elif [ -z "$OEM_SYSTEMSIZE" ];then
-			lvextend -l 100%FREE /dev/$VGROUP/LVRoot
+			lvextend -l +100%FREE /dev/$VGROUP/LVRoot
 		fi
 	fi
 }
