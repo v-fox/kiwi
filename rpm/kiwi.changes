@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Mon Feb 14 10:25:45 CET 2011 - ms@suse.de
+
+- reverted: fixed skip check for firstboot and autoyast descriptions
+- reverted: dont't overwrite firstboot.xml or autoconf.xml if they
+            exist as overlay files in the overlay root tree
+  
+-------------------------------------------------------------------
 Thu Jan 20 09:37:34 CET 2011 - ms@suse.de
 
 - fixed skip check for firstboot and autoyast descriptions
