@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Tue Feb 15 14:45:21 CET 2011 - ms@suse.de
+
+- fixed yast2 firstboot startup for old (sle10) init script
+  based startup sequence (bnc #660770)
+
+-------------------------------------------------------------------
 Mon Feb 14 10:25:45 CET 2011 - ms@suse.de
 
 - reverted: fixed skip check for firstboot and autoyast descriptions
