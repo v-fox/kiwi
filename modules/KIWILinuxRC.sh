@@ -5668,6 +5668,19 @@ function createPartedInput {
 	done
 }
 #======================================
+# cleanPartitionTable
+#--------------------------------------
+function cleanPartitionTable {
+	# /.../
+	# remove partition table and create a new msdos
+	# table label if parted is in use
+	# ----
+	dd if=/dev/zero of=$imageDiskDevice bs=512 count=1 >/dev/null
+	if [ $PARTITIONER = "parted" ];then
+		parted -s $imageDiskDevice mklabel msdos
+	fi
+}
+#======================================
 # initialize
 #--------------------------------------
 function initialize {
