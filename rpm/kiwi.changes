@@ -1,4 +1,12 @@
 -------------------------------------------------------------------
+Mon Feb 21 14:59:41 CET 2011 - ms@suse.de
+
+- changed raid 1 support for pxe images. The former implementation
+  can only use raid for the root partition. This implementation
+  allows a custom partition table to be mapped in one raid 1 per
+  partition
+
+-------------------------------------------------------------------
 Tue Feb  8 18:03:12 CET 2011 - ms@suse.de
 
 - fixed partition alignment code (bnc #670299)
