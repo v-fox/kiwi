@@ -798,20 +798,9 @@ else
 	fi
 fi
 runHook postdownload
-#======================================
-# 13) Check for RELOAD_CONFIG
-#--------------------------------------
-if [ $LOCAL_BOOT = "no" ];then
-	if test ! -z $DISK;then
-	if test ! -z $RELOAD_CONFIG;then
-		systemIntegrity_save=$systemIntegrity
-		systemIntegrity="clean"
-	fi
-	fi
-fi
 
 #======================================
-# 14) Make boot data available on union
+# 13) Make boot data available on union
 #--------------------------------------
 if [ $LOCAL_BOOT = "no" ] && \
 	[ ! -z "$PART" ]      && \
@@ -856,7 +845,7 @@ then
 fi
 
 #======================================
-# 15) Mount OS image to /mnt
+# 14) Mount OS image to /mnt
 #--------------------------------------
 runHook premount
 if ! mountSystem;then
@@ -866,7 +855,7 @@ validateRootTree
 runHook postmount
 
 #======================================
-# 16) Setup boot device contents
+# 15) Setup boot device contents
 #--------------------------------------
 if [ ! -z "$imageBootDevice" ];then
 	cd /mnt/boot && tar -czf /tmp/boot.tgz .
@@ -884,34 +873,95 @@ if [ ! -z "$RAID" ];then
 fi
 
 #======================================
-# 17) Import fixed configuration files
+# 16) Import fixed configuration files
 #--------------------------------------
 runHook preconfig
-if [ $LOCAL_BOOT = "no" ];then
-	if test $systemIntegrity = "clean";then
-		mkdir -p /config
-		#======================================
-		# Get files from CONF value
-		#--------------------------------------
-		IFS="," ; for i in $CONF;do
-			field=0
-			IFS=";" ; for n in $i;do
-			case $field in
-				0) configSource=$n ; field=1 ;;
-				1) configDest=$n   ; field=2 ;;
-				2) configServer=$n ; field=3 ;;
-				3) configBlkSize=$n;
-			esac
+if [ $LOCAL_BOOT = "no" ] || [ ! -z "$RELOAD_CONFIG" ];then
+	if [ ! -z "$RELOAD_CONFIG" ];then
+		Echo "Configuration files reload forced via RELOAD_CONFIG..."
+	fi
+	#=======================================
+	# 16.1) Import files from backup
+	#---------------------------------------
+	BCFG_BASE='etc/KIWI'
+	BCFG_NAME='InstalledConfigFiles'
+	if [ -s "/mnt/$BCFG_BASE/$BCFG_NAME" ] ;then
+		importFile 'BK_' </mnt/$BCFG_BASE/$BCFG_NAME
+	fi
+	CCONF=`condenseConfigData "$CONF"`
+	CBK_CONF=`condenseConfigData "$BK_CONF"`
+	#=======================================
+	# 16.2) Store new configuration
+	#---------------------------------------
+	mkdir  /config
+	mkdir -p  /config/$BCFG_BASE
+	cp "$CONFIG" "/config/$BCFG_BASE/config.$DHCPCHADDR"
+	echo "CONF=$CONF"               >  "/config/$BCFG_BASE/$BCFG_NAME"
+	#=======================================
+	# 16.3) Get files from CONF data
+	#---------------------------------------
+	IFS="," ; for i in $CCONF;do
+		unset configHash
+		field=0
+		IFS=";"; for n in $i;do
+		case $field in
+			0) configSource=$n ; field=1 ;;
+			1) configDest=$n   ; field=2 ;;
+			2) configServer=$n ; field=3 ;;
+			3) configBlkSize=$n; field=4 ;;
+			4) configHash=$n   ; field=5
+		esac
+		done
+		# /.../
+		# compare new config data to backup config data
+		# ----
+		cfg_copy=1
+		cfgmsg_why='(forced)'
+		if [ -z "$RELOAD_CONFIG" ];then
+			cfgmsg_why='(missing)'
+			IFS=","; for j in $CBK_CONF;do
+				BKconfigDest=`echo "$j" | cut -d ';' -f 2`
+				BKconfigHash=`echo "$j" | cut -d ';' -f 5`
+				if [ "$BKconfigDest" = "$configDest" ];then
+					cfgmsg_why='(changed)'
+					if [ "$configHash" = "$BKconfigHash" ];then
+						cfg_copy=0
+					fi
+					break
+				fi
 			done
-			Echo "Import configuration file: $configDest"
+		fi
+		if [ $cfg_copy -eq '1' ];then
+			Echo "Importing $cfgmsg_why configuration file: $configDest"
 			dirs=`dirname  $configDest`
 			mkdir -p /config/$dirs
 			fetchFile $configSource /config/$configDest uncomp $configServer
+		fi
+	done
+	#=======================================
+	# 16.4) check config files to be deleted
+	#---------------------------------------
+	IFS="," ; for i in $CBK_CONF;do
+		BKconfigDest=`echo "$i" | cut -d ';' -f 2`
+		deletethis=1
+		IFS=","; for j in $CCONF;do
+			configDest=`echo "$j" | cut -d ';' -f 2`
+			if [ "$BKconfigDest" = "$configDest" ];then
+				deletethis=0
+				break
+			fi
 		done
-		#======================================
-		# Check for KIWI_INITRD
-		#--------------------------------------
-		if [ ! -z $KIWI_INITRD ];then
+		if [ "$deletethis" -eq '1' ];then
+			Echo "Deleting obsolete configuration file: $BKconfigDest"
+			rm /mnt/$BKconfigDest
+		fi
+	done
+	IFS=$IFS_ORIG
+	#=======================================
+	# 16.5) Check for KIWI_INITRD
+	#---------------------------------------
+	if [ $systemIntegrity = "clean" ];then
+		if [ ! -z "$KIWI_INITRD" ];then
 			Echo "Import KIWI initrd file: $KIWI_INITRD"
 			rm -f /mnt/boot/initrd* && mkdir -p /mnt/boot >/dev/null 2>&1
 			fetchFile $KIWI_INITRD /mnt/boot/initrd.kiwi
@@ -935,7 +985,7 @@ fi
 runHook postconfig
 
 #======================================
-# 18) check filesystem and kernels
+# 17) check filesystem and kernels
 #--------------------------------------
 if [ $LOCAL_BOOT = "no" ];then
 	if test $systemIntegrity = "clean";then
@@ -945,7 +995,7 @@ if [ $LOCAL_BOOT = "no" ];then
 fi
 
 #======================================
-# 19) make initrd available on unionfs
+# 18) make initrd available on unionfs
 #--------------------------------------
 if \
 	[ $LOCAL_BOOT = "no" ] && \
@@ -986,7 +1036,7 @@ then
 fi
 
 #======================================
-# 20) Create system dependant files
+# 19) Create system dependant files
 #--------------------------------------
 if [ $LOCAL_BOOT = "no" ];then
 	if test $systemIntegrity = "clean";then
@@ -1010,7 +1060,7 @@ if [ $LOCAL_BOOT = "no" ];then
 fi
 
 #======================================
-# 21) If image is new, notify
+# 20) If image is new, notify
 #--------------------------------------
 runHook prenotify
 if [ $LOCAL_BOOT = "no" ];then
@@ -1040,7 +1090,7 @@ fi
 runHook postnotify
 
 #======================================
-# 22) send DHCP_RELEASE, reset cache
+# 21) send DHCP_RELEASE, reset cache
 #--------------------------------------
 if \
 	[ $LOCAL_BOOT = "no" ] && \
@@ -1052,27 +1102,25 @@ then
 fi
 
 #======================================
-# 23) copy system dependant files
+# 22) copy system dependant files
 #--------------------------------------
 if [ $LOCAL_BOOT = "no" ];then
-	if test $systemIntegrity = "clean";then
-		setupConfigFiles
-	fi
+	setupConfigFiles
 fi
 
 #======================================
-# 24) update system dependant files
+# 23) update system dependant files
 #--------------------------------------
 setupInittab /mnt
 
 echo 256 > /proc/sys/kernel/real-root-dev
 #======================================
-# 25) umount system filesystems
+# 24) umount system filesystems
 #--------------------------------------
 umountSystemFilesystems
 
 #======================================
-# 26) copy initrd files to image
+# 25) copy initrd files to image
 #--------------------------------------
 importBranding
 if canWrite /mnt;then
@@ -1081,23 +1129,23 @@ if canWrite /mnt;then
 fi
 
 #======================================
-# 27) check if reboot is required
+# 26) check if reboot is required
 #--------------------------------------
 kernelCheck /mnt
 
 #======================================
-# 28 kill boot shell
+# 27 kill boot shell
 #--------------------------------------
 killShell
 killBlogD
 
 #======================================
-# 29 Activate new root
+# 28 Activate new root
 #--------------------------------------
 runHook preactivate
 activateImage
 
 #======================================
-# 30) Unmount initrd / system init
+# 29) Unmount initrd / system init
 #--------------------------------------
 bootImage $@
