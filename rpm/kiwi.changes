@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Feb 28 16:09:12 CET 2011 - ms@suse.de
+
+- don't ignore blocksize value from config.<MAC> (bnc #675004)
+
+-------------------------------------------------------------------
 Thu Feb 24 10:23:27 CET 2011 - ms@suse.de
 
 - added support for netboot config files update. The update
