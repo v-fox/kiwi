@@ -3324,7 +3324,12 @@ function validateBlockSize {
 	else
 		isize=`expr $blocks \* $blocksize`
 	fi
-	for blkTest in 32768 61440 65464 ; do
+	local IFS=' '
+	testBlkSizes="32768 61440 65464"
+	if [ "$imageBlkSize" -gt 0 ]; then
+		testBlkSizes="$imageBlkSize $testBlkSizes"
+	fi
+	for blkTest in $testBlkSizes ; do
 		nBlk=`expr $isize / $blkTest`
 		if [ $nBlk -lt 65535 ] ; then
 			imageBlkSize=$blkTest
