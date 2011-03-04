@@ -366,6 +366,8 @@ then
 	#--------------------------------------
 	if [ ! -z "$RAID" ];then
 		pxeRaidAssemble
+	else
+		pxeRaidZeroSuperBlock
 	fi
 	count=0
 	IFS="," ; for i in $IMAGE;do
