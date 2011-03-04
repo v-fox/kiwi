@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Fri Mar  4 13:52:24 CET 2011 - ms@suse.de
+
+- netboot: allow network boot in degraded raid mode (bnc #668014)
+- netboot: remove superblocks from raid disks if RAID
+  has been dectivated in config.<MAC> (bnc #668014)
+
+-------------------------------------------------------------------
 Mon Feb 28 16:09:12 CET 2011 - ms@suse.de
 
 - don't ignore blocksize value from config.<MAC> (bnc #675004)
