@@ -421,10 +421,8 @@ function errorLogStart {
 function udevPending {
 	local timeout=30
 	if [ -x /sbin/udevadm ];then
-		/sbin/udevadm trigger
 		/sbin/udevadm settle --timeout=$timeout
 	else
-		/sbin/udevtrigger
 		/sbin/udevsettle --timeout=$timeout
 	fi
 }
@@ -473,8 +471,12 @@ function udevStart {
 	mount -t devpts devpts /dev/pts
 	# start the udev daemon
 	udevd --daemon udev_log="debug"
-	# wait for pending triggered udev events.
-	udevPending
+	# trigger udev events
+	if [ -x /sbin/udevadm ];then
+		/sbin/udevadm trigger
+	else
+		/sbin/udevtrigger
+	fi
 	# start splashy if configured
 	startSplashy
 }
