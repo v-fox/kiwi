@@ -427,6 +427,16 @@ function udevPending {
 	fi
 }
 #======================================
+# udevTrigger
+#--------------------------------------
+function udevTrigger {
+	if [ -x /sbin/udevadm ];then
+		/sbin/udevadm trigger
+	else
+		/sbin/udevtrigger
+	fi
+}
+#======================================
 # udevSystemStart
 #--------------------------------------
 function udevSystemStart {
@@ -469,16 +479,36 @@ function udevStart {
 	createInitialDevices /dev
 	# terminal devices
 	mount -t devpts devpts /dev/pts
+	# load modules required before udev
+	moduleLoadBeforeUdev
 	# start the udev daemon
 	udevd --daemon udev_log="debug"
-	# trigger udev events
-	if [ -x /sbin/udevadm ];then
-		/sbin/udevadm trigger
-	else
-		/sbin/udevtrigger
-	fi
+	# trigger events for all devices
+	udevTrigger
+	# wait for events to finish
+	udevPending
 	# start splashy if configured
 	startSplashy
+}
+#======================================
+# moduleLoadBeforeUdev
+#--------------------------------------
+function moduleLoadBeforeUdev {
+	# /.../
+	# load modules which have to be loaded before the
+	# udev daemon is started in this function
+	# ----
+	loadAGPModules
+}
+#======================================
+# loadAGPModules
+#--------------------------------------
+function loadAGPModules {
+	local krunning=$(uname -r)
+	for i in /lib/modules/$krunning/kernel/drivers/char/agp/*; do
+		test -e $i || continue
+		modprobe $(echo $i | sed "s#.*\\/\\([^\\/]\\+\\).ko#\\1#")
+	done
 }
 #======================================
 # udevKill

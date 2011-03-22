@@ -22,6 +22,8 @@
 		<profile name="ec2" description="KERNEL: Ec2 kernel"/>
 	</profiles>
 	<drivers type="drivers">
+		<file name="drivers/gpu/drm/i915/i915.ko"/>
+		<file name="drivers/char/agp/intel-agp.ko"/>
 		<file name="crypto/*"/>
 		<file name="drivers/thermal/*"/>
 		<file name="drivers/hwmon/*"/>
