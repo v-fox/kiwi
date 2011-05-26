@@ -642,7 +642,7 @@ sub setupBootStick {
 		# add boot space if lvm based
 		#------------------------------------------
 		$lvm = 1;
-		$lvmbootMB  = 60;
+		$lvmbootMB  = 100;
 		$this->{lvm}= $lvm;
 		#==========================================
 		# set volume group name
@@ -683,14 +683,14 @@ sub setupBootStick {
 	if (($type{filesystem} eq "dmsquash") || ($type{filesystem} eq "clicfs")) {
 		$this->{dmapper} = 1;
 		$dmapper  = 1;
-		$dmbootMB = 60;
+		$dmbootMB = 100;
 	}
 	#==========================================
 	# check for LUKS extension
 	#------------------------------------------
 	if ($type{luks}) {
 		$haveluks   = 1;
-		$luksbootMB = 60;
+		$luksbootMB = 100;
 	}
 	#==========================================
 	# setup boot loader type
@@ -704,7 +704,7 @@ sub setupBootStick {
 	# add boot space if syslinux based
 	#------------------------------------------
 	if ($bootloader eq "syslinux") {
-		$syslbootMB= 60;
+		$syslbootMB= 100;
 	}
 	#==========================================
 	# check image split portion
@@ -2201,7 +2201,7 @@ sub setupBootDisk {
 		# add boot space if lvm based
 		#------------------------------------------
 		$lvm = 1;
-		$lvmbootMB  = 60;
+		$lvmbootMB  = 100;
 		$this->{lvm}= $lvm;
 		#==========================================
 		# set volume group name
@@ -2283,14 +2283,14 @@ sub setupBootDisk {
 	if (($type{filesystem} eq "dmsquash") || ($type{filesystem} eq "clicfs")) {
 		$this->{dmapper} = 1;
 		$dmapper  = 1;
-		$dmbootMB = 60;
+		$dmbootMB = 100;
 	}
 	#==========================================
 	# check for LUKS extension
 	#------------------------------------------
 	if ($type{luks}) {
 		$haveluks   = 1;
-		$luksbootMB = 60;
+		$luksbootMB = 100;
 	}
 	#==========================================
 	# setup boot loader type
@@ -2303,7 +2303,7 @@ sub setupBootDisk {
 	# add boot space if syslinux based
 	#------------------------------------------
 	if ($bootloader eq "syslinux") {
-		$syslbootMB = 60;
+		$syslbootMB = 100;
 	}
 	#==========================================
 	# build disk name and label from xml data
