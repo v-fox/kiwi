@@ -1,4 +1,11 @@
 -------------------------------------------------------------------
+Thu May 26 12:18:43 CEST 2011 - ms@suse.de
+
+- increased size of boot partition from 60M to 100M. If
+  mkinitrd is called it might happen that /boot runs
+  out of space (bnc #694506)
+
+-------------------------------------------------------------------
 Fri Mar  4 13:52:24 CET 2011 - ms@suse.de
 
 - netboot: allow network boot in degraded raid mode (bnc #668014)
