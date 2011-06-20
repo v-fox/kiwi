@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Mon Jun 20 14:09:51 CEST 2011 - ms@suse.de
+
+- remove 79-kms.rules udev rule from kiwi initrd (bnc #659843)
+
+-------------------------------------------------------------------
 Wed Jun 15 22:07:06 CEST 2011 - ms@suse.de
 
 - changed kiwi version number from a two part version
