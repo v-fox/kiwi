@@ -1,13 +1,22 @@
 '\" t
 .\"     Title: kiwi::images.sh
 .\"    Author: Marcus Schäfer <ms (AT) suse.de>
-.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: Created: 02/25/2011
+.\" Generator: DocBook XSL Stylesheets v1.76.1-RC1 <http://docbook.sf.net/>
+.\"      Date: Created: 07/12/2011
 .\"    Manual: KIWI Manualpage
 .\"    Source: KIWI v3.65
 .\"  Language: English
 .\"
-.TH "KIWI::IMAGES\&.SH" "1" "Created: 02/25/2011" "KIWI v3\&.65" "KIWI Manualpage"
+.TH "KIWI::IMAGES\&.SH" "1" "Created: 07/12/2011" "KIWI v3\&.65" "KIWI Manualpage"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
 .\" -----------------------------------------------------------------
 .\" * set default formatting
 .\" -----------------------------------------------------------------
@@ -72,7 +81,7 @@ Return the name(s) of profiles used to build this image
 .PP
 [baseGetPackagesForDeletion]
 .RS 4
-Return the list of packages setup in the packages type=\'delete\' section of the config\&.xml used to build this image
+Return the list of packages setup in the packages type=\*(Aqdelete\*(Aq section of the config\&.xml used to build this image
 .RE
 .PP
 [baseSetupOEMPartition]
@@ -145,7 +154,7 @@ The contents of the timezone setup as done in config\&.xml
 .PP
 [$kiwi_delete]
 .RS 4
-A list of all packages which are part of the packages section with type=\'delete\' in config\&.xml
+A list of all packages which are part of the packages section with type=\*(Aqdelete\*(Aq in config\&.xml
 .RE
 .PP
 [$kiwi_profiles]

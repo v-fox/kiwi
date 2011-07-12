@@ -305,6 +305,22 @@ The following format is used:
                   a disk one can set a lower \textbf{x} letter as
                   size specification.
         \end{itemize}
+	\item \textbf{RAID}\\
+		In addtion to the PART line it's also allowed to add a raid
+		array setup. The first parmater of the RAID line is the raid level.
+		So far only raid1 (mirroring) is supported. The second and third
+		parameter specifies the raid disk devices which makes up the array.
+		If a RAID line is present all partitions in PART will be created
+		as raid partitions. The first raid is named md0 the second one md1
+		and so on. It's required to specifiy the correct raid partition in
+		the IMAGE line according to the PART setup.
+		A typical raid image setup could look like this:
+\begin{verbatim}
+DISK=/dev/sda
+IMAGE=/dev/md1;LimeJeOS-openSUSE-##.#.i686;1.11.3;192.168.100.2;4096
+PART=5;S;x,2000;83;/
+RAID=1;/dev/sda;/dev/sdb
+\end{verbatim}
     \item \textbf{DISK}\\
         Specifies the hard disk. Used only with PART and defines
         the device via which the hard disk can be addressed,
