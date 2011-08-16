@@ -89,23 +89,12 @@ if [ "$systemIntegrity" = "clean" ];then
 fi
 
 #======================================
-# 9) Reset systemIntegrity
+# 9) check for valid mount points 
 #--------------------------------------
-if [ ! -z "$DISK" ];then
-	if test ! -z $RELOAD_CONFIG;then
-		systemIntegrity=$systemIntegrity_save
-	fi
-fi
-
-#======================================
-# 10) check for valid mount points 
-#--------------------------------------
-if [ ! -z "$DISK" ];then
+if [ ! -z "$DISK" ] && [ "$systemIntegrity" = "clean" ];then
 	IFS=":" ; for i in $PART_MOUNT;do
-	if test ! -z "$i";then
-	if test ! -f "$i";then
+	if [ ! -z "$i" ] && [ ! -e "$i" ] && [ ! "$i" = "x" ];then
 		mkdir -p $i
-	fi
 	fi
 	done
 fi
@@ -113,7 +102,7 @@ fi
 #======================================
 # 11) Update /etc/ImageVersion files
 #--------------------------------------
-if [ ! -z "$DISK" ];then
+if [ ! -z "$DISK" ] && [ "$systemIntegrity" = "clean" ];then
 	count=0
 	IFS="," ; for i in $IMAGE;do
 		count=$(($count + 1))
@@ -150,9 +139,5 @@ fi
 #======================================
 # 13) kill udev
 #--------------------------------------
-if [ ! -z "$DISK" ] && [ "$systemIntegrity" = "clean" ]; then
-	if [ -z "$UNIONFS_CONFIG" ] && [ -z "$COMBINED_IMAGE" ]; then
-		udevKill
-		umountSystemFilesystems
-	fi
-fi
+udevSystemStop
+umountSystemFilesystems

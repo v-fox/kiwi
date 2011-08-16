@@ -1,4 +1,9 @@
 -------------------------------------------------------------------
+Tue Aug 16 15:28:41 CEST 2011 - ms@suse.de
+
+- fixed shutdown of udev in netboot preinit code (bnc #710017)
+
+-------------------------------------------------------------------
 Tue Jul 12 11:11:11 CEST 2011 - ms@suse.de
 
 - added documentation about pxe RAID feature (bnc #704707)
