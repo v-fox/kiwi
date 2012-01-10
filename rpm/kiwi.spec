@@ -1,7 +1,7 @@
 #
-# spec file for package kiwi (Version 4.98.15)
+# spec file for package kiwi
 #
-# Copyright (c) 2010 SUSE LINUX Products GmbH, Nuernberg, Germany.
+# Copyright (c) 2011 SUSE LINUX Products GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -11,55 +11,64 @@
 # case the license is the MIT License). An "Open Source License" is a
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
-#
+
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
-
-# needsrootforbuild
-
 Url:            http://github.com/openSUSE/kiwi
 Name:           kiwi
-BuildRequires:  perl-Config-IniFiles perl-XML-LibXML perl-libwww-perl
-BuildRequires:  module-init-tools screen zlib-devel
-BuildRequires:  gcc-c++ libxslt swig trang
+Summary:        OpenSuSE - KIWI Image System
+License:        GPL-2.0
+Group:          System/Management
+Version:        5.02.2
+Release:        0
+# requirements to build packages
+BuildRequires:  gcc-c++
+BuildRequires:  libxslt
+BuildRequires:  module-init-tools
+BuildRequires:  perl-Config-IniFiles
+BuildRequires:  perl-XML-LibXML
+BuildRequires:  perl-libwww-perl
+BuildRequires:  screen
+BuildRequires:  zlib-devel
 %if %{suse_version} > 1020
 BuildRequires:  fdupes
 %endif
 %ifarch %ix86 x86_64
 BuildRequires:  syslinux
 %endif
-%if %{suse_version} > 1010
-BuildRequires:  libqt4 libqt4-devel
-%else
-BuildRequires:  freetype2-devel libpng-devel qt qt-devel
-%endif 
 %if %{suse_version} > 1030
-BuildRequires:  libexpat-devel rpm-devel
-%endif
-%if %{suse_version} > 1030 && %{suse_version} <= 1130
-BuildRequires: libsatsolver-devel
+BuildRequires:  libexpat-devel
+BuildRequires:  rpm-devel
 %endif
 %if %{suse_version} > 1140
-BuildRequires: perl-Test-Unit btrfsprogs squashfs
-BuildRequires: genisoimage cdrkit-cdrtools-compat zypper
+BuildRequires:  btrfsprogs
+BuildRequires:  perl-Test-Unit
+BuildRequires:  squashfs
+BuildRequires:  cdrkit-cdrtools-compat
+BuildRequires:  genisoimage
+BuildRequires:  zypper
 %endif
-%if %{suse_version} <= 1010
-Requires:       qt
-%endif
+# requirements to run kiwi
+Requires:       perl = %{perl_version}
+Requires:       perl-XML-LibXML
+Requires:       perl-libwww-perl
+Requires:       screen
+Requires:       coreutils
+Requires:       perl-XML-LibXML-Common
+Requires:       perl-XML-SAX
+Requires:       perl-Config-IniFiles
+Requires:       kiwi-tools
+Requires:       libxslt
+Requires:       checkmedia
+Requires:       util-linux
+Requires:       rsync
 %ifarch %ix86 x86_64
 %if %{suse_version} > 1010
 Requires:       squashfs
 %endif
 %endif
-Requires:       perl = %{perl_version}
-Requires:       perl-XML-LibXML perl-libwww-perl screen coreutils
-Requires:       perl-XML-LibXML-Common perl-XML-SAX perl-Config-IniFiles
-Requires:       kiwi-tools libxslt checkmedia util-linux rsync
 %if %{suse_version} > 1030
 Requires:       satsolver-tools
-%endif
-%if %{suse_version} > 1130
-Requires:       perl-satsolver >= 0.42
 %endif
 %ifarch %ix86 x86_64
 Requires:       master-boot-code
@@ -67,21 +76,21 @@ Requires:       master-boot-code
 Requires:       clicfs >= 1.3.9
 %endif
 %endif
-Summary:        OpenSuSE - KIWI Image System
-Version:        4.98.15
-Release:        1
-Group:          System/Management
-License:        GPLv2
+# recommended to run kiwi
+%if 0%{?suse_version}
+Recommends:     perl-satsolver >= 0.42
+Recommends:     jing
+Recommends:     zypper
+%endif
+# obsoletes
+Obsoletes:      kiwi-desc-usbboot <= 4.81
+# sources
 Source:         %{name}.tar.bz2
 Source1:        %{name}-rpmlintrc
 Source2:        %{name}-docu.tar.bz2
 Source3:        %{name}-repo.tar.bz2
+# build root path
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-%if 0%{?suse_version}
-Recommends:     jing
-Recommends:     zypper
-%endif
-Obsoletes:      kiwi-desc-usbboot <= 4.81
 
 
 %description
@@ -91,13 +100,13 @@ virtualization systems like Xen.
 
 Authors:
 --------
-    Marcus Schaefer <ms@novell.com>
+    Marcus Schaefer <ms@suse.com>
 
 %package -n kiwi-instsource
-License:        GPLv2
 Requires:       kiwi = %{version}
 Requires:       inst-source-utils createrepo build
 Summary:        Installation Source creation
+License:        GPL-2.0
 Group:          System/Management
 %if 0%{?suse_version} > 1120
 BuildArch:      noarch
@@ -112,12 +121,12 @@ the image creation process afterwards. This package allows using the
 
 Authors:
 --------
-	Adrian Schroeter <adrian@novell.com>
-	Jan Bornschlegel <jcborn@novell.com>
+	Adrian Schroeter <adrian@suse.com>
+	Jan Bornschlegel <jcborn@suse.com>
 
 %package -n kiwi-doc
-License:        LGPLv2.0+
 Summary:        OpenSuSE - KIWI Image System Documentation
+License:        LGPL-2.0+
 Group:          Documentation/Howto
 %if 0%{?suse_version} > 1120
 BuildArch:      noarch
@@ -133,8 +142,8 @@ Authors:
     Marcus Schaefer
 
 %package -n kiwi-tools
-License:        GPLv2+
 Summary:        OpenSuSE - KIWI tools collection
+License:        GPL-2.0+
 Group:          System/Management
 
 %description -n kiwi-tools
@@ -143,14 +152,14 @@ outside of operating system images
 
 Authors:
 --------
-    Marcus Schaefer <ms@novell.com>
+    Marcus Schaefer <ms@suse.com>
 
 %ifarch %ix86 x86_64
 
 %package -n kiwi-pxeboot
-License:        GPLv2+
 Requires:       syslinux
 Summary:        OpenSuSE - KIWI Image System PXE boot structure
+License:        GPL-2.0+
 Group:          System/Management
 %if 0%{?suse_version} > 1120
 BuildArch:      noarch
@@ -161,13 +170,12 @@ PXE basic directory structure and pre-build boot images
 
 Authors:
 --------
-    Marcus Schaefer <ms@novell.com>
+    Marcus Schaefer <ms@suse.com>
 %endif
 
 %ifarch %ix86 x86_64
 
 %package -n kiwi-desc-isoboot
-License:        GPLv2+
 Requires:       kiwi = %{version}
 Requires:       syslinux
 %if %{suse_version} > 1010
@@ -176,6 +184,7 @@ Requires:       genisoimage
 Requires:       mkisofs
 %endif
 Summary:        OpenSuSE - KIWI Image System ISO boot
+License:        GPL-2.0+
 Group:          System/Management
 %if 0%{?suse_version} > 1120
 BuildArch:      noarch
@@ -186,15 +195,19 @@ kiwi boot (initrd) image for activating system images on ISO media
 
 Authors:
 --------
-    Marcus Schaefer <ms@novell.com>
+    Marcus Schaefer <ms@suse.com>
 %endif
 
-%ifarch %ix86 x86_64 ppc ppc64 s390 s390x
+%ifarch %ix86 x86_64 ppc ppc64 s390 s390x %arm
 
 %package -n kiwi-desc-vmxboot
-License:        GPLv2+
 Requires:       kiwi = %{version}
+%if 0%{?suse_version}
 Requires:       multipath-tools parted
+%else if 0%{?rhel_version}
+Requires:       device-mapper-multipath parted
+%endif
+
 %ifarch %ix86 x86_64
 Requires:       grub
 %endif
@@ -208,6 +221,7 @@ Requires:       qemu
 %endif
 %endif
 Summary:        OpenSuSE - KIWI Image System Virtual Machine boot
+License:        GPL-2.0+
 Group:          System/Management
 %if 0%{?suse_version} > 1120
 BuildArch:      noarch
@@ -218,15 +232,15 @@ kiwi boot (initrd) image for activating system images on virtual disk
 
 Authors:
 --------
-    Marcus Schaefer <ms@novell.com>
+    Marcus Schaefer <ms@suse.com>
 %endif
 
 %ifarch %ix86 x86_64 ppc ppc64 s390 s390x
 
 %package -n kiwi-desc-netboot
-License:        GPLv2+
 Requires:       kiwi = %{version}
 Summary:        OpenSuSE - KIWI Image System PXE network boot
+License:        GPL-2.0+
 Group:          System/Management
 %if 0%{?suse_version} > 1120
 BuildArch:      noarch
@@ -237,13 +251,12 @@ kiwi boot (initrd) image for activating system images via TFTP
 
 Authors:
 --------
-    Marcus Schaefer <ms@novell.com>
+    Marcus Schaefer <ms@suse.com>
 %endif
 
 %ifarch %ix86 x86_64 ppc ppc64 s390 s390x
 
 %package -n kiwi-desc-oemboot
-License:        GPLv2
 Requires:       kiwi = %{version}
 %ifarch ppc ppc64 s390 s390x
 Requires:       virt-utils
@@ -254,7 +267,12 @@ Requires:       virt-utils
 Requires:       qemu
 %endif
 %endif
+%if 0%{?suse_version}
 Requires:       multipath-tools parted
+%else if 0%{?rhel_version}
+Requires:       device-mapper-multipath parted
+%endif
+
 %ifarch %ix86 x86_64
 Requires:       grub
 %endif
@@ -264,6 +282,7 @@ Requires:       genisoimage
 Requires:       mkisofs
 %endif
 Summary:        OpenSuSE - KIWI image descriptions
+License:        GPL-2.0
 Group:          System/Management
 %if 0%{?suse_version} > 1120
 BuildArch:      noarch
@@ -276,15 +295,15 @@ image description
 
 Authors:
 --------
-    Marcus Schaefer <ms@novell.com>
+    Marcus Schaefer <ms@suse.com>
 %endif
 
-%ifarch %ix86 x86_64 ppc ppc64 s390 s390x
+%ifarch %ix86 x86_64 ppc ppc64 s390 s390x %arm
 
 %package -n kiwi-templates
-License:        GPL v2.0 or later
 Requires:       kiwi-desc-vmxboot = %{version}
 Summary:        OpenSuSE - KIWI JeOS system image templates
+License:        GPL-2.0+
 Group:          System/Management
 %if 0%{?suse_version} > 1120
 BuildArch:      noarch
@@ -299,19 +318,21 @@ Authors:
     Marcus Schaefer
 %endif
 
-%ifarch %ix86 x86_64 ppc ppc64 s390 s390x
+%ifarch %ix86 x86_64 ppc ppc64 s390 s390x %arm
 
 %package -n kiwi-media-requires
-License:        GPL v2.0 or later
 Summary:        OpenSuSE - packages which should be part of the DVD
+License:        GPL-2.0+
 Group:          System/Management
 %if 0%{?suse_version} > 1120
 BuildArch:      noarch
 %endif
+%if 0%{?suse_version}
 Recommends:     busybox
 Recommends:     atftp
 Recommends:     gfxboot
 Recommends:     memtest86+
+%endif
 
 %description -n kiwi-media-requires
 This package recommends a set of packages which should be part of
@@ -323,7 +344,6 @@ Authors:
 --------
     Marcus Schaefer
 %endif
-
 
 %prep
 %setup -n %name -a2 -a3
@@ -364,10 +384,6 @@ test -f $RPM_BUILD_ROOT/srv/tftpboot/pxelinux.0 && \
 	echo /srv/tftpboot/pxelinux.0 > kiwi.loader
 test -f $RPM_BUILD_ROOT/srv/tftpboot/mboot.c32 && \
 	echo /srv/tftpboot/mboot.c32 >> kiwi.loader
-%if 0%{?suse_version}
-%perl_process_packlist
-%endif
-rm -f $RPM_BUILD_ROOT/%{perl_vendorarch}/KIWI/example.pl
 ./.links
 %if %{suse_version} > 1020
 %fdupes $RPM_BUILD_ROOT/srv/tftpboot
@@ -424,6 +440,9 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch s390 s390x
 %exclude %{_datadir}/kiwi/image/suse-SLE11-JeOS
 %endif
+%ifarch %arm
+%exclude %{_datadir}/kiwi/image/suse-SLE12-JeOS
+%endif
 %{_datadir}/kiwi/.revision
 %{_datadir}/kiwi/modules
 %{_datadir}/kiwi/locale
@@ -434,11 +453,6 @@ rm -rf $RPM_BUILD_ROOT
 %exclude %{_datadir}/kiwi/modules/KIWIUtil.pm
 %{_datadir}/kiwi/xsl
 %{_sbindir}/kiwi
-%if 0%{?suse_version} < 1140 && %{suse_version} >0
-%{perl_vendorarch}/KIWI
-%{perl_vendorarch}/auto/KIWI
-/var/adm/perl-modules/kiwi
-%endif
 #=================================================
 # KIWI doc...      
 #-------------------------------------------------
@@ -501,14 +515,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/kiwi/image/isoboot/rhel*
 %endif
 
-%ifarch %ix86 x86_64 ppc ppc64 s390 s390x
+%ifarch %ix86 x86_64 ppc ppc64 s390 s390x %arm
 
 %files -n kiwi-desc-vmxboot
 %defattr(-, root, root)
 %dir %{_datadir}/kiwi/image/vmxboot
 %doc %{_datadir}/kiwi/image/vmxboot/README
 %{_datadir}/kiwi/image/vmxboot/suse*
+%ifarch %ix86 x86_64
 %{_datadir}/kiwi/image/vmxboot/rhel*
+%endif
 %endif
 
 %ifarch %ix86 x86_64 ppc ppc64 s390 s390x
@@ -529,7 +545,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/kiwi/image/oemboot/suse*
 %endif
 
-%ifarch %ix86 x86_64 ppc ppc64 s390 s390x
+%ifarch %ix86 x86_64 ppc ppc64 s390 s390x %arm
 
 %files -n kiwi-templates
 %defattr(-, root, root)
@@ -544,13 +560,16 @@ rm -rf $RPM_BUILD_ROOT
 %ifarch s390 s390x
 %{_datadir}/kiwi/image/suse-SLE11-JeOS
 %endif
+%ifarch %arm
+%{_datadir}/kiwi/image/suse-SLE12-JeOS
+%endif
 %ifarch ppc ppc64
 %{_datadir}/kiwi/image/suse-SLE11-JeOS
 %endif
 
 %endif
 
-%ifarch %ix86 x86_64 ppc ppc64 s390 s390x
+%ifarch %ix86 x86_64 ppc ppc64 s390 s390x %arm
 
 %files -n kiwi-media-requires
 %defattr(-, root, root)
