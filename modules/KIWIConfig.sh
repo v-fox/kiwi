@@ -1640,7 +1640,8 @@ function basePackBootIncludes {
 	fi
 	if [ ! -z "$kiwi_fixedpackbootincludes" ];then
 		echo "Packing bootincluded packages..."
-		rpm -ql $kiwi_fixedpackbootincludes | xargs tar -C / -rvf $archive
+		rpm -qvl $kiwi_fixedpackbootincludes | grep -v ^d | cut -f2- -d/ |\
+			xargs tar -C / -rvf $archive
 	fi
 }
 
