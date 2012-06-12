@@ -2801,10 +2801,8 @@ sub preImage {
 	#==========================================
 	# Create logical extend
 	#------------------------------------------
-	if (! defined $haveExtend) {
-		if (! $this -> buildLogicalExtend ($name,$mBytes."M")) {
-			return undef;
-		}
+	if (! $this -> buildLogicalExtend ($name,$mBytes."M",$haveExtend)) {
+		return;
 	}
 	return $name;
 }
@@ -3116,15 +3114,22 @@ sub postImage {
 # buildLogicalExtend
 #------------------------------------------
 sub buildLogicalExtend {
-	my $this = shift;
-	my $name = shift;
-	my $size = shift;
-	my $kiwi = $this->{kiwi};
-	my $xml  = $this->{xml};
+	my $this   = shift;
+	my $name   = shift;
+	my $size   = shift;
+	my $device = shift;
+	my $kiwi   = $this->{kiwi};
+	my $xml    = $this->{xml};
 	my $encode = 0;
 	my $cipher = 0;
-	my $out  = $this->{imageDest}."/".$name;
-	my %type = %{$xml->getImageTypeAndAttributes()};
+	my $out    = $this->{imageDest}."/".$name;
+	my %type   = %{$xml->getImageTypeAndAttributes()};
+	#==========================================
+	# a size is required
+	#------------------------------------------
+	if (! defined $size) {
+		return;
+	}
 	#==========================================
 	# Check if luks encoding is requested
 	#------------------------------------------
@@ -3136,28 +3141,27 @@ sub buildLogicalExtend {
 	#==========================================
 	# Calculate block size and number of blocks
 	#------------------------------------------
-	if (! defined $size) {
-		return undef;
-	}
-	my @bsc  = getBlocks ( $size );
-	my $seek = $bsc[2] - 1;
-	#==========================================
-	# Create logical extend storage and FS
-	#------------------------------------------
-	unlink ($out);
-	my $data = qxx ("dd if=/dev/zero of=$out bs=1 seek=$seek count=1 2>&1");
-	my $code = $? >> 8;
-	if ($code != 0) {
-		$kiwi -> error  ("Couldn't create logical extend");
-		$kiwi -> failed ();
-		$kiwi -> error  ($data);
-		return undef;
+	if (! defined $device) {
+		my @bsc  = getBlocks ( $size );
+		my $seek = $bsc[2] - 1;
+		#==========================================
+		# Create logical extend storage and FS
+		#------------------------------------------
+		unlink ($out);
+		my $data = qxx ("qemu-img create $out $seek 2>&1");
+		my $code = $? >> 8;
+		if ($code != 0) {
+			$kiwi -> error  ("Couldn't create logical extend");
+			$kiwi -> failed ();
+			$kiwi -> error  ($data);
+			return undef;
+		}
 	}
 	#==========================================
 	# Setup encoding
 	#------------------------------------------
 	if ($encode) {
-		$this -> setupEncoding ($name,$out,$cipher);
+		$this -> setupEncoding ($name,$out,$cipher,$device);
 	}
 	return $name;
 }
@@ -3175,15 +3179,23 @@ sub setupEncoding {
 	my $name   = shift;
 	my $out    = shift;
 	my $cipher = shift;
+	my $device = shift;
 	my $kiwi   = $this->{kiwi};
 	my $data;
 	my $code;
-	$data = qxx ("/sbin/losetup -s -f $out 2>&1"); chomp $data;
-	$code = $? >> 8;
-	if ($code != 0) {
-		$kiwi -> error  ("Couldn't loop bind logical extend: $data");
-		$kiwi -> failed ();
-		return undef;
+	if ((defined $device) && (! -b $device)) {
+		return;
+	}
+	if (! defined $device) {
+		$data = qxx ("/sbin/losetup -s -f $out 2>&1"); chomp $data;
+		$code = $? >> 8;
+		if ($code != 0) {
+			$kiwi -> error  ("Couldn't loop bind logical extend: $data");
+			$kiwi -> failed ();
+			return undef;
+		}
+	} else {
+		$data = $device;
 	}
 	my $loop = $data;
 	my @luksloop;
