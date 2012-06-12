@@ -1288,6 +1288,10 @@ sub createImageLiveCD {
 	my $hybridpersistent = 0;
 	my $cmdline;
 	#==========================================
+	# Disable target device support for iso
+	#------------------------------------------
+	undef $this->{gdata}->{StudioNode};
+	#==========================================
 	# Store arch name used by iso
 	#------------------------------------------
 	my $isoarch = qxx ("uname -m"); chomp $isoarch;
