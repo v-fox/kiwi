@@ -1242,12 +1242,6 @@ sub createImageVMX {
 	#==========================================
 	# Create VM format/configuration
 	#------------------------------------------
-	if ($this->{gdata}->{StudioNode}) {
-		$kiwi -> loginfo (
-			"Format conversion skipped in targetstudio mode\n"
-		);
-		return $this;
-	}
 	if ((defined $name->{format}) || ($xendomain eq "domU")) {
 		$cmdL -> setSystemLocation (
 			$idest."/".$name->{systemImage}.".raw"
