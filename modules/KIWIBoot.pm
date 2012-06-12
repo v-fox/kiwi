@@ -2043,14 +2043,6 @@ sub setupBootDisk {
 			#==========================================
 			# Wait for new partition table to settle
 			#------------------------------------------
-			if ($haveDiskDevice) {
-				$kiwi -> failed();
-				$kiwi -> error (
-					"Sorry given disk $haveDiskDevice is too small"
-				);
-				$kiwi -> failed();
-				return;
-			}
 			sleep (1);
 			#==========================================
 			# Umount possible mounted stick partitions
