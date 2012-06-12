@@ -778,6 +778,9 @@ sub createImageBTRFS {
 	if (! defined $name) {
 		return undef;
 	}
+	if ($this->{targetDevice}) {
+		$device = $this->{targetDevice};
+	}
 	#==========================================
 	# Create filesystem on extend
 	#------------------------------------------
@@ -808,6 +811,9 @@ sub createImageXFS {
 	my $name = $this -> preImage ($device);
 	if (! defined $name) {
 		return undef;
+	}
+	if ($this->{targetDevice}) {
+		$device = $this->{targetDevice};
 	}
 	#==========================================
 	# Create filesystem on extend
@@ -3147,14 +3153,33 @@ sub buildLogicalExtend {
 		#==========================================
 		# Create logical extend storage and FS
 		#------------------------------------------
-		unlink ($out);
-		my $data = qxx ("qemu-img create $out $seek 2>&1");
-		my $code = $? >> 8;
-		if ($code != 0) {
-			$kiwi -> error  ("Couldn't create logical extend");
-			$kiwi -> failed ();
-			$kiwi -> error  ($data);
-			return undef;
+		if (-x $this->{gdata}->{StudioNode}) {
+			#==========================================
+			# Call custom image creation tool...
+			#------------------------------------------
+			my $data = qxx ("$this->{gdata}->{StudioNode} $seek 2>&1");
+			my $code = $? >> 8;
+			chomp $data;
+			if (($code != 0) || (! -b $data)) {
+				$kiwi -> error  ("Failed creating Studio storage device: $data");
+				$kiwi -> failed ();
+				return;
+			}
+			$device = $data;
+			$this->{targetDevice} = $device;
+		} else {
+			#==========================================
+			# loop setup a disk device as file...
+			#------------------------------------------
+			unlink ($out);
+			my $data = qxx ("qemu-img create $out $seek 2>&1");
+			my $code = $? >> 8;
+			if ($code != 0) {
+				$kiwi -> error  ("Couldn't create logical extend");
+				$kiwi -> failed ();
+				$kiwi -> error  ($data);
+				return;
+			}
 		}
 	}
 	#==========================================
@@ -3267,7 +3292,7 @@ sub installLogicalExtend {
 	#==========================================
 	# dump image file from device if requested
 	#------------------------------------------
-	if ($device) {
+	if (($device) && (! $this->{gdata}->{StudioNode})) {
 		$this -> cleanMount();
 		$name = $this -> buildImageName ();
 		my $dest = $this->{imageDest}."/".$name;
