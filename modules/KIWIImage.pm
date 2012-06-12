@@ -800,24 +800,25 @@ sub createImageXFS {
 	# ...
 	# create XFS image from source tree
 	# ---
-	my $this = shift;
+	my $this   = shift;
+	my $device = shift;
 	#==========================================
 	# PRE filesystem setup
 	#------------------------------------------
-	my $name = $this -> preImage ();
+	my $name = $this -> preImage ($device);
 	if (! defined $name) {
 		return undef;
 	}
 	#==========================================
 	# Create filesystem on extend
 	#------------------------------------------
-	if (! $this -> setupXFS ( $name )) {
+	if (! $this -> setupXFS ( $name,$device )) {
 		return undef;
 	}
 	#==========================================
 	# POST filesystem setup
 	#------------------------------------------
-	if (! $this -> postImage ($name)) {
+	if (! $this -> postImage ($name,undef,undef,$device)) {
 		return undef;
 	}
 	return $this;
@@ -3841,14 +3842,19 @@ sub setupSquashFS {
 sub setupXFS {
 	my $this   = shift;
 	my $name   = shift;
+	my $device = shift;
 	my $cmdL   = $this->{cmdL};
 	my $kiwi   = $this->{kiwi};
 	my %FSopts = $main::global -> checkFSOptions(
 		@{$cmdL->getFilesystemOptions()}
 	);
 	my $fsopts = $FSopts{xfs};
+	my $target = $this->{imageDest}."/".$name;
+	if ($device) {
+		$target = $device;
+	}
 	my $data = qxx (
-		"/sbin/mkfs.xfs $fsopts $this->{imageDest}/$name 2>&1"
+		"/sbin/mkfs.xfs $fsopts $target 2>&1"
 	);
 	my $code = $? >> 8;
 	if ($code != 0) {
@@ -3856,6 +3862,9 @@ sub setupXFS {
 		$kiwi -> failed ();
 		$kiwi -> error  ($data);
 		return undef;
+	}
+	if ($device) {
+		qxx ("touch $this->{imageDest}/$name");
 	}
 	$this -> restoreImageDest();
 	$data = qxx ("cd $this->{imageDest} && ln -vs $name $name.xfs 2>&1");
