@@ -677,6 +677,9 @@ sub createImageEXT {
 	if (! defined $name) {
 		return undef;
 	}
+	if ($this->{targetDevice}) {
+		$device = $this->{targetDevice};
+	}
 	#==========================================
 	# Create filesystem on extend
 	#------------------------------------------
@@ -746,6 +749,9 @@ sub createImageReiserFS {
 	my $name = $this -> preImage ($device);
 	if (! defined $name) {
 		return undef;
+	}
+	if ($this->{targetDevice}) {
+		$device = $this->{targetDevice};
 	}
 	#==========================================
 	# Create filesystem on extend
