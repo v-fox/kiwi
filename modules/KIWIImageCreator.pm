@@ -727,15 +727,10 @@ sub createImage {
 			if (! $format) {
 				return undef;
 			}
-			if ($this->{gdata}->{StudioNode}) {
-				$kiwi -> loginfo (
-					"Format conversion skipped in targetstudio mode\n"
-				);
-			} else {
-				if (! $format -> createFormat()) {
-					return;
-				}
+			if (! $format -> createFormat()) {
+				return;
 			}
+			$format -> createMaschineConfiguration();
 		}
 		undef $image;
 		return 1;
@@ -940,10 +935,8 @@ sub createImageFormat {
 	if (! $imageformat) {
 		return undef;
 	}
-	if ($this->{gdata}->{StudioNode}) {
-		$kiwi -> loginfo ("Format conversion skipped in targetstudio mode\n");
-    } else {
-		$imageformat -> createFormat();
+	if (! $imageformat -> createFormat()) {
+		return undef;
 	}
 	$imageformat -> createMaschineConfiguration();
 	return 1;
