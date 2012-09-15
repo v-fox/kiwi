@@ -480,6 +480,7 @@ sub createEC2 {
 	}
 	sub clean_loop {
 		my $dir = shift;
+		qxx ("umount $dir/sys 2>&1");
 		qxx ("umount $dir 2>&1");
 		qxx ("rmdir  $dir 2>&1");
 	}
@@ -1038,7 +1039,6 @@ sub __copy_origin {
 		qxx ("cp $file $file.orig");
 	}
 }
-
 #==========================================
 # Destructor
 #------------------------------------------
