@@ -1,4 +1,10 @@
 -------------------------------------------------------------------
+Thu Jun  5 15:23:15 CEST 2014 - adrian@suse.de
+
+- KIWICollect: fix order of architectures if one repository
+  contains multiple architecture versions of same rpm.
+
+-------------------------------------------------------------------
 Thu Dec  5 10:07:53 CET 2013 - ms@suse.de
 
 - fixed partition alignment for image and repartitioning
