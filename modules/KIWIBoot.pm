@@ -5935,25 +5935,14 @@ sub installBootLoader {
         my $config = "$mount/boot/zipl.conf";
         if (! $haveRealDevice) {
             #==========================================
-            # get physical blocksize of target
-            #------------------------------------------
-            my $bsize = KIWIQX::qxx (
-                "blockdev --getss $this->{loop} 2>&1"
-            );
-            my $result = $? >> 8;
-            if ($result != 0) {
-                $kiwi -> error  (
-                    "Can't get block size for device $this->{loop}: $bsize"
-                );
-                $kiwi -> failed ();
-                KIWIQX::qxx ("umount $mount 2>&1");
-                $this -> cleanStack ();
-                return;
-            }
-            chomp $bsize;
-            #==========================================
             # set target type
             #------------------------------------------
+            my $bsize = $xml -> getImageType() -> getTargetBlockSize();
+            if (! $bsize) {
+                $bsize = KIWIGlobals -> instance() -> getKiwiConfigEntry(
+                    'DiskSectorSize'
+                );
+            }
             my $chs = $this -> diskCHS($diskname);
             my $type = $xml -> getImageType() -> getZiplTargetType();
             if (! $type) {

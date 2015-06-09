@@ -64,6 +64,18 @@ sub getKiwiConfig {
 }
 
 #==========================================
+# getKiwiConfigEntry
+#------------------------------------------
+sub getKiwiConfigEntry {
+    # ...
+    # Return a the value for a specific config key
+    # ---
+    my $this = shift;
+    my $key  = shift;
+    return $this->{data}->{$key};
+}
+
+#==========================================
 # setKiwiConfigData
 #------------------------------------------
 sub setKiwiConfigData {
@@ -421,7 +433,8 @@ sub mount {
                 $result = $? >> 8;
             }
         } elsif ($type eq "clicfs") {
-            $status = KIWIQX::qxx ("clicfs -m 512 $source $dest 2>&1");
+            my $clic_memory = 1024; # 1G ram for write operations
+            $status = KIWIQX::qxx ("clicfs -m $clic_memory $source $dest 2>&1");
             $result = $? >> 8;
             if ($result == 0) {
                 $status = KIWIQX::qxx ("resize2fs $dest/fsdata.ext4 2>&1");
