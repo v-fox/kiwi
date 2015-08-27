@@ -125,6 +125,7 @@ sub new {
         kiwi_timezone
         kiwi_type
         kiwi_vga
+        kiwi_wwid_wait_timeout
         kiwi_xendomain
     );
     #==========================================
@@ -379,6 +380,8 @@ sub __updateXMLType {
         $type -> getCompressed();
     $data{kiwi_boot_timeout} =
         $type -> getBootTimeout();
+    $data{kiwi_wwid_wait_timeout} =
+        $type -> getWWIDWaitTimeout();
     $data{kiwi_hybrid} =
         $type -> getHybrid();
     $data{kiwi_hybridpersistent} =
