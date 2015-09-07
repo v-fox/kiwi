@@ -7851,7 +7851,9 @@ function activateImage {
     mount --move /dev /mnt/dev
     if [[ ! $kiwi_iname =~ SLE.11 ]];then
         mount --move /run /mnt/run
-        mount --move /var/run /mnt/var/run
+        if [ ! -L /mnt/var/run ];then
+            mount --move /var/run /mnt/var/run
+        fi
     fi
     udevKill
     #======================================
