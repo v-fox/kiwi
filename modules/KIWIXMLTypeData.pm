@@ -2175,7 +2175,7 @@ sub __isValidBootloader {
         berryboot
         yaboot
         zipl
-        ziplgrub
+        grub2_s390x_emu
     );
     if (! $supported{$bootL} ) {
         my $msg = "$caller: specified bootloader '$bootL' is not supported.";
