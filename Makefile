@@ -11,3 +11,7 @@ schema/KIWISchema.xsd: schema/KIWISchema.rnc
 
 clean:
 	${MAKE} -C schema clean
+	find -name *.pyc | xargs rm -f
+	rm -rf kiwi.egg-info
+	rm -rf build
+	rm -rf dist

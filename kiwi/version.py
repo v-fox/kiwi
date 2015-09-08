@@ -14,14 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
-import xml
-
-def main():
-    """
-        kiwi - main entry
-    """
-    image_xml = xml.parse('/home/ms/config.xml', True)
-
-    print image_xml.get_name()
-
-    print image_xml.get_preferences()[0].get_type()[0].get_image()
+"""
+    Global version information used in kiwi and the package
+"""
+__VERSION__ = '8.10.0'
