@@ -1,5 +1,0 @@
-Build instructions for local build
-==================================
-* call kiwi:
-  kiwi --build suse-SLE12-JeOS --set-repo /path/to/SLE12/repo \
-     -d /tmp/myimage --type vmx

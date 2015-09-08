@@ -1,2 +1,0 @@
-rsync -rlvt img *.html *.css \
-    community.opensuse.org:doc.opensuse.org/htdocs/projects/kiwi/schema-doc

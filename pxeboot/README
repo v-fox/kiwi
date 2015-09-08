@@ -1,9 +1,0 @@
-# /.../
-# kiwi provide a default structure for the pxe boot environment
-# with the package kiwi-pxeboot. The configuration for booting over PXE
-# is stored in /srv/tftpboot/pxelinux.cfg/default.
-#
-# Details about the PXE boot server setup and an example can be
-# found in the PXE chapter inside the kiwi cookbook (kiwi.pdf)
-# Package: kiwi-doc
-#

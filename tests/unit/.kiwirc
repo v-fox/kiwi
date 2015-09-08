@@ -1,6 +1,0 @@
-use File::Spec;
-
-our $BasePath = File::Spec->rel2abs ("../../");
-if (! -f "../../.revision") {
-    qx(cd ../../ && ./.version > .revision)
-}
