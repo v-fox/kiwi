@@ -14,15 +14,3 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
-import xml_parse
-import xml_validate
-
-def main():
-    """
-        kiwi - main entry
-    """
-    image_xml = xml_parse.parse('/home/ms/config.xml', True)
-
-    print image_xml.get_name()
-
-    print image_xml.get_preferences()[0].get_type()[0].get_image()
