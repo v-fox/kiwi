@@ -1,16 +1,62 @@
-# test timestamp files
-*.ts
-tests/.timestamps
-# emacs backup files
-*~
-# localization files
+# Schema formats
+schema/KIWISchema.rng
+schema/KIWISchema.xsd
+schema/xsi.xsd
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+# Translations
 *.mo
-*.op.*.old
-# hidden temporary files
-.tmp.*
-# kiwirc file created if kiwi is called from git checkout
-.kiwirc
-# revision file created for packaging or if called from git checkout
-.revision
-# d3 css data packed into a tarball
-metadata/KIWIAnalyse.tgz
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# man pages
+*.1.gz
