@@ -1,5 +1,23 @@
 all: xml_parser
 
+pep8:
+	tools/run-pep8
+
+.PHONY: test
+test:
+	nosetests --with-coverage --cover-erase --cover-package=kiwi --cover-xml
+	tools/coverage-check
+
+coverage:
+	nosetests --with-coverage --cover-erase --cover-package=kiwi --cover-xml
+	mv test/unit/coverage.xml test/unit/coverage.reference.xml
+
+list_tests:
+	@for i in test/unit/*_test.py; do basename $$i;done | sort
+
+%.py:
+	nosetests $@
+
 xml_parser: schema/KIWISchema.xsd
 	# XML parser code is auto generated from schema using generateDS
 	# http://pythonhosted.org/generateDS

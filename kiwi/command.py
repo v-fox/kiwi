@@ -14,33 +14,24 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
-import sys
-import docopt
+import subprocess
 
 # project
-import logger
-from app import App
-from exceptions import KiwiError
+from exceptions import KiwiCommandError
 
 
-def main():
+class Command(object):
     """
-        kiwi - main entry
+        Implements command invocation
     """
-    logger.init()
-    try:
-        App()
-    except KiwiError as e:
-        # known exception, log information and exit
-        logger.log.error('%s: %s', type(e).__name__, format(e))
-        sys.exit(1)
-    except docopt.DocoptExit:
-        # exception caught by docopt, results in usage message
-        raise
-    except SystemExit:
-        # user exception, program aborted by user
-        sys.exit(1)
-    except Exception:
-        # exception we did no expect, show python backtrace
-        logger.log.error('Unexpected error:')
-        raise
+    @classmethod
+    def run(self, command, args):
+        process = subprocess.Popen(
+            [command, args],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+        output, error = process.communicate()
+        if process.returncode != 0:
+            raise KiwiCommandError('%s' % error)
+        return output

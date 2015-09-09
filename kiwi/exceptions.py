@@ -14,33 +14,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
-import sys
-import docopt
-
-# project
-import logger
-from app import App
-from exceptions import KiwiError
 
 
-def main():
+class KiwiError(Exception):
     """
-        kiwi - main entry
+        Base class to handle all known exceptions. Specific exceptions
+        are sub classes of this base class
     """
-    logger.init()
-    try:
-        App()
-    except KiwiError as e:
-        # known exception, log information and exit
-        logger.log.error('%s: %s', type(e).__name__, format(e))
-        sys.exit(1)
-    except docopt.DocoptExit:
-        # exception caught by docopt, results in usage message
-        raise
-    except SystemExit:
-        # user exception, program aborted by user
-        sys.exit(1)
-    except Exception:
-        # exception we did no expect, show python backtrace
-        logger.log.error('Unexpected error:')
-        raise
+    def __init__(self, message):
+        self.message = message
+
+
+class KiwiCommandError(KiwiError):
+    pass

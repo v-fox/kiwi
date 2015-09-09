@@ -14,33 +14,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
-import sys
-import docopt
-
-# project
-import logger
-from app import App
-from exceptions import KiwiError
+import xml_parse
+import xml_validate
 
 
-def main():
+class App(object):
     """
-        kiwi - main entry
+        Application class to create task instances and process them
     """
-    logger.init()
-    try:
-        App()
-    except KiwiError as e:
-        # known exception, log information and exit
-        logger.log.error('%s: %s', type(e).__name__, format(e))
-        sys.exit(1)
-    except docopt.DocoptExit:
-        # exception caught by docopt, results in usage message
-        raise
-    except SystemExit:
-        # user exception, program aborted by user
-        sys.exit(1)
-    except Exception:
-        # exception we did no expect, show python backtrace
-        logger.log.error('Unexpected error:')
-        raise
+    def __init__(self):
+        # playground, some testing code
+        image_xml = xml_parse.parse('/home/ms/config.xml', True)
+        print image_xml.get_name()
+        print image_xml.get_preferences()[0].get_type()[0].get_image()
+        image_xml.get_packages()[0].add_package(xml_parse.package(name='foo'))
+        for p in image_xml.get_packages()[0].get_package():
+            print p.get_name()
