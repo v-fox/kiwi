@@ -24,6 +24,21 @@ class KiwiError(Exception):
     def __init__(self, message):
         self.message = message
 
+    def __str__(self):
+        return repr(self.message)
+
 
 class KiwiCommandError(KiwiError):
+    pass
+
+
+class KiwiSchemaImportError(KiwiError):
+    pass
+
+
+class KiwiValidationError(KiwiError):
+    pass
+
+
+class KiwiDescriptionInvalid(KiwiError):
     pass

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 import xml_parse
-import xml_validate
+from xml_schema import Schema
 
 
 class App(object):
@@ -24,9 +24,12 @@ class App(object):
     """
     def __init__(self):
         # playground, some testing code
-        image_xml = xml_parse.parse('/home/ms/config.xml', True)
-        print image_xml.get_name()
-        print image_xml.get_preferences()[0].get_type()[0].get_image()
-        image_xml.get_packages()[0].add_package(xml_parse.package(name='foo'))
-        for p in image_xml.get_packages()[0].get_package():
-            print p.get_name()
+        # image_xml = xml_parse.parse('/home/ms/config.xml', True)
+        # print image_xml.get_name()
+        # print image_xml.get_preferences()[0].get_type()[0].get_image()
+        # image_xml.get_packages()[0].add_package(xml_parse.package(name='foo'))
+        # for p in image_xml.get_packages()[0].get_package():
+        #    print p.get_name()
+
+        schema = Schema('/home/ms/Project/kiwi-maintenance/kiwi/template/ix86/suse-13.2-JeOS/config.xml')
+        schema.validate()
