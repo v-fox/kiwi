@@ -26,3 +26,8 @@ def main():
     print image_xml.get_name()
 
     print image_xml.get_preferences()[0].get_type()[0].get_image()
+
+    image_xml.get_packages()[0].add_package(xml_parse.package(name='foo'))
+
+    for p in image_xml.get_packages()[0].get_package():
+        print p.get_name()
