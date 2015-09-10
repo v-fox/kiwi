@@ -1,5 +1,4 @@
 # Schema formats
-schema/KIWISchema.rng
 schema/KIWISchema.xsd
 schema/xsi.xsd
 
