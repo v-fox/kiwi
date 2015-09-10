@@ -5,9 +5,7 @@ pep8:
 
 .PHONY: test
 test:
-	nosetests \
-		--with-coverage --cover-erase --cover-package=kiwi \
-		--cover-xml
+	nosetests --with-coverage --cover-erase --cover-package=kiwi --cover-xml
 	tools/coverage-check
 
 coverage:

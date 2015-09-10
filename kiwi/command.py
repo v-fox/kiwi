@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
+#
 import subprocess
 
 # project
@@ -35,5 +36,5 @@ class Command(object):
         )
         output, error = process.communicate()
         if process.returncode != 0:
-            raise KiwiCommandError('%s' % error)
+            raise KiwiCommandError(error)
         return output

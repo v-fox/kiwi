@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
+#
 
 
 class KiwiError(Exception):
@@ -25,7 +26,7 @@ class KiwiError(Exception):
         self.message = message
 
     def __str__(self):
-        return repr(self.message)
+        return format(self.message)
 
 
 class KiwiCommandError(KiwiError):
@@ -45,4 +46,12 @@ class KiwiDescriptionInvalid(KiwiError):
 
 
 class KiwiDataStructureError(KiwiError):
+    pass
+
+
+class KiwiRootDirExists(KiwiError):
+    pass
+
+
+class KiwiInitRootCreationError(KiwiError):
     pass

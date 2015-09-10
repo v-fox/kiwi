@@ -14,10 +14,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
+#
 import logging
 
 import xml_parse
 from xml_description import XMLDescription
+
+from init_root import InitRoot
 
 
 class App(object):
@@ -29,11 +32,14 @@ class App(object):
         from logger import log
         log.setLevel(logging.DEBUG)
 
-        description = XMLDescription('/home/ms/Project/kiwi-maintenance/kiwi/template/ix86/suse-13.2-JeOS/config.xml')
-        xml = description.load()
+        # description = XMLDescription('/home/ms/Project/kiwi-maintenance/kiwi/template/ix86/suse-13.2-JeOS/config.xml')
+        # xml = description.load()
 
-        print xml.get_name()
-        print xml.get_preferences()[0].get_type()[0].get_image()
-        xml.get_packages()[0].add_package(xml_parse.package(name='foo'))
-        for p in xml.get_packages()[0].get_package():
-            print p.get_name()
+        # print xml.get_name()
+        # print xml.get_preferences()[0].get_type()[0].get_image()
+        # xml.get_packages()[0].add_package(xml_parse.package(name='foo'))
+        # for p in xml.get_packages()[0].get_package():
+        #     print p.get_name()
+
+        root = InitRoot('/home/ms/__foo')
+        root.create()
