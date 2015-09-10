@@ -43,13 +43,12 @@ class Logger(logging.Logger):
         kiwi logging facility based on python logging
     """
     def __init__(self, name):
-        logging.Logger.__init__(self, name, logging.INFO)
+        logging.Logger.__init__(self, name)
 
         formatter = logging.Formatter('%(levelname)s: %(message)s')
 
-        # log INFO and DEBUG messages to stdout
+        # log INFO, WARNING and DEBUG messages to stdout
         console_info = logging.StreamHandler(sys.__stdout__)
-        console_info.setLevel(logging.INFO)
         console_info.setFormatter(formatter)
         console_info.addFilter(InfoFilter())
         console_info.addFilter(LoggerSchedulerFilter())

@@ -14,6 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
+import logging
+
 import xml_parse
 from xml_description import XMLDescription
 
@@ -24,6 +26,8 @@ class App(object):
     """
     def __init__(self):
         # playground, some testing code
+        from logger import log
+        log.setLevel(logging.DEBUG)
 
         description = XMLDescription('/home/ms/Project/kiwi-maintenance/kiwi/template/ix86/suse-13.2-JeOS/config.xml')
         xml = description.load()

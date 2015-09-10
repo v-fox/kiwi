@@ -26,6 +26,8 @@ class Command(object):
     """
     @classmethod
     def run(self, command):
+        from logger import log
+        log.debug('EXEC: [%s]', ' '.join(command))
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
