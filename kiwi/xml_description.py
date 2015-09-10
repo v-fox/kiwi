@@ -15,26 +15,38 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 from lxml import etree
+from tempfile import NamedTemporaryFile
 
 # project
+from command import Command
+import xml_parse
+
 from exceptions import (
     KiwiSchemaImportError,
     KiwiValidationError,
-    KiwiDescriptionInvalid
+    KiwiDescriptionInvalid,
+    KiwiDataStructureError
 )
 
 
-class Schema(object):
+class XMLDescription(object):
     """
-        Implements RelaxNG Schema Validation for kiwi description
+        Implements data management of the XML description:
+        - XSLT Style Sheet processing to apply on this version of kiwi
+        - Schema Validation based on RelaxNG schema
+        - Loading XML data into internal data structures
     """
-    KIWI_SCHEMA = "schema/KIWISchema.rng"
+    SCHEMA = "schema/KIWISchema.rng"
+    STYLE_SHEET = "xsl/master.xsl"
 
-    def __init__(self, description, schema=KIWI_SCHEMA):
+    def __init__(self, description, schema=SCHEMA, stylesheet=STYLE_SHEET):
+        self.description_xslt_processed = NamedTemporaryFile()
         self.description = description
+        self.stylesheet = stylesheet
         self.schema = schema
 
-    def validate(self):
+    def load(self):
+        self._xsltproc()
         try:
             relaxng = etree.RelaxNG(
                 etree.parse(self.schema)
@@ -44,8 +56,9 @@ class Schema(object):
                 '%s: %s' % (type(e).__name__, format(e))
             )
         try:
+            description = etree.parse(self.description_xslt_processed.name)
             validation_ok = relaxng.validate(
-                etree.parse(self.description)
+                description
             )
         except Exception as e:
             raise KiwiValidationError(
@@ -55,7 +68,23 @@ class Schema(object):
             raise KiwiDescriptionInvalid(
                 'Schema validation for %s failed' % self.description
             )
+        return self._parse()
 
-    def process_style(self):
-        # TODO
-        pass
+    def _parse(self):
+        try:
+            return xml_parse.parse(
+                self.description_xslt_processed.name, True
+            )
+        except Exception as e:
+            raise KiwiDataStructureError(
+                '%s: %s' % (type(e).__name__, format(e))
+            )
+
+    def _xsltproc(self):
+        Command.run(
+            [
+                'xsltproc', '-o', self.description_xslt_processed.name,
+                self.stylesheet,
+                self.description
+            ]
+        )

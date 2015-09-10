@@ -25,9 +25,9 @@ class Command(object):
         Implements command invocation
     """
     @classmethod
-    def run(self, command, args):
+    def run(self, command):
         process = subprocess.Popen(
-            [command, args],
+            command,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )

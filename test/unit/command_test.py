@@ -19,7 +19,7 @@ class TestCommand(object):
         )
         mock_process.returncode = 1
         mock_popen.return_value = mock_process
-        Command.run('command', 'args')
+        Command.run(['command', 'args'])
 
     @patch('subprocess.Popen')
     def test_run(self, mock_popen):
@@ -29,4 +29,4 @@ class TestCommand(object):
         )
         mock_process.returncode = 0
         mock_popen.return_value = mock_process
-        assert Command.run('command', 'args') == 'output'
+        assert Command.run(['command', 'args']) == 'output'

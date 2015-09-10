@@ -42,3 +42,7 @@ class KiwiValidationError(KiwiError):
 
 class KiwiDescriptionInvalid(KiwiError):
     pass
+
+
+class KiwiDataStructureError(KiwiError):
+    pass
