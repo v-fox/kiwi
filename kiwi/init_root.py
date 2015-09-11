@@ -41,6 +41,9 @@ class InitRoot(object):
             )
         self.root_dir = root_dir
 
+    def delete(self):
+        Command.run(['rm', '-r', '-f', self.root_dir])
+
     def create(self):
         root = mkdtemp()
         try:

@@ -37,3 +37,13 @@ class TestInitRoot(object):
         mock_path.return_value = True
         root.create()
         assert mock_command.called
+
+    @patch('kiwi.command.Command.run')
+    @patch('os.path.exists')
+    def test_delete(self, mock_path, mock_command):
+        mock_path.return_value = False
+        root = InitRoot('root_dir')
+        root.delete()
+        mock_command.assert_called_once_with(
+            ['rm', '-r', '-f', 'root_dir']
+        )
