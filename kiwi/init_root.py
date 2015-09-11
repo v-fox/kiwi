@@ -48,18 +48,18 @@ class InitRoot(object):
         root = mkdtemp()
         try:
             Command.run(['mkdir', '-p', root])
-            Command.run(['mkdir', '-p', root + '/dev/pts'])
-            Command.run(['mkdir', '-p', root + '/proc'])
-            Command.run(['mkdir', '-p', root + '/etc/sysconfig'])
-            Command.run(['mkdir', '-p', root + '/var'])
-            Command.run(['mkdir', '-p', root + '/run'])
-
             Command.run(['cp', 'config/functions.sh', root + '/.kconfig'])
 
-            Command.run(['chown', 'root:root', root + '/dev'])
-            Command.run(['chown', 'root:root', root + '/proc'])
-            Command.run(['chown', 'root:root', root + '/var'])
-            Command.run(['chown', 'root:root', root + '/run'])
+            for path in [
+                '/dev/pts',
+                '/proc',
+                '/etc/sysconfig',
+                '/var/cache',
+                '/run',
+                '/sys'
+            ]:
+                Command.run(['mkdir', '-p', root + path])
+                Command.run(['chown', 'root:root', root + path])
 
             Command.run(
                 ['mknod', '-m', '666', root + '/dev/null', 'c', '1', '3']
@@ -104,7 +104,7 @@ class InitRoot(object):
             Command.run(['ln', '-s', 'fd/1', root + '/dev/stdout'])
             Command.run(['ln', '-s', '/run', root + '/var/run'])
 
-            self._provide_passwd_group(root)
+            self._setup_config_templates(root)
 
         except Exception as e:
             rmtree(root, ignore_errors=True)
@@ -113,10 +113,13 @@ class InitRoot(object):
             )
         Command.run(['mv', root, self.root_dir])
 
-    def _provide_passwd_group(self, root):
+    def _setup_config_templates(self, root):
         group_template = '/var/adm/fillup-templates/group.aaa_base'
         passwd_template = '/var/adm/fillup-templates/passwd.aaa_base'
+        proxy_template = '/var/adm/fillup-templates/sysconfig.proxy'
         if os.path.exists(group_template):
             Command.run(['cp', group_template, root + '/etc/group'])
         if os.path.exists(passwd_template):
             Command.run(['cp', passwd_template, root + '/etc/passwd'])
+        if os.path.exists(proxy_template):
+            Command.run(['cp', proxy_template, root + '/etc/sysconfig/proxy'])

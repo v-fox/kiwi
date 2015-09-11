@@ -36,5 +36,9 @@ class Command(object):
         )
         output, error = process.communicate()
         if process.returncode != 0:
+            log.debug('EXEC: Failed with %s', error)
             raise KiwiCommandError(error)
-        return output
+        return {
+            'output': output,
+            'returncode': process.returncode
+        }

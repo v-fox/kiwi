@@ -21,6 +21,7 @@ import xml_parse
 from xml_description import XMLDescription
 
 from init_root import InitRoot
+from bind_root import BindRoot
 
 
 class App(object):
@@ -43,3 +44,9 @@ class App(object):
 
         root = InitRoot('/home/ms/__foo')
         root.create()
+
+        bind = BindRoot(root)
+        bind.setup_intermediate_config()
+        bind.mount_kernel_file_systems()
+        bind.mount_shared_directory()
+        bind.cleanup()

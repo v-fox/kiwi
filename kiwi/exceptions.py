@@ -55,3 +55,15 @@ class KiwiRootDirExists(KiwiError):
 
 class KiwiInitRootCreationError(KiwiError):
     pass
+
+
+class KiwiMountKernelFileSystemsError(KiwiError):
+    pass
+
+
+class KiwiMountSharedDirectoryError(KiwiError):
+    pass
+
+
+class KiwiSetupIntermediateConfigError(KiwiError):
+    pass

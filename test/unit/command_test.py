@@ -29,4 +29,7 @@ class TestCommand(object):
         )
         mock_process.returncode = 0
         mock_popen.return_value = mock_process
-        assert Command.run(['command', 'args']) == 'output'
+        assert Command.run(['command', 'args']) == {
+            'output': 'output',
+            'returncode': 0
+        }
