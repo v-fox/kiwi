@@ -22,6 +22,7 @@ from xml_description import XMLDescription
 
 from root_init import RootInit
 from root_bind import RootBind
+from repository import Repository
 
 
 class App(object):
@@ -49,4 +50,11 @@ class App(object):
         bind.setup_intermediate_config()
         bind.mount_kernel_file_systems()
         bind.mount_shared_directory()
+
+        repo = Repository(bind)
+        print repo.is_remote('http://download.suse.de/foo')
+        print repo.is_remote('dir:///home/path/foo')
+
+        #repo.add_repo('name', 'http://foo', 'rpm.md', 20)
+
         bind.cleanup()

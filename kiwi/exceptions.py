@@ -67,3 +67,11 @@ class KiwiMountSharedDirectoryError(KiwiError):
 
 class KiwiSetupIntermediateConfigError(KiwiError):
     pass
+
+
+class UriStyleUnknown(KiwiError):
+    pass
+
+
+class UriTypeUnknown(KiwiError):
+    pass

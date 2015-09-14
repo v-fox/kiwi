@@ -36,6 +36,7 @@ class RootBind(object):
         self.root_dir = root_init.root_dir
         self.cleanup_files = []
         self.mount_stack = []
+        self.dir_stack = []
         # need resolv.conf/hosts for chroot name resolution
         # need /etc/sysconfig/proxy for chroot proxy usage
         self.config_files = [
@@ -69,15 +70,18 @@ class RootBind(object):
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def mount_shared_directory(self):
+    def mount_shared_directory(self, host_dir=None):
+        if not host_dir:
+            host_dir = self.shared_location
         try:
-            Command.run(['mkdir', '-p', self.root_dir + self.shared_location])
+            Command.run(['mkdir', '-p', self.root_dir + host_dir])
             Command.run(
                 [
-                    'mount', '-n', '--bind', self.shared_location,
-                    self.root_dir + self.shared_location
+                    'mount', '-n', '--bind', host_dir, self.root_dir + host_dir
                 ]
             )
+            self.mount_stack.append(host_dir)
+            self.dir_stack.append(host_dir)
         except Exception as e:
             self.cleanup()
             raise KiwiMountSharedDirectoryError(
@@ -103,12 +107,12 @@ class RootBind(object):
 
     def cleanup(self):
         try:
-            self._cleanup_shared_directory()
+            self._cleanup_mount_stack()
         except:
             # don't stop the cleanup process even if this part failed
             pass
         try:
-            self._cleanup_kernel_file_systems()
+            self._cleanup_dir_stack()
         except:
             # don't stop the cleanup process even if this part failed
             pass
@@ -130,10 +134,15 @@ class RootBind(object):
             if os.path.islink(self.root_dir + config):
                 Command.run(['rm', '-f', self.root_dir + config])
 
-    def _cleanup_kernel_file_systems(self):
+    def _cleanup_mount_stack(self):
         for location in reversed(self.mount_stack):
             Command.run(['umount', self.root_dir + location])
 
-    def _cleanup_shared_directory(self):
-        Command.run(['umount', self.root_dir + self.shared_location])
-        Command.run(['rmdir', self.root_dir + self.shared_location])
+    def _cleanup_dir_stack(self):
+        for location in reversed(self.dir_stack):
+            Command.run(
+                [
+                    'rmdir', '-p', '--ignore-fail-on-non-empty',
+                    self.root_dir + location
+                ]
+            )

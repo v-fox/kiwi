@@ -19,10 +19,15 @@ class TestRootBind(object):
         root = mock.Mock()
         root.root_dir = 'root-dir'
         self.bind_root = RootBind(root)
-        self.bind_root.cleanup_files = ['/foo.kiwi']
+
+        # stub config files and bind locations
         self.bind_root.config_files = ['/foo']
-        self.bind_root.bind_locations = ['/foo']
+        self.bind_root.bind_locations = ['/proc']
+
+        # stub files/dirs and mountpoints to cleanup
+        self.bind_root.cleanup_files = ['/foo.kiwi']
         self.bind_root.mount_stack = ['/mountpoint']
+        self.bind_root.dir_stack = ['/mountpoint']
 
     @raises(KiwiMountKernelFileSystemsError)
     @patch('kiwi.command.Command')
@@ -49,14 +54,14 @@ class TestRootBind(object):
         self.bind_root.setup_intermediate_config()
 
     @patch('kiwi.command.Command.run')
-    def test_kernel_file_systems(self, mock_command):
+    def test_mount_kernel_file_systems(self, mock_command):
         self.bind_root.mount_kernel_file_systems()
         mock_command.assert_called_once_with(
-            ['mount', '-n', '--bind', '/foo', 'root-dir/foo']
+            ['mount', '-n', '--bind', '/proc', 'root-dir/proc']
         )
 
     @patch('kiwi.command.Command.run')
-    def test_shared_directory(self, mock_command):
+    def test_mount_shared_directory(self, mock_command):
         self.bind_root.mount_shared_directory()
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == \
@@ -89,25 +94,27 @@ class TestRootBind(object):
     def test_cleanup(self, mock_islink, mock_command):
         mock_islink.return_value = True
         self.bind_root.cleanup()
+
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == \
             call([
-                'umount', 'root-dir/var/cache/kiwi'
+                'umount', 'root-dir/mountpoint'
             ])
         call = mock_command.call_args_list[1]
         assert mock_command.call_args_list[1] == \
             call([
-                'rmdir', 'root-dir/var/cache/kiwi'
+                'rmdir', '-p', '--ignore-fail-on-non-empty',
+                'root-dir/mountpoint'
             ])
         call = mock_command.call_args_list[2]
         assert mock_command.call_args_list[2] == \
             call([
-                'umount', 'root-dir/mountpoint'
+                'rm', '-f', 'root-dir/foo.kiwi'
             ])
         call = mock_command.call_args_list[3]
         assert mock_command.call_args_list[3] == \
             call([
-                'rm', '-f', 'root-dir/foo.kiwi'
+                'rm', '-f', 'root-dir/foo'
             ])
 
     @patch('kiwi.command.Command.run')
