@@ -27,13 +27,13 @@ from exceptions import (
 )
 
 
-class BindRoot(object):
+class RootBind(object):
     """
         Implements binding/copying of host system paths
         into the new root directory
     """
-    def __init__(self, init_root):
-        self.root_dir = init_root.root_dir
+    def __init__(self, root_init):
+        self.root_dir = root_init.root_dir
         self.cleanup_files = []
         self.mount_stack = []
         # need resolv.conf/hosts for chroot name resolution

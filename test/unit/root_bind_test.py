@@ -11,14 +11,14 @@ from kiwi.exceptions import (
     KiwiSetupIntermediateConfigError
 )
 
-from kiwi.bind_root import BindRoot
+from kiwi.root_bind import RootBind
 
 
-class TestBindRoot(object):
+class TestRootBind(object):
     def __init__(self):
         root = mock.Mock()
         root.root_dir = 'root-dir'
-        self.bind_root = BindRoot(root)
+        self.bind_root = RootBind(root)
         self.bind_root.cleanup_files = ['/foo.kiwi']
         self.bind_root.config_files = ['/foo']
         self.bind_root.bind_locations = ['/foo']

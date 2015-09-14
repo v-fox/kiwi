@@ -24,11 +24,11 @@ from command import Command
 
 from exceptions import (
     KiwiRootDirExists,
-    KiwiInitRootCreationError
+    KiwiRootInitCreationError
 )
 
 
-class InitRoot(object):
+class RootInit(object):
     """
         Implements creation of new root directory for a linux system.
         Host system independent static default files and device nodes
@@ -108,7 +108,7 @@ class InitRoot(object):
 
         except Exception as e:
             rmtree(root, ignore_errors=True)
-            raise KiwiInitRootCreationError(
+            raise KiwiRootInitCreationError(
                 '%s: %s' % (type(e).__name__, format(e))
             )
         Command.run(['mv', root, self.root_dir])

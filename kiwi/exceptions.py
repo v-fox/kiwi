@@ -53,7 +53,7 @@ class KiwiRootDirExists(KiwiError):
     pass
 
 
-class KiwiInitRootCreationError(KiwiError):
+class KiwiRootInitCreationError(KiwiError):
     pass
 
 
