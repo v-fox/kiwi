@@ -126,6 +126,7 @@ class RootBind(object):
         # delete kiwi copied config files
         for config in self.cleanup_files:
             Command.run(['rm', '-f', self.root_dir + config])
+        del self.cleanup_files[:]
 
         # delete stale symlinks if there are any. normally the package
         # installation process should have replaced the symlinks with
@@ -137,6 +138,7 @@ class RootBind(object):
     def _cleanup_mount_stack(self):
         for location in reversed(self.mount_stack):
             Command.run(['umount', self.root_dir + location])
+        del self.mount_stack[:]
 
     def _cleanup_dir_stack(self):
         for location in reversed(self.dir_stack):
@@ -146,3 +148,4 @@ class RootBind(object):
                     self.root_dir + location
                 ]
             )
+        del self.dir_stack[:]

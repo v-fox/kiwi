@@ -17,9 +17,6 @@
 #
 import re
 
-# project
-from command import Command
-
 from exceptions import (
     UriStyleUnknown,
     UriTypeUnknown
@@ -30,7 +27,8 @@ class Repository(object):
     """
         Implements base class for package manager repo handling
     """
-    def __init__(self, root_bind):
+    def __init__(self, root_bind, custom_args=None):
+        self.root_bind = root_bind
         self.root_dir = root_bind.root_dir
         self.shared_location = root_bind.shared_location
 
@@ -44,6 +42,10 @@ class Repository(object):
             'dir': True,
             'this': True
         }
+        self.post_init(custom_args)
+
+    def post_init(self, custom_args):
+        pass
 
     def add_bootstrap_repo(self, name, uri, repo_type, prio):
         raise NotImplementedError

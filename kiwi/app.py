@@ -22,7 +22,7 @@ from xml_description import XMLDescription
 
 from root_init import RootInit
 from root_bind import RootBind
-from repository import Repository
+from repository_zypper import RepositoryZypper
 
 
 class App(object):
@@ -46,15 +46,19 @@ class App(object):
         root = RootInit('/home/ms/__foo')
         root.create()
 
-        bind = RootBind(root)
-        bind.setup_intermediate_config()
-        bind.mount_kernel_file_systems()
-        bind.mount_shared_directory()
+        self.root_bind = RootBind(root)
+        self.root_bind.setup_intermediate_config()
+        # self.root_bind.mount_kernel_file_systems()
+        # self.root_bind.mount_shared_directory()
 
-        repo = Repository(bind)
+        repo = RepositoryZypper(self.root_bind)
         print repo.is_remote('http://download.suse.de/foo')
         print repo.is_remote('dir:///home/path/foo')
 
         # repo.add_repo('name', 'http://foo', 'rpm.md', 20)
 
-        bind.cleanup()
+    def __del__(self):
+        try: 
+            self.root_bind.cleanup()
+        except:
+            pass
