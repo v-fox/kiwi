@@ -55,6 +55,6 @@ class App(object):
         print repo.is_remote('http://download.suse.de/foo')
         print repo.is_remote('dir:///home/path/foo')
 
-        #repo.add_repo('name', 'http://foo', 'rpm.md', 20)
+        # repo.add_repo('name', 'http://foo', 'rpm.md', 20)
 
         bind.cleanup()

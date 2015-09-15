@@ -13,6 +13,7 @@ from kiwi.exceptions import (
 from kiwi.repository import Repository
 from kiwi.root_bind import RootBind
 
+
 class TestRepository(object):
     def __init__(self):
         root_bind = mock.Mock()
@@ -45,5 +46,7 @@ class TestRepository(object):
         self.repo.delete_repo('name')
 
     def test_is_remote(self):
-        # TODO
-        pass
+        assert self.repo.is_remote('https://example.com') == \
+            {'remote': True, 'name': 'https://example.com'}
+        assert self.repo.is_remote('dir:///path/to/repo') == \
+            {'remote': False, 'name': '/path/to/repo'}
