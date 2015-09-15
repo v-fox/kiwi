@@ -18,8 +18,8 @@
 import re
 
 from exceptions import (
-    UriStyleUnknown,
-    UriTypeUnknown
+    KiwiUriStyleUnknown,
+    KiwiUriTypeUnknown
 )
 
 
@@ -62,7 +62,7 @@ class Repository(object):
     def is_remote(self, uri):
         uri_exp = re.search('^(.*):\/\/(.*)', uri)
         if not uri_exp:
-            raise UriStyleUnknown('URI style %s unknown' % uri)
+            raise KiwiUriStyleUnknown('URI style %s unknown' % uri)
         uri_type = uri_exp.group(1)
         uri_name = uri_exp.group(2)
         try:
@@ -73,5 +73,5 @@ class Repository(object):
                 self.local_uri_type[uri_type]
                 result = {'name': uri_name, 'remote': False}
             except KeyError:
-                raise UriTypeUnknown('URI type %s unknown' % uri_type)
+                raise KiwiUriTypeUnknown('URI type %s unknown' % uri_type)
         return result

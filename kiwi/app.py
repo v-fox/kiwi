@@ -55,10 +55,12 @@ class App(object):
         print repo.is_remote('http://download.suse.de/foo')
         print repo.is_remote('dir:///home/path/foo')
 
-        # repo.add_repo('name', 'http://foo', 'rpm.md', 20)
+        repo.add_bootstrap_repo('foo', 'http://download.opensuse.org/distribution/13.2/repo/oss/', 'yast2')
+
+        repo.delete_bootstrap_repo('foo')
 
     def __del__(self):
-        try: 
+        try:
             self.root_bind.cleanup()
         except:
             pass

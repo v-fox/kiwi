@@ -69,9 +69,13 @@ class KiwiSetupIntermediateConfigError(KiwiError):
     pass
 
 
-class UriStyleUnknown(KiwiError):
+class KiwiUriStyleUnknown(KiwiError):
     pass
 
 
-class UriTypeUnknown(KiwiError):
+class KiwiUriTypeUnknown(KiwiError):
+    pass
+
+
+class KiwiRepoTypeUnknown(KiwiError):
     pass

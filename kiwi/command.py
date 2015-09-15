@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 import subprocess
 
 # project
@@ -26,13 +27,14 @@ class Command(object):
         Implements command invocation
     """
     @classmethod
-    def run(self, command):
+    def run(self, command, environment=os.environ):
         from logger import log
         log.debug('EXEC: [%s]', ' '.join(command))
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            stderr=subprocess.PIPE,
+            env=environment
         )
         output, error = process.communicate()
         if process.returncode != 0:

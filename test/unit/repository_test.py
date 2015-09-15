@@ -6,8 +6,8 @@ import mock
 import nose_helper
 
 from kiwi.exceptions import (
-    UriStyleUnknown,
-    UriTypeUnknown
+    KiwiUriStyleUnknown,
+    KiwiUriTypeUnknown
 )
 
 from kiwi.repository import Repository
@@ -21,11 +21,11 @@ class TestRepository(object):
         self.repo.root_dir = 'root-dir'
         self.repo.shared_location = 'shared-dir'
 
-    @raises(UriStyleUnknown)
+    @raises(KiwiUriStyleUnknown)
     def test_is_remote_raises_style_error(self):
         self.repo.is_remote('xxx')
 
-    @raises(UriTypeUnknown)
+    @raises(KiwiUriTypeUnknown)
     def test_is_remote_raises_type_error(self):
         self.repo.is_remote('xtp://download.example.com')
 
