@@ -17,6 +17,8 @@
 #
 import os
 import subprocess
+import io
+from collections import namedtuple
 
 # project
 from exceptions import KiwiCommandError
@@ -28,6 +30,11 @@ class Command(object):
     """
     @classmethod
     def run(self, command, environment=os.environ):
+        """
+            Execute a program and block the caller. The return value
+            is a hash containing the stdout, stderr and return code
+            information
+        """
         from logger import log
         log.debug('EXEC: [%s]', ' '.join(command))
         process = subprocess.Popen(
@@ -40,7 +47,47 @@ class Command(object):
         if process.returncode != 0:
             log.debug('EXEC: Failed with %s', error)
             raise KiwiCommandError(error)
-        return {
-            'output': output,
-            'returncode': process.returncode
-        }
+        command = namedtuple(
+            'command', ['output', 'error', 'returncode']
+        )
+        return command(
+            output=output,
+            error=error,
+            returncode=process.returncode
+        )
+
+    @classmethod
+    def call(self, command, environment=os.environ):
+        """
+            Execute a program and return a file handle back to the caller.
+            stdout and stderr are both send to the file handle. The caller
+            must read from the file handle in order to actually
+            run the command. This can be done as follows:
+
+            cmd = Command.call(...)
+
+            while cmd.process.poll() is None:
+                line = cmd.output.readline()
+                if line:
+                    print line
+
+            print cmd.process.returncode
+        """
+        from logger import log
+        log.debug('EXEC: [%s]', ' '.join(command))
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            env=environment
+        )
+        output = io.open(
+            process.stdout.fileno(), 'rb', closefd=False
+        )
+        command = namedtuple(
+            'command', ['output', 'process']
+        )
+        return command(
+            output=output,
+            process=process
+        )

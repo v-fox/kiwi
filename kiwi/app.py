@@ -16,6 +16,7 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import logging
+import sys
 
 import xml_parse
 from xml_description import XMLDescription
@@ -23,6 +24,7 @@ from xml_description import XMLDescription
 from root_init import RootInit
 from root_bind import RootBind
 from repository_zypper import RepositoryZypper
+from command import Command
 
 
 class App(object):
@@ -33,6 +35,14 @@ class App(object):
         # playground, some testing code
         from logger import log
         log.setLevel(logging.DEBUG)
+
+        # cmd = Command.call(['ls', '-l'])
+        # while cmd.process.poll() is None:
+        #         line = cmd.output.readline()
+        #         if line:
+        #             print line.rstrip('\n')
+        # print cmd.process.returncode
+        # sys.exit(0)
 
         # description = XMLDescription('/home/ms/Project/kiwi-maintenance/kiwi/template/ix86/suse-13.2-JeOS/config.xml')
         # xml = description.load()
