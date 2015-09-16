@@ -30,7 +30,7 @@ class TestRootBind(object):
         self.bind_root.dir_stack = ['/mountpoint']
 
     @raises(KiwiMountKernelFileSystemsError)
-    @patch('kiwi.command.Command')
+    @patch('kiwi.command.Command.run')
     def test_kernel_file_systems_raises_error(self, mock_command):
         mock_command.side_effect = KiwiMountKernelFileSystemsError(
             'mount-error'
@@ -38,7 +38,7 @@ class TestRootBind(object):
         self.bind_root.mount_kernel_file_systems()
 
     @raises(KiwiMountSharedDirectoryError)
-    @patch('kiwi.command.Command')
+    @patch('kiwi.command.Command.run')
     def test_shared_directory_raises_error(self, mock_command):
         mock_command.side_effect = KiwiMountSharedDirectoryError(
             'mount-error'
@@ -46,7 +46,7 @@ class TestRootBind(object):
         self.bind_root.mount_shared_directory()
 
     @raises(KiwiSetupIntermediateConfigError)
-    @patch('kiwi.command.Command')
+    @patch('kiwi.command.Command.run')
     def test_intermediate_config_raises_error(self, mock_command):
         mock_command.side_effect = KiwiSetupIntermediateConfigError(
             'config-error'
