@@ -85,6 +85,9 @@ class RepositoryZypper(Repository):
 
         self._write_runtime_config()
 
+    def runtime_config(self):
+        return self.runtime_zypper_config_file.name
+
     def add_bootstrap_repo(self, name, uri, repo_type='rpm-md', prio=None):
         Command.run(
             ['zypper'] + self.zypper_args + [

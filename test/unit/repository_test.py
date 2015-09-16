@@ -30,6 +30,10 @@ class TestRepository(object):
         self.repo.is_remote('xtp://download.example.com')
 
     @raises(NotImplementedError)
+    def test_runtime_config(self):
+        self.repo.runtime_config()
+
+    @raises(NotImplementedError)
     def test_add_bootstrap_repo(self):
         self.repo.add_bootstrap_repo('name', 'uri', 'type', 'prio')
 

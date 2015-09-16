@@ -47,6 +47,9 @@ class Repository(object):
     def post_init(self, custom_args):
         pass
 
+    def runtime_config(self):
+        raise NotImplementedError
+
     def add_bootstrap_repo(self, name, uri, repo_type, prio):
         raise NotImplementedError
 
