@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<image schemaversion="6.1" name="initrd-oemboot-suse-12.3">
+<image schemaversion="6.2" name="initrd-oemboot-suse-leap-42.1">
     <description type="boot">
         <author>Marcus Schaefer</author>
         <contact>ms@novell.com</contact>
@@ -8,17 +8,16 @@
     </description>
     <preferences>
         <type image="cpio" bootprofile="default" bootkernel="std"/>
-        <version>2.7.1</version>
+        <version>2.42.1</version>
         <packagemanager>zypper</packagemanager>
         <rpm-check-signatures>false</rpm-check-signatures>
     </preferences>
     <profiles>
         <profile name="default" description="Booting default setup"/>
-        <profile name="std" description="KERNEL: dummy entry"/>
+        <profile name="std" description="KERNEL: Default"/>
     </profiles>
     <drivers>
         <file name="crypto/*"/>
-        <file name="drivers/mmc/*"/>
         <file name="drivers/acpi/*"/>
         <file name="drivers/acpi/dock.ko"/>
         <file name="drivers/ata/*"/>
@@ -30,9 +29,8 @@
         <file name="drivers/char/hw_random/virtio-rng.ko"/>
         <file name="drivers/char/lp.ko"/>
         <file name="drivers/firmware/edd.ko"/>
-        <file name="drivers/gpu/drm/i915/i915.ko"/>
-        <file name="drivers/gpu/drm/nouveau/nouveau.ko"/>
-        <file name="drivers/gpu/drm/radeon/radeon.ko"/>
+        <file name="drivers/gpio/*"/>
+        <file name="drivers/gpu/drm/*"/>
         <file name="drivers/hid/*"/>
         <file name="drivers/hwmon/*"/>
         <file name="drivers/ide/*"/>
@@ -40,6 +38,7 @@
         <file name="drivers/input/mouse/*"/>
         <file name="drivers/md/*"/>
         <file name="drivers/message/fusion/*"/>
+        <file name="drivers/mmc/*"/>
         <file name="drivers/net/*"/>
         <file name="drivers/parport/*"/>
         <file name="drivers/scsi/*"/>
@@ -49,6 +48,7 @@
         <file name="drivers/virtio/*"/>
         <file name="fs/binfmt_aout.ko"/>
         <file name="fs/binfmt_misc.ko"/>
+        <file name="fs/overlayfs/*"/>
         <file name="fs/btrfs/*"/>
         <file name="fs/exportfs/*"/>
         <file name="fs/ext2/*"/>
@@ -69,6 +69,7 @@
         <file name="fs/udf/*"/>
         <file name="fs/vfat/*"/>
         <file name="fs/xfs/*"/>
+        <file name="fs/isofs/*"/>
         <file name="lib/crc-t10dif.ko"/>
         <file name="lib/crc16.ko"/>
         <file name="lib/libcrc32c.ko"/>
@@ -76,10 +77,14 @@
         <file name="net/packet/*"/>
     </drivers>
     <repository type="rpm-md" status="replaceable">
-        <source path="obs://openSUSE:/Factory:/ARM/standard"/>
+        <source path="obs://leap/42.1/repo/oss"/>
     </repository>
+    <packages type="image" profiles="std">
+        <package name="kernel-default"/>
+    </packages>
     <packages type="bootstrap">
         <package name="kbd"/>
+        <package name="gptfdisk"/>
         <package name="atftp"/>
         <package name="bc"/>
         <package name="bind-libs"/>
@@ -88,32 +93,32 @@
         <package name="btrfsprogs"/>
         <package name="busybox"/>
         <package name="bzip2"/>
-        <package name="clicfs"/>
         <package name="cryptsetup"/>
         <package name="curl"/>
-        <package name="dhcpcd"/>
         <package name="dialog"/>
         <package name="dmraid"/>
         <package name="dosfstools"/>
         <package name="e2fsprogs"/>
-        <package name="eject"/>
         <package name="fbiterm"/>
         <package name="file"/>
         <package name="fribidi"/>
         <package name="genisoimage"/>
         <package name="gettext-runtime"/>
+        <package name="grub2"/>
+        <package name="grub2-arm64-efi" arch="aarch64"/>
         <package name="hwinfo"/>
         <package name="iputils"/>
+        <package name="kernel-firmware"/>
         <package name="kiwi-tools"/>
         <package name="kpartx"/>
         <package name="lvm2"/>
         <package name="make"/>
-        <package name="module-init-tools"/>
+        <package name="mdadm"/>
+        <package name="kmod-compat"/>
         <package name="net-tools"/>
         <package name="netcfg"/>
         <package name="parted"/>
         <package name="pciutils"/>
-        <package name="psmisc"/>
         <package name="squashfs"/>
         <package name="sysconfig"/>
         <package name="sysfsutils"/>
@@ -125,41 +130,32 @@
         <package name="glibc"/>
         <package name="glibc-locale"/>
         <package name="procps"/>
+        <package name="rsync"/>
+        <package name="timezone"/>
+        <package name="which"/>
         <package name="udev"/>
+        <package name="wicked"/>
         <package name="iproute2"/>
+        <package name="psmisc"/>
+        <package name="sysvinit-tools"/>
         <package name="xz"/>
     </packages>
     <packages type="delete">
-        <package name="audit-libs"/>
-        <package name="blocxx"/>
         <package name="cracklib-dict-full"/>
-        <package name="cracklib-dict-small"/>
-        <package name="db"/>
-        <package name="expat"/>
         <package name="fillup"/>
         <package name="gdbm"/>
-        <package name="glib2"/>
-        <package name="gnome-filesystem"/>
-        <package name="gpg"/>
         <package name="info"/>
         <package name="insserv"/>
-        <package name="iptables"/>
-        <package name="limal"/>
-        <package name="limal-perl"/>
-        <package name="logrotate"/>
         <package name="make"/>
-        <package name="mdadm"/>
         <package name="mingetty"/>
+        <package name="Mesa"/>
         <package name="openSUSE-release"/>
-        <package name="openslp"/>
         <package name="pam"/>
         <package name="pam-modules"/>
-        <package name="pcre"/>
         <package name="perl"/>
         <package name="perl-Bootloader"/>
-        <package name="perl-gettext"/>
         <package name="permissions"/>
-        <package name="pm-utils"/>
-        <package name="suse-build-key"/>
+        <package name="python"/>
+        <package name="python-base"/>
     </packages>
 </image>
