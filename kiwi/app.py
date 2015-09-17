@@ -26,6 +26,7 @@ from root_bind import RootBind
 from repository_zypper import RepositoryZypper
 from manager_zypper import ManagerZypper
 from command import Command
+from xml_state import XMLState
 
 
 class App(object):
@@ -33,18 +34,32 @@ class App(object):
         Application class to create task instances and process them
     """
     def __init__(self):
-        # playground, some testing code
+        # playground only, some testing code
+
         from logger import log
         log.setLevel(logging.DEBUG)
 
-        # description = XMLDescription('/home/ms/Project/kiwi-maintenance/kiwi/template/ix86/suse-13.2-JeOS/config.xml')
-        # xml = description.load()
+        description = XMLDescription('/home/ms/Project/kiwi-maintenance/kiwi/template/ix86/suse-13.2-JeOS/config.xml')
+        xml = description.load()
 
-        # print xml.get_name()
-        # print xml.get_preferences()[0].get_type()[0].get_image()
-        # xml.get_packages()[0].add_package(xml_parse.package(name='foo'))
-        # for p in xml.get_packages()[0].get_package():
-        #     print p.get_name()
+        print xml.get_name()
+        print xml.get_preferences()[0].get_type()[0].get_image()
+        xml.get_packages()[0].add_package(xml_parse.package(name='foo'))
+
+        print "####### BUILD TYPE ############"
+
+        print XMLState.build_type(xml)
+
+        print "----------"
+
+        for p in XMLState.profiled(xml.get_packages(), matching=['vmxFlavour']):
+            print
+            print '#########################'
+            print p.get_profiles()
+            for i in p.get_package():
+                print i.get_name()
+
+        sys.exit(0)
 
         root = RootInit('/home/ms/__foo')
         root.create()
