@@ -24,6 +24,7 @@ from xml_description import XMLDescription
 from root_init import RootInit
 from root_bind import RootBind
 from repository_zypper import RepositoryZypper
+from manager_zypper import ManagerZypper
 from command import Command
 
 
@@ -35,14 +36,6 @@ class App(object):
         # playground, some testing code
         from logger import log
         log.setLevel(logging.DEBUG)
-
-        # cmd = Command.call(['ls', '-l'])
-        # while cmd.process.poll() is None:
-        #         line = cmd.output.readline()
-        #         if line:
-        #             print line.rstrip('\n')
-        # print cmd.process.returncode
-        # sys.exit(0)
 
         # description = XMLDescription('/home/ms/Project/kiwi-maintenance/kiwi/template/ix86/suse-13.2-JeOS/config.xml')
         # xml = description.load()
@@ -66,6 +59,17 @@ class App(object):
         print repo.is_remote('dir:///home/path/foo')
 
         repo.add_bootstrap_repo('foo', 'http://download.opensuse.org/distribution/13.2/repo/oss/', 'yast2')
+
+        manager = ManagerZypper(repo)
+        manager.request_package('vim')
+
+        zypper = manager.install_requests_bootstrap()
+        while zypper.process.poll() is None:
+            line = zypper.output.readline()
+            if line:
+                print line.rstrip('\n')
+
+        print zypper.process.returncode
 
         repo.delete_bootstrap_repo('foo')
 

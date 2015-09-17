@@ -19,9 +19,10 @@
 
 class Manager(object):
     """
-        Implements base class for package manager repo handling
+        Implements base class for package manager install tasks
     """
     def __init__(self, repository, custom_args=None):
+        self.repository = repository
         self.root_dir = repository.root_dir
         self.package_requests = []
         self.collection_requests = []

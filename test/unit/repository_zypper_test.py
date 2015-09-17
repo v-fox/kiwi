@@ -27,8 +27,10 @@ class TestRepositoryZypper(object):
         self.repo.add_bootstrap_repo('foo', 'uri', 'xxx')
 
     def test_runtime_config(self):
-        assert self.repo.runtime_config() == \
-            self.repo.runtime_zypper_config_file.name
+        assert self.repo.runtime_config()['zypper_args'] == \
+            self.repo.zypper_args
+        assert self.repo.runtime_config()['command_env'] == \
+            self.repo.command_env
 
     @patch('kiwi.command.Command.run')
     def test_add_bootstrap_repo(self, mock_command):

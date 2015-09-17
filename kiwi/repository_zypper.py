@@ -52,7 +52,7 @@ class RepositoryZypper(Repository):
         )
 
         self.zypper_args = [
-            '--non-interactive',
+            '--non-interactive', '--no-gpg-checks',
             '--pkg-cache-dir', self.shared_zypper_dir['pkg-cache-dir'],
             '--reposd-dir', self.shared_zypper_dir['reposd-dir'],
             '--solv-cache-dir', self.shared_zypper_dir['solv-cache-dir'],
@@ -86,7 +86,10 @@ class RepositoryZypper(Repository):
         self._write_runtime_config()
 
     def runtime_config(self):
-        return self.runtime_zypper_config_file.name
+        return {
+            'zypper_args': self.zypper_args,
+            'command_env': self.command_env
+        }
 
     def add_bootstrap_repo(self, name, uri, repo_type='rpm-md', prio=None):
         Command.run(
