@@ -47,7 +47,7 @@ class XMLDescription(object):
         self.schema = schema
 
     def load(self):
-        self._xsltproc()
+        self.__xsltproc()
         try:
             relaxng = etree.RelaxNG(
                 etree.parse(self.schema)
@@ -69,9 +69,9 @@ class XMLDescription(object):
             raise KiwiDescriptionInvalid(
                 'Schema validation for %s failed' % self.description
             )
-        return self._parse()
+        return self.__parse()
 
-    def _parse(self):
+    def __parse(self):
         try:
             return xml_parse.parse(
                 self.description_xslt_processed.name, True
@@ -81,7 +81,7 @@ class XMLDescription(object):
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
-    def _xsltproc(self):
+    def __xsltproc(self):
         Command.run(
             [
                 'xsltproc', '-o', self.description_xslt_processed.name,

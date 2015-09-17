@@ -104,7 +104,7 @@ class RootInit(object):
             Command.run(['ln', '-s', 'fd/1', root + '/dev/stdout'])
             Command.run(['ln', '-s', '/run', root + '/var/run'])
 
-            self._setup_config_templates(root)
+            self.__setup_config_templates(root)
 
         except Exception as e:
             rmtree(root, ignore_errors=True)
@@ -113,7 +113,7 @@ class RootInit(object):
             )
         Command.run(['mv', root, self.root_dir])
 
-    def _setup_config_templates(self, root):
+    def __setup_config_templates(self, root):
         group_template = '/var/adm/fillup-templates/group.aaa_base'
         passwd_template = '/var/adm/fillup-templates/passwd.aaa_base'
         proxy_template = '/var/adm/fillup-templates/sysconfig.proxy'

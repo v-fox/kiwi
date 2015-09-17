@@ -44,7 +44,7 @@ class ManagerZypper(Manager):
             ['zypper'] + self.zypper_args + [
                 '--root', self.root_dir,
                 'install', '--auto-agree-with-licenses',
-                self._install_items()
+                self.__install_items()
             ],
             self.command_env
         )
@@ -53,7 +53,7 @@ class ManagerZypper(Manager):
         # TODO
         pass
 
-    def _install_items(self):
+    def __install_items(self):
         items = self.package_requests + self.collection_requests \
             + self.product_requests
         self.cleanup_requests()

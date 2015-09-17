@@ -107,22 +107,22 @@ class RootBind(object):
 
     def cleanup(self):
         try:
-            self._cleanup_mount_stack()
+            self.__cleanup_mount_stack()
         except:
             # don't stop the cleanup process even if this part failed
             pass
         try:
-            self._cleanup_dir_stack()
+            self.__cleanup_dir_stack()
         except:
             # don't stop the cleanup process even if this part failed
             pass
         try:
-            self._cleanup_intermediate_config()
+            self.__cleanup_intermediate_config()
         except:
             # don't stop the cleanup process even if this part failed
             pass
 
-    def _cleanup_intermediate_config(self):
+    def __cleanup_intermediate_config(self):
         # delete kiwi copied config files
         for config in self.cleanup_files:
             Command.run(['rm', '-f', self.root_dir + config])
@@ -135,12 +135,12 @@ class RootBind(object):
             if os.path.islink(self.root_dir + config):
                 Command.run(['rm', '-f', self.root_dir + config])
 
-    def _cleanup_mount_stack(self):
+    def __cleanup_mount_stack(self):
         for location in reversed(self.mount_stack):
             Command.run(['umount', self.root_dir + location])
         del self.mount_stack[:]
 
-    def _cleanup_dir_stack(self):
+    def __cleanup_dir_stack(self):
         for location in reversed(self.dir_stack):
             Command.run(
                 [

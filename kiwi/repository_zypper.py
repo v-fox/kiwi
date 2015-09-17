@@ -61,7 +61,7 @@ class RepositoryZypper(Repository):
             '--config', self.runtime_zypper_config_file.name
         ]
 
-        self.command_env = self._create_zypper_runtime_environment()
+        self.command_env = self.__create_zypper_runtime_environment()
 
         # config file parameters for zypper tool
         self.runtime_zypper_config = ConfigParser()
@@ -83,7 +83,7 @@ class RepositoryZypper(Repository):
             'main', 'packagesdir', self.shared_zypper_dir['pkg-cache-dir']
         )
 
-        self._write_runtime_config()
+        self.__write_runtime_config()
 
     def runtime_config(self):
         return {
@@ -96,7 +96,7 @@ class RepositoryZypper(Repository):
             ['zypper'] + self.zypper_args + [
                 '--root', self.root_dir,
                 'addrepo', '-f',
-                '--type', self._translate_repo_type(repo_type),
+                '--type', self.__translate_repo_type(repo_type),
                 '--keep-packages',
                 uri,
                 name
@@ -120,7 +120,7 @@ class RepositoryZypper(Repository):
         # TODO
         pass
 
-    def _create_zypper_runtime_environment(self):
+    def __create_zypper_runtime_environment(self):
         for key, zypper_dir in self.shared_zypper_dir.iteritems():
             Command.run(['mkdir', '-p', zypper_dir])
         return dict(
@@ -129,13 +129,13 @@ class RepositoryZypper(Repository):
             ZYPP_CONF=self.runtime_zypp_config_file.name
         )
 
-    def _write_runtime_config(self):
+    def __write_runtime_config(self):
         with open(self.runtime_zypper_config_file.name, 'w') as config:
             self.runtime_zypper_config.write(config)
         with open(self.runtime_zypp_config_file.name, 'w') as config:
             self.runtime_zypp_config.write(config)
 
-    def _translate_repo_type(self, repo_type):
+    def __translate_repo_type(self, repo_type):
         """
             Translate kiwi supported common repo type names from the schema
             into the name the zyper package manager understands
