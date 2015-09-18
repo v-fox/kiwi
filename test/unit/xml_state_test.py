@@ -15,9 +15,17 @@ class TestXMLState(object):
         self.xml = description.load()
 
     def test_profiled(self):
-        # TODO
-        pass
+        preferences_sections = XMLState.profiled(
+            self.xml.get_preferences(), ['ec2Flavour']
+        )
+        for preferences in preferences_sections:
+            profiles = preferences.get_profiles()
+            if profiles:
+                assert profiles == 'ec2Flavour'
 
-    def test_build_type(self):
-        # TODO
-        pass
+    def test_build_type_primary_selected(self):
+        assert XMLState.build_type(self.xml) == 'iso'
+
+    def test_build_type_first_selected(self):
+        self.xml.get_preferences()[0].get_type()[0].set_primary(False)
+        assert XMLState.build_type(self.xml) == 'iso'
