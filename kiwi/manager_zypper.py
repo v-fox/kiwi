@@ -50,8 +50,16 @@ class ManagerZypper(Manager):
         )
 
     def install_requests(self):
-        # TODO
-        pass
+        chroot_zypper_args = Manager.move_to_root(
+            self.root_dir, self.zypper_args
+        )
+        return Command.call(
+            ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
+                'install', '--auto-agree-with-licenses',
+                self.__install_items()
+            ],
+            self.command_env
+        )
 
     def __install_items(self):
         items = self.package_requests + self.collection_requests \

@@ -21,6 +21,7 @@ from tempfile import NamedTemporaryFile
 
 # project
 from command import Command
+from manager import Manager
 from repository import Repository
 
 from exceptions import (
@@ -113,12 +114,30 @@ class RepositoryZypper(Repository):
         )
 
     def add_repo(self, name, uri, repo_type='rpm-md', prio=None):
-        # TODO
-        pass
+        chroot_zypper_args = Manager.move_to_root(
+            self.root_dir, self.zypper_args
+        )
+        Command.run(
+            ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
+                'addrepo', '-f',
+                '--type', self.__translate_repo_type(repo_type),
+                '--keep-packages',
+                uri,
+                name
+            ],
+            self.command_env
+        )
 
     def delete_repo(self, name):
-        # TODO
-        pass
+        chroot_zypper_args = Manager.move_to_root(
+            self.root_dir, self.zypper_args
+        )
+        Command.run(
+            ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
+                'removerepo', name
+            ],
+            self.command_env
+        )
 
     def __create_zypper_runtime_environment(self):
         for key, zypper_dir in self.shared_zypper_dir.iteritems():

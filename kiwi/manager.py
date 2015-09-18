@@ -51,3 +51,10 @@ class Manager(object):
         del self.package_requests[:]
         del self.collection_requests[:]
         del self.product_requests[:]
+
+    @classmethod
+    def move_to_root(self, root_dir, elements):
+        result = []
+        for element in elements:
+            result.append(element.replace(root_dir, '/'))
+        return result

@@ -14,7 +14,7 @@ class TestManager(object):
         repository.root_dir = 'root-dir'
         repository.runtime_config = mock.Mock(
             return_value={
-                'zypper_args': ['zypper_args'],
+                'zypper_args': ['--reposd-dir', 'root-dir/my/repos'],
                 'command_env': ['env']
             }
         )
@@ -38,7 +38,8 @@ class TestManager(object):
         self.manager.install_requests_bootstrap()
         mock_call.assert_called_once_with(
             [
-                'zypper', 'zypper_args', '--root', 'root-dir',
+                'zypper', '--reposd-dir', 'root-dir/my/repos',
+                '--root', 'root-dir',
                 'install', '--auto-agree-with-licenses', 'vim'
             ],
             [
@@ -46,7 +47,16 @@ class TestManager(object):
             ]
         )
 
-    def test_install_requests(self):
+    @patch('kiwi.command.Command.call')
+    def test_install_requests(self, mock_call):
+        self.manager.request_package('vim')
         self.manager.install_requests()
-        # TODO
-        pass
+        mock_call.assert_called_once_with(
+            [
+                'chroot', 'root-dir', 'zypper', '--reposd-dir', '//my/repos',
+                'install', '--auto-agree-with-licenses', 'vim'
+            ],
+            [
+                'env'
+            ]
+        )

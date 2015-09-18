@@ -11,6 +11,7 @@ from kiwi.exceptions import (
 
 from kiwi.repository_zypper import RepositoryZypper
 from kiwi.root_bind import RootBind
+from kiwi.manager import Manager
 
 
 class TestRepositoryZypper(object):
@@ -58,9 +59,27 @@ class TestRepositoryZypper(object):
     @patch('kiwi.command.Command.run')
     def test_add_repo(self, mock_command):
         self.repo.add_repo('foo', 'uri')
-        # TODO
+        chroot_zypper_args = Manager.move_to_root(
+            '../data', self.repo.zypper_args
+        )
+        mock_command.assert_called_once_with(
+            ['chroot', '../data', 'zypper'] + chroot_zypper_args + [
+                'addrepo', '-f',
+                '--type', 'YUM',
+                '--keep-packages',
+                'uri',
+                'foo'
+            ], self.repo.command_env
+        )
 
     @patch('kiwi.command.Command.run')
     def test_delete_repo(self, mock_command):
         self.repo.delete_repo('foo')
-        # TODO
+        chroot_zypper_args = Manager.move_to_root(
+            '../data', self.repo.zypper_args
+        )
+        mock_command.assert_called_once_with(
+            ['chroot', '../data', 'zypper'] + chroot_zypper_args + [
+                'removerepo', 'foo'
+            ], self.repo.command_env
+        )

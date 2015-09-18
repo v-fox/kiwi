@@ -34,8 +34,8 @@ class RootInit(object):
         Host system independent static default files and device nodes
         are created to initialize a new base system
     """
-    def __init__(self, root_dir):
-        if os.path.exists(root_dir):
+    def __init__(self, root_dir, allow_existing=False):
+        if not allow_existing and os.path.exists(root_dir):
             raise KiwiRootDirExists(
                 'Root directory %s already exists' % root_dir
             )

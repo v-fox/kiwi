@@ -59,9 +59,9 @@ class App(object):
             for i in p.get_package():
                 print i.get_name()
 
-        sys.exit(0)
+        # sys.exit(0)
 
-        root = RootInit('/home/ms/__foo')
+        root = RootInit('/home/ms/__foo', allow_existing=True)
         root.create()
 
         self.root_bind = RootBind(root)
@@ -73,12 +73,25 @@ class App(object):
         print repo.is_remote('http://download.suse.de/foo')
         print repo.is_remote('dir:///home/path/foo')
 
+        repo.delete_bootstrap_repo('foo')
+
         repo.add_bootstrap_repo('foo', 'http://download.opensuse.org/distribution/13.2/repo/oss/', 'yast2')
 
         manager = ManagerZypper(repo)
-        manager.request_package('vim')
+        manager.request_package('zypper')
 
+        # bootstrap phase
         zypper = manager.install_requests_bootstrap()
+        while zypper.process.poll() is None:
+            line = zypper.output.readline()
+            if line:
+                print line.rstrip('\n')
+
+        print zypper.process.returncode
+
+        # install in new root
+        manager.request_package('vim')
+        zypper = manager.install_requests()
         while zypper.process.poll() is None:
             line = zypper.output.readline()
             if line:
