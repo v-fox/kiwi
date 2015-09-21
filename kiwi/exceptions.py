@@ -79,3 +79,23 @@ class KiwiUriTypeUnknown(KiwiError):
 
 class KiwiRepoTypeUnknown(KiwiError):
     pass
+
+
+class KiwiUnknownServiceName(KiwiError):
+    pass
+
+
+class KiwiCommandNotLoaded(KiwiError):
+    pass
+
+
+class KiwiLoadCommandUndefined(KiwiError):
+    pass
+
+
+class KiwiUnknownCommand(KiwiError):
+    pass
+
+
+class KiwiHelpNoCommandGiven(KiwiError):
+    pass

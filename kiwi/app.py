@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from cli_task import CliTask
+
+
 import logging
 import sys
 
@@ -34,6 +37,14 @@ class App(object):
         Application class to create task instances and process them
     """
     def __init__(self):
+        app = CliTask()
+        action = app.cli.get_command()
+        service = app.cli.get_servicename()
+        task_class_name = service.title() + action.title() + 'Task'
+        task_class = app.task.__dict__[task_class_name]
+        task_class().process()
+
+    def playground(self):
         # playground only, some testing code
 
         from logger import log
