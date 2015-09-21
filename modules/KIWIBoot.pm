@@ -1315,7 +1315,8 @@ sub setupInstallStick {
             #==========================================
             # build root filesystem
             #------------------------------------------
-            if (! $this -> setupFilesystem ('ext3',$root,"install-root")) {
+            if (! $this -> setupFilesystem ('ext3',$root,"install-root","ROOT")
+            ) {
                 $this -> cleanStack ();
                 return;
             }
@@ -2581,7 +2582,7 @@ sub setupBootDisk {
         #==========================================
         # Create fs on system image partition
         #------------------------------------------
-        if (! $this -> setupFilesystem ($FSTypeRO,$root,"root")) {
+        if (! $this -> setupFilesystem ($FSTypeRO,$root,"root","ROOT")) {
             return;
         }
         #==========================================
@@ -2640,7 +2641,9 @@ sub setupBootDisk {
                         $this -> cleanStack ();
                         return;
                     }
-                    if (! $this -> setupFilesystem ($FSTypeRO,$device,$pname)) {
+                    if (! $this -> setupFilesystem (
+                        $FSTypeRO,$device,$pname,$pname
+                    )) {
                         $this -> cleanStack ();
                         return;
                     }
@@ -7147,6 +7150,9 @@ sub setupFilesystem {
             $kiwi -> info ("Creating reiserfs $name filesystem");
             my $createArgs = $fsOpts -> getOptionsStrReiser();
             $createArgs .= " -f";
+            if ($bootp) {
+                $createArgs.= " -l '".$bootp."'";
+            }
             $status = KIWIQX::qxx (
                 "/sbin/mkreiserfs $createArgs $device 2>&1"
             );
@@ -7156,6 +7162,9 @@ sub setupFilesystem {
         /^btrfs/        && do {
             $kiwi -> info ("Creating btrfs $name filesystem");
             my $createArgs = $fsOpts -> getOptionsStrBtrfs();
+            if ($bootp) {
+                $createArgs.= " -L '".$bootp."'";
+            }
             $status = KIWIQX::qxx (
                 "/sbin/mkfs.btrfs $createArgs $device 2>&1"
             );
@@ -7165,6 +7174,9 @@ sub setupFilesystem {
         /^xfs/          && do {
             $kiwi -> info ("Creating xfs $name filesystem");
             my $createArgs = $fsOpts -> getOptionsStrXFS();
+            if ($bootp) {
+                $createArgs.= " -L '".$bootp."'";
+            }
             $status = KIWIQX::qxx (
                 "/sbin/mkfs.xfs $createArgs $device 2>&1"
             );
