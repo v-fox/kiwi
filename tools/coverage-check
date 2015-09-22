@@ -14,16 +14,19 @@ except:
 summary = {}
 
 for cls in cur_tree.getElementsByTagName('class'):
-    filename = cls.attributes['filename'].value
+    filename = format(cls.attributes['filename'].value)
     coverage = int (float(cls.attributes['line-rate'].value) * 100)
     summary[filename] = []
     summary[filename].append(coverage)
     summary[filename].append(100)
 
 for cls in pre_tree.getElementsByTagName('class'):
-    filename = cls.attributes['filename'].value
+    filename = format(cls.attributes['filename'].value)
     coverage = int (float(cls.attributes['line-rate'].value) * 100)
-    summary[filename][1] = coverage
+    try:
+        summary[filename][1] = coverage
+    except Exception as e:
+        pass
 
 code = 0
 for filename in summary:
