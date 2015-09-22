@@ -81,8 +81,6 @@ class App(object):
         # self.root_bind.mount_shared_directory()
 
         repo = RepositoryZypper(self.root_bind)
-        print repo.is_remote('http://download.suse.de/foo')
-        print repo.is_remote('dir:///home/path/foo')
 
         repo.delete_bootstrap_repo('foo')
 

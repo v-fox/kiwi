@@ -43,9 +43,8 @@ class ManagerZypper(Manager):
         return Command.call(
             ['zypper'] + self.zypper_args + [
                 '--root', self.root_dir,
-                'install', '--auto-agree-with-licenses',
-                self.__install_items()
-            ],
+                'install', '--auto-agree-with-licenses'
+            ] + self.__install_items(),
             self.command_env
         )
 
@@ -55,9 +54,8 @@ class ManagerZypper(Manager):
         )
         return Command.call(
             ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
-                'install', '--auto-agree-with-licenses',
-                self.__install_items()
-            ],
+                'install', '--auto-agree-with-licenses'
+            ] + self.__install_items(),
             self.command_env
         )
 
@@ -65,4 +63,4 @@ class ManagerZypper(Manager):
         items = self.package_requests + self.collection_requests \
             + self.product_requests
         self.cleanup_requests()
-        return ' '.join(items)
+        return items

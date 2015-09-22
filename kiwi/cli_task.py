@@ -1,0 +1,54 @@
+# Copyright (c) 2015 SUSE Linux GmbH.  All rights reserved.
+#
+# This file is part of kiwi.
+#
+# kiwi is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# kiwi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with kiwi.  If not, see <http://www.gnu.org/licenses/>
+#
+import sys
+import logging
+
+# project
+from cli import Cli
+from help import Help
+
+
+class CliTask(object):
+    """
+        Base class for all task classes, loads the task and provides
+        the interface to the command options and the account to use
+        for the task
+    """
+    def __init__(self):
+        from logger import log
+
+        self.cli = Cli()
+
+        # show main help man page if requested
+        if self.cli.show_help():
+            manual = Help()
+            manual.show('kiwi')
+            sys.exit(0)
+
+        # load/import task module
+        self.task = self.cli.load_command()
+
+        # get command specific args
+        self.command_args = self.cli.get_command_args()
+
+        # get global args
+        self.global_args = self.cli.get_global_args()
+
+        # set log level
+        if self.global_args['--debug']:
+            log.setLevel(logging.DEBUG)

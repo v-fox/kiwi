@@ -15,12 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import re
-
-from exceptions import (
-    KiwiUriStyleUnknown,
-    KiwiUriTypeUnknown
-)
 
 
 class Repository(object):
@@ -32,16 +26,6 @@ class Repository(object):
         self.root_dir = root_bind.root_dir
         self.shared_location = root_bind.shared_location
 
-        self.remote_uri_types = {
-            'http': True,
-            'https': True,
-            'ftp': True
-        }
-        self.local_uri_type = {
-            'iso': True,
-            'dir': True,
-            'this': True
-        }
         self.post_init(custom_args)
 
     def post_init(self, custom_args):
@@ -61,20 +45,3 @@ class Repository(object):
 
     def delete_repo(self, name):
         raise NotImplementedError
-
-    def is_remote(self, uri):
-        uri_exp = re.search('^(.*):\/\/(.*)', uri)
-        if not uri_exp:
-            raise KiwiUriStyleUnknown('URI style %s unknown' % uri)
-        uri_type = uri_exp.group(1)
-        uri_name = uri_exp.group(2)
-        try:
-            self.remote_uri_types[uri_type]
-            result = {'name': uri, 'remote': True}
-        except KeyError:
-            try:
-                self.local_uri_type[uri_type]
-                result = {'name': uri_name, 'remote': False}
-            except KeyError:
-                raise KiwiUriTypeUnknown('URI type %s unknown' % uri_type)
-        return result

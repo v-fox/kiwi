@@ -99,3 +99,11 @@ class KiwiUnknownCommand(KiwiError):
 
 class KiwiHelpNoCommandGiven(KiwiError):
     pass
+
+
+class KiwiBootStrapPhaseFailed(KiwiError):
+    pass
+
+
+class KiwiSystemInstallPhaseFailed(KiwiError):
+    pass
