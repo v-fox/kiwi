@@ -16,7 +16,7 @@ from kiwi.manager import Manager
 
 class TestRepositoryZypper(object):
     @patch('kiwi.command.Command.run')
-    def __init__(self, mock_command):
+    def setup(self, mock_command):
         root_bind = mock.Mock()
         root_bind.root_dir = '../data'
         root_bind.shared_location = '/shared-dir'

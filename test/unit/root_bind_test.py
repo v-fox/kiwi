@@ -15,7 +15,7 @@ from kiwi.root_bind import RootBind
 
 
 class TestRootBind(object):
-    def __init__(self):
+    def setup(self):
         root = mock.Mock()
         root.root_dir = 'root-dir'
         self.bind_root = RootBind(root)

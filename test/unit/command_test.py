@@ -11,7 +11,7 @@ from kiwi.command import Command
 
 
 class TestCommand(object):
-    def __init__(self):
+    def setup(self):
         command_call = namedtuple(
             'command', ['output', 'process']
         )

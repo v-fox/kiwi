@@ -10,7 +10,7 @@ from kiwi.xml_description import XMLDescription
 
 
 class TestXMLState(object):
-    def __init__(self):
+    def setup(self):
         description = XMLDescription('../data/example_config.xml')
         self.xml = description.load()
 

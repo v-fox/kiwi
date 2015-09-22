@@ -15,7 +15,7 @@ from kiwi.xml_description import XMLDescription
 
 
 class TestSchema(object):
-    def __init__(self):
+    def setup(self):
         self.description = XMLDescription('description')
 
     @raises(KiwiSchemaImportError)

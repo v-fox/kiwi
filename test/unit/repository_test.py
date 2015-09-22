@@ -15,7 +15,7 @@ from kiwi.root_bind import RootBind
 
 
 class TestRepository(object):
-    def __init__(self):
+    def setup(self):
         root_bind = mock.Mock()
         self.repo = Repository(root_bind)
         self.repo.root_dir = 'root-dir'

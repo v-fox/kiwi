@@ -9,7 +9,7 @@ from kiwi.manager_zypper import ManagerZypper
 
 
 class TestManager(object):
-    def __init__(self):
+    def setup(self):
         repository = mock.Mock()
         repository.root_dir = 'root-dir'
         repository.runtime_config = mock.Mock(

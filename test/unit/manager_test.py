@@ -9,7 +9,7 @@ from kiwi.manager import Manager
 
 
 class TestManager(object):
-    def __init__(self):
+    def setup(self):
         repository = mock.Mock()
         repository.root_dir = 'root-dir'
         self.manager = Manager(repository)

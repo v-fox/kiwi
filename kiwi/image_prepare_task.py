@@ -90,6 +90,7 @@ class ImagePrepareTask(CliTask):
         return description.load()
 
     def __profiles(self):
+        profiles = []
         if self.global_args['--profile']:
-            return self.global_args['--profile'].split(',')
-        return []
+            profiles = self.global_args['--profile'].split(',')
+        return profiles
