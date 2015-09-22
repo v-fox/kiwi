@@ -23,6 +23,7 @@ class TestCli(object):
             '--allow-existing-root': False,
             '--help': False,
             '--root': 'directory',
+            '--type': None,
             '-h': False,
             'help': False,
             'image': 1,

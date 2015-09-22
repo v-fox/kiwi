@@ -29,3 +29,21 @@ class TestXMLState(object):
     def test_build_type_first_selected(self):
         self.xml.get_preferences()[0].get_type()[0].set_primary(False)
         assert XMLState.build_type(self.xml) == 'iso'
+
+    def test_package_manager(self):
+        assert XMLState.package_manager(self.xml) == 'zypper'
+
+    def test_bootstrap_packages(self):
+        assert XMLState.bootstrap_packages(self.xml) == [
+            'udev', 'filesystem', 'glibc-locale',
+            'cracklib-dict-full', 'ca-certificates',
+            'openSUSE-release'
+        ]
+
+    def test_system_packages(self):
+        print XMLState.system_packages(self.xml, ['vmxFlavour']) == [
+            'gfxboot-branding-openSUSE', 'iputils',
+            'grub2-branding-openSUSE', 'patterns-openSUSE-base',
+            'vim', 'kernel-default', 'ifplugd', 'openssh',
+            'plymouth-branding-openSUSE'
+        ]

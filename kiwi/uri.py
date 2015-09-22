@@ -40,7 +40,8 @@ class Uri(object):
         self.remote_uri_types = {
             'http': True,
             'https': True,
-            'ftp': True
+            'ftp': True,
+            'obs': True
         }
         self.local_uri_type = {
             'iso': True,

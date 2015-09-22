@@ -18,6 +18,9 @@
 
 
 class XMLState(object):
+    """
+        Provides methods to get stateful information from the XML data
+    """
     @classmethod
     def profiled(self, xml_data, matching=[]):
         """
@@ -68,3 +71,48 @@ class XMLState(object):
                 return type_name
             type_names.append(type_name)
         return type_names[0]
+
+    @classmethod
+    def package_manager(self, xml_data, profiles=[]):
+        """
+            get configured package manager name
+        """
+        preferences_sections = XMLState.profiled(
+            xml_data.get_preferences(), profiles
+        )
+        for preferences in preferences_sections:
+            return preferences.get_packagemanager()[0]
+
+    @classmethod
+    def bootstrap_packages(self, xml_data, profiles=[]):
+        """
+            get list of bootstrap packages
+        """
+        result = []
+        packages_sections = XMLState.profiled(
+            xml_data.get_packages(), profiles
+        )
+        for packages in packages_sections:
+            packages_type = packages.get_type()
+            if packages_type == 'bootstrap':
+                for package in packages.get_package():
+                    result.append(package.get_name())
+        return result
+
+    @classmethod
+    def system_packages(self, xml_data, profiles=[], build_type=None):
+        """
+            get list of system packages according to selected buildtype
+        """
+        result = []
+        if not build_type:
+            build_type = XMLState.build_type(xml_data, profiles)
+        packages_sections = XMLState.profiled(
+            xml_data.get_packages(), profiles
+        )
+        for packages in packages_sections:
+            packages_type = packages.get_type()
+            if packages_type == 'image' or packages_type == build_type:
+                for package in packages.get_package():
+                    result.append(package.get_name())
+        return list(set(result))
