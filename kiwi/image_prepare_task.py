@@ -28,6 +28,10 @@ usage: kiwi image prepare -h | --help
 commands:
     prepare
         prepare and install a new system for chroot access
+    help
+        show manual page for prepare command
+
+options:
     --description=<directory>
         the description must be a directory containing a kiwi XML
         description and optional metadata files
@@ -46,8 +50,6 @@ commands:
         overwrite the repo type for the first XML repository
     --set-repoalias=<alias>
         overwrite the repo alias for the first XML repository
-    help
-        show manual page for prepare command
 """
 # project
 import xml_parse
