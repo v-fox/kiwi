@@ -33,6 +33,9 @@ class TestImagePrepareTask(object):
         self.task.command_args['--root'] = '../data/root-dir'
         self.task.command_args['--type'] = None
         self.task.command_args['--allow-existing-root'] = False
+        self.task.command_args['--set-repo'] = None,
+        self.task.command_args['--set-repoalias'] = None,
+        self.task.command_args['--set-repotype'] = None
 
     def test_process_image_prepare(self):
         self.__init_command_args()

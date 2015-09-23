@@ -47,3 +47,9 @@ class TestXMLState(object):
             'vim', 'kernel-default', 'ifplugd', 'openssh',
             'plymouth-branding-openSUSE'
         ]
+
+    def test_set_repository(self):
+        XMLState.set_repository(self.xml, 'repo', 'type', 'alias')
+        assert self.xml.get_repository()[0].get_source().get_path() == 'repo'
+        assert self.xml.get_repository()[0].get_type() == 'type'
+        assert self.xml.get_repository()[0].get_alias() == 'alias'

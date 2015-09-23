@@ -20,6 +20,9 @@ usage: kiwi image prepare -h | --help
        kiwi image prepare --description=<directory> --root=<directory>
            [--type=<buildtype>]
            [--allow-existing-root]
+           [--set-repo=<source>]
+           [--set-repotype=<type>]
+           [--set-repoalias=<alias>]
        kiwi image prepare help
 
 commands:
@@ -37,6 +40,12 @@ commands:
     --type=<buildtype>
         set the build type. If not set the default XML specified
         build type will be used
+    --set-repo=<source>
+        overwrite the repo source for the first XML repository
+    --set-repotype=<type>
+        overwrite the repo type for the first XML repository
+    --set-repoalias=<alias>
+        overwrite the repo alias for the first XML repository
     help
         show manual page for prepare command
 """
@@ -61,16 +70,25 @@ class ImagePrepareTask(CliTask):
         if self.__help():
             return
 
+        self.xml = self.__load_xml()
+        self.used_profiles = XMLState.used_profiles(
+            self.xml, self.__profiles()
+        )
+        if self.used_profiles:
+            log.info('--> Using profiles: %s', ','.join(self.used_profiles))
+
+        XMLState.set_repository(
+            self.xml,
+            self.command_args['--set-repo'],
+            self.command_args['--set-repotype'],
+            self.command_args['--set-repoalias'],
+            self.used_profiles
+        )
+
         if self.command_args['prepare']:
             log.info('Preparing system')
-            self.xml = self.__load_xml()
-            used_profiles = XMLState.used_profiles(
-                self.xml, self.__profiles()
-            )
-            if used_profiles:
-                log.info('--> Using profiles: %s', ','.join(used_profiles))
             self.prepare = Prepare(
-                self.xml, used_profiles,
+                self.xml, self.used_profiles,
                 self.command_args['--allow-existing-root']
             )
             self.prepare.setup_root(

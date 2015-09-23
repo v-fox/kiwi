@@ -135,3 +135,23 @@ class XMLState(object):
                 for package in packages.get_package():
                     result.append(package.get_name())
         return list(set(result))
+
+    @classmethod
+    def set_repository(
+        self, xml_data, repo_source, repo_type, repo_alias, profiles=[]
+    ):
+        """
+            overwrite repository data for the first repo in the list
+        """
+        if not profiles:
+            profiles = XMLState.used_profiles(xml_data, profiles)
+        repository_sections = XMLState.profiled(
+            xml_data.get_repository(), profiles
+        )
+        repository = repository_sections[0]
+        if repo_alias:
+            repository.set_alias(repo_alias)
+        if repo_type:
+            repository.set_type(repo_type)
+        if repo_source:
+            repository.get_source().set_path(repo_source)
