@@ -41,12 +41,16 @@ class XMLState(object):
         return result
 
     @classmethod
-    def build_type(self, xml_data, profiles=[]):
+    def used_profiles(self, xml_data, profiles=[]):
         """
-            find default build type to use. take profiles into account
+            return list of profiles to use. The method looks up the
+            profiles section in the XML description and searches for
+            profiles marked with import=true. Profiles specified in
+            the argument list of this method will take the highest
+            priority and causes to skip the lookup of import profiles
+            in the XML description
         """
         if not profiles:
-            # no profiles specified, lookup profiles marked with import
             profiles_section = xml_data.get_profiles()
             if profiles_section:
                 for profile in profiles_section[0].get_profile():
@@ -54,8 +58,17 @@ class XMLState(object):
                     import_profile = profile.get_import()
                     if import_profile:
                         profiles.append(name)
+        return profiles
 
-        # lookup all preferences sections for configured profiles
+    @classmethod
+    def build_type(self, xml_data, profiles=[]):
+        """
+            find default build type
+        """
+        if not profiles:
+            profiles = XMLState.used_profiles(xml_data, profiles)
+
+        # lookup all preferences sections for selected profiles
         image_type_sections = []
         preferences_sections = XMLState.profiled(
             xml_data.get_preferences(), profiles
@@ -75,8 +88,10 @@ class XMLState(object):
     @classmethod
     def package_manager(self, xml_data, profiles=[]):
         """
-            get configured package manager name
+            get configured package manager
         """
+        if not profiles:
+            profiles = XMLState.used_profiles(xml_data, profiles)
         preferences_sections = XMLState.profiled(
             xml_data.get_preferences(), profiles
         )
@@ -89,6 +104,8 @@ class XMLState(object):
             get list of bootstrap packages
         """
         result = []
+        if not profiles:
+            profiles = XMLState.used_profiles(xml_data, profiles)
         packages_sections = XMLState.profiled(
             xml_data.get_packages(), profiles
         )
@@ -102,9 +119,11 @@ class XMLState(object):
     @classmethod
     def system_packages(self, xml_data, profiles=[], build_type=None):
         """
-            get list of system packages according to selected buildtype
+            get list of system packages, take build_type into account
         """
         result = []
+        if not profiles:
+            profiles = XMLState.used_profiles(xml_data, profiles)
         if not build_type:
             build_type = XMLState.build_type(xml_data, profiles)
         packages_sections = XMLState.profiled(

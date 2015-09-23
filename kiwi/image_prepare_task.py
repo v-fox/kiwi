@@ -47,6 +47,7 @@ from cli_task import CliTask
 from help import Help
 from xml_description import XMLDescription
 from prepare import Prepare
+from xml_state import XMLState
 
 from logger import log
 
@@ -61,8 +62,15 @@ class ImagePrepareTask(CliTask):
             return
 
         if self.command_args['prepare']:
+            log.info('Preparing system')
+            self.xml = self.__load_xml()
+            used_profiles = XMLState.used_profiles(
+                self.xml, self.__profiles()
+            )
+            if used_profiles:
+                log.info('--> Using profiles: %s', ','.join(used_profiles))
             self.prepare = Prepare(
-                self.__load_xml(), self.__profiles()
+                self.xml, used_profiles
             )
             self.prepare.setup_root(
                 self.command_args['--root'],

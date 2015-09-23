@@ -41,7 +41,7 @@ class TestXMLState(object):
         ]
 
     def test_system_packages(self):
-        print XMLState.system_packages(self.xml, ['vmxFlavour']) == [
+        print XMLState.system_packages(self.xml) == [
             'gfxboot-branding-openSUSE', 'iputils',
             'grub2-branding-openSUSE', 'patterns-openSUSE-base',
             'vim', 'kernel-default', 'ifplugd', 'openssh',
