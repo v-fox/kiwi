@@ -70,11 +70,11 @@ class ImagePrepareTask(CliTask):
             if used_profiles:
                 log.info('--> Using profiles: %s', ','.join(used_profiles))
             self.prepare = Prepare(
-                self.xml, used_profiles
+                self.xml, used_profiles,
+                self.command_args['--allow-existing-root']
             )
             self.prepare.setup_root(
-                self.command_args['--root'],
-                self.command_args['--allow-existing-root']
+                self.command_args['--root']
             )
             self.prepare.setup_repositories()
             self.prepare.install_bootstrap()

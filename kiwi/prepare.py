@@ -36,14 +36,15 @@ class Prepare(object):
     """
         Implements preparation and installation of a new root system
     """
-    def __init__(self, xml_data, profiles=[]):
+    def __init__(self, xml_data, profiles=[], allow_existing=False):
         self.xml = xml_data
         self.profiles = profiles
+        self.allow_existing = allow_existing
 
-    def setup_root(self, root_dir, allow_existing=False):
+    def setup_root(self, root_dir):
         log.info('Creating new root directory: %s', root_dir)
         self.root = RootInit(
-            root_dir, allow_existing
+            root_dir, self.allow_existing
         )
         self.root.create()
         self.root_bind = RootBind(
@@ -61,6 +62,8 @@ class Prepare(object):
         self.repo = RepositoryZypper(
             self.root_bind
         )
+        if self.allow_existing:
+            self.repo.delete_all_repos()
         for xml_repo in repository_sections:
             repo_type = xml_repo.get_type()
             repo_source = xml_repo.get_source().get_path()

@@ -39,8 +39,7 @@ class TestImagePrepareTask(object):
         self.task.command_args['prepare'] = True
         self.task.process()
         self.task.prepare.setup_root.assert_called_once_with(
-            self.task.command_args['--root'],
-            self.task.command_args['--allow-existing-root']
+            self.task.command_args['--root']
         )
         self.task.prepare.setup_repositories.assert_called_once_with()
         self.task.prepare.install_bootstrap.assert_called_once_with()

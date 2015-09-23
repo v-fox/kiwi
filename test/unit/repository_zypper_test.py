@@ -83,3 +83,17 @@ class TestRepositoryZypper(object):
                 'removerepo', 'foo'
             ], self.repo.command_env
         )
+
+    @patch('kiwi.command.Command.run')
+    def test_delete_all_repos(self, mock_command):
+        self.repo.delete_all_repos()
+        call = mock_command.call_args_list[0]
+        assert mock_command.call_args_list[0] == \
+            call([
+                'rm', '-r', '-f', '../data/shared-dir/zypper/repos'
+        ])
+        call = mock_command.call_args_list[1]
+        assert mock_command.call_args_list[1] == \
+            call([
+                'mkdir', '../data/shared-dir/zypper/repos'
+        ])

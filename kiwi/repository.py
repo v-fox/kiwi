@@ -45,3 +45,6 @@ class Repository(object):
 
     def delete_repo(self, name):
         raise NotImplementedError
+
+    def delete_all_repos(self):
+        raise NotImplementedError

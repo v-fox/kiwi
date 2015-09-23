@@ -139,6 +139,10 @@ class RepositoryZypper(Repository):
             self.command_env
         )
 
+    def delete_all_repos(self):
+        Command.run(['rm', '-r', '-f', self.shared_zypper_dir['reposd-dir']])
+        Command.run(['mkdir', self.shared_zypper_dir['reposd-dir']])
+
     def __create_zypper_runtime_environment(self):
         for key, zypper_dir in self.shared_zypper_dir.iteritems():
             Command.run(['mkdir', '-p', zypper_dir])
