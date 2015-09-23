@@ -27,12 +27,16 @@ class TestManager(object):
         self.manager.request_product('name')
 
     @raises(NotImplementedError)
-    def test_install_requests_bootstrap(self):
-        self.manager.install_requests_bootstrap()
+    def test_process_install_requests_bootstrap(self):
+        self.manager.process_install_requests_bootstrap()
 
     @raises(NotImplementedError)
-    def test_install_requests(self):
-        self.manager.install_requests()
+    def test_process_install_requests(self):
+        self.manager.process_install_requests()
+
+    @raises(NotImplementedError)
+    def test_process_delete_requests(self):
+        self.manager.process_delete_requests()
 
     @raises(NotImplementedError)
     def test_update(self):

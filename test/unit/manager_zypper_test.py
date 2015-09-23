@@ -33,9 +33,9 @@ class TestManager(object):
         assert self.manager.product_requests == ['product:name']
 
     @patch('kiwi.command.Command.call')
-    def test_install_requests_bootstrap(self, mock_call):
+    def test_process_install_requests_bootstrap(self, mock_call):
         self.manager.request_package('vim')
-        self.manager.install_requests_bootstrap()
+        self.manager.process_install_requests_bootstrap()
         mock_call.assert_called_once_with(
             [
                 'zypper', '--reposd-dir', 'root-dir/my/repos',
@@ -48,13 +48,27 @@ class TestManager(object):
         )
 
     @patch('kiwi.command.Command.call')
-    def test_install_requests(self, mock_call):
+    def test_process_install_requests(self, mock_call):
         self.manager.request_package('vim')
-        self.manager.install_requests()
+        self.manager.process_install_requests()
         mock_call.assert_called_once_with(
             [
                 'chroot', 'root-dir', 'zypper', '--reposd-dir', '//my/repos',
                 'install', '--auto-agree-with-licenses', 'vim'
+            ],
+            [
+                'env'
+            ]
+        )
+
+    @patch('kiwi.command.Command.call')
+    def test_process_delete_requests(self, mock_call):
+        self.manager.request_package('vim')
+        self.manager.process_delete_requests()
+        mock_call.assert_called_once_with(
+            [
+                'chroot', 'root-dir', 'zypper', '--reposd-dir', '//my/repos',
+                'remove', '--auto-agree-with-licenses', 'vim'
             ],
             [
                 'env'

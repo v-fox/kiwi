@@ -28,8 +28,9 @@ from logger import log
 
 from exceptions import(
     KiwiBootStrapPhaseFailed,
-    KiwiSystemInstallPhaseFailed,
-    KiwiSystemUpgradeFailed
+    KiwiSystemUpdateFailed,
+    KiwiSystemInstallPackagesFailed,
+    KiwiSystemDeletePackagesFailed
 )
 
 
@@ -99,7 +100,7 @@ class System(object):
             log.info('--> package: %s', package)
             manager.request_package(package)
 
-        install = manager.install_requests_bootstrap()
+        install = manager.process_install_requests_bootstrap()
         while install.process.poll() is None:
             line = install.output.readline()
             if line:
@@ -111,38 +112,59 @@ class System(object):
             )
 
     def install_system(self, build_type=None):
-        manager = self.__manager()
         system_packages = XMLState.system_packages(
             self.xml, self.profiles, build_type
         )
+        self.install_packages(system_packages)
+
+    def install_packages(self, packages):
+        manager = self.__manager()
         log.info('Installing system packages (chroot)')
-        for package in system_packages:
+        for package in packages:
             log.info('--> package: %s', package)
             manager.request_package(package)
 
-        install = manager.install_requests()
+        install = manager.process_install_requests()
         while install.process.poll() is None:
             line = install.output.readline()
             if line:
                 log.debug('system: %s', line.rstrip('\n'))
 
         if install.process.returncode != 0:
-            raise KiwiSystemInstallPhaseFailed(
-                'System installation failed'
+            raise KiwiSystemInstallPackagesFailed(
+                'Package installation failed'
             )
 
-    def upgrade_system(self):
+    def delete_packages(self, packages):
         manager = self.__manager()
-        log.info('Upgrade system (chroot)')
-        upgrade = manager.upgrade()
-        while upgrade.process.poll() is None:
-            line = upgrade.output.readline()
+        log.info('Deleting system packages (chroot)')
+        for package in packages:
+            log.info('--> package: %s', package)
+            manager.request_package(package)
+
+        delete = manager.process_delete_requests()
+        while delete.process.poll() is None:
+            line = delete.output.readline()
             if line:
                 log.debug('system: %s', line.rstrip('\n'))
 
-        if upgrade.process.returncode != 0:
-            raise KiwiSystemUpgradeFailed(
-                'System upgrade failed'
+        if delete.process.returncode != 0:
+            raise KiwiSystemDeletePackagesFailed(
+                'Package deletion failed'
+            )
+
+    def update_system(self):
+        manager = self.__manager()
+        log.info('Update system (chroot)')
+        update = manager.update()
+        while update.process.poll() is None:
+            line = update.output.readline()
+            if line:
+                log.debug('system: %s', line.rstrip('\n'))
+
+        if update.process.returncode != 0:
+            raise KiwiSystemUpdateFailed(
+                'System update failed'
             )
 
     def __manager(self):

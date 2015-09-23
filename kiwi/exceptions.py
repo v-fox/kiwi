@@ -105,9 +105,13 @@ class KiwiBootStrapPhaseFailed(KiwiError):
     pass
 
 
-class KiwiSystemInstallPhaseFailed(KiwiError):
+class KiwiSystemUpdateFailed(KiwiError):
     pass
 
 
-class KiwiSystemUpgradeFailed(KiwiError):
+class KiwiSystemInstallPackagesFailed(KiwiError):
+    pass
+
+
+class KiwiSystemDeletePackagesFailed(KiwiError):
     pass

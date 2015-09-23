@@ -41,10 +41,13 @@ class Manager(object):
     def request_product(self, name):
         raise NotImplementedError
 
-    def install_requests_bootstrap(self):
+    def process_install_requests_bootstrap(self):
         raise NotImplementedError
 
-    def install_requests(self):
+    def process_install_requests(self):
+        raise NotImplementedError
+
+    def process_delete_requests(self):
         raise NotImplementedError
 
     def update(self):

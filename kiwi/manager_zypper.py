@@ -39,7 +39,7 @@ class ManagerZypper(Manager):
     def request_product(self, name):
         self.product_requests.append('product:' + name)
 
-    def install_requests_bootstrap(self):
+    def process_install_requests_bootstrap(self):
         return Command.call(
             ['zypper'] + self.zypper_args + [
                 '--root', self.root_dir,
@@ -48,7 +48,7 @@ class ManagerZypper(Manager):
             self.command_env
         )
 
-    def install_requests(self):
+    def process_install_requests(self):
         chroot_zypper_args = Manager.move_to_root(
             self.root_dir, self.zypper_args
         )
@@ -56,6 +56,17 @@ class ManagerZypper(Manager):
             ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
                 'install', '--auto-agree-with-licenses'
             ] + self.__install_items(),
+            self.command_env
+        )
+
+    def process_delete_requests(self):
+        chroot_zypper_args = Manager.move_to_root(
+            self.root_dir, self.zypper_args
+        )
+        return Command.call(
+            ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
+                'remove', '--auto-agree-with-licenses'
+            ] + self.__delete_items(),
             self.command_env
         )
 
@@ -73,5 +84,12 @@ class ManagerZypper(Manager):
     def __install_items(self):
         items = self.package_requests + self.collection_requests \
             + self.product_requests
+        self.cleanup_requests()
+        return items
+
+    def __delete_items(self):
+        # collections and products can't be deleted
+        items = []
+        items += self.package_requests
         self.cleanup_requests()
         return items

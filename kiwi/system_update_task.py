@@ -18,14 +18,15 @@
 """
 usage: kiwi system update -h | --help
        kiwi system update --root=<directory>
-           [--add-package=<name>]
-           [--delete-package=<name>]
+           [--add-package=<name>...]
+           [--delete-package=<name>...]
        kiwi system update help
 
 commands:
     update
         update root system with latest repository updates
-        and optionally allow to add or delete packages
+        and optionally allow to add or delete packages. the options
+        to add or delete packages can be used multiple times
     update help
         show manual page for update command
 
@@ -33,9 +34,9 @@ options:
     --root=<directory>
         the path to the new root directory of the system
     --add-package=<name>
-        install the given package name after upgrading
+        install the given package name
     --delete-package=<name>
-        delete the given package name after upgrading
+        delete the given package name
 """
 # project
 import xml_parse
@@ -65,6 +66,12 @@ class SystemUpdateTask(CliTask):
         if self.used_profiles:
             log.info('--> Using profiles: %s', ','.join(self.used_profiles))
 
+        package_requests = False
+        if self.command_args['--add-package']:
+            package_requests = True
+        if self.command_args['--delete-package']:
+            package_requests = True
+
         if self.command_args['update']:
             log.info('Updating system')
             self.system = System(
@@ -74,7 +81,17 @@ class SystemUpdateTask(CliTask):
                 self.command_args['--root']
             )
             self.system.setup_repositories()
-            self.system.update()
+            if not package_requests:
+                self.system.update_system()
+            else:
+                if self.command_args['--add-package']:
+                    self.system.install_packages(
+                        self.command_args['--add-package']
+                    )
+                if self.command_args['--delete-package']:
+                    self.system.delete_packages(
+                        self.command_args['--delete-package']
+                    )
 
     def __help(self):
         if self.command_args['help']:
