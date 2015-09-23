@@ -25,10 +25,12 @@ class TestCliTask(object):
     @patch('kiwi.logger.log.setLevel')
     def test_global_args(self, mock_setlevel, mock_section, mock_isfile):
         sys.argv = [
-            sys.argv[0], '--debug',
+            sys.argv[0], '--debug', '--profile', 'foo',
             'system', 'prepare',
             '--description', 'description',
             '--root', 'directory'
         ]
         task = CliTask()
         mock_setlevel.assert_called_once_with(logging.DEBUG)
+        assert task.profile_list() == ['foo']
+        assert task.triple_token('a,b') == ['a', 'b', None]

@@ -8,9 +8,8 @@ __kiwi__ system prepare --description=*directory* --root=*directory*
 
     [--type=*buildtype*]
     [--allow-existing-root]
-    [--set-repo=*source*]
-    [--set-repotype=*type*]
-    [--set-repoalias=*alias*]
+    [--set-repo=*source,type,alias*]
+    [--ass-repo=*source,type,alias*]
 
 # DESCRIPTION
 
@@ -36,18 +35,20 @@ Set the build type. If not set the default XML specified build type will be used
 
 Allow to use an existing root directory. Use with caution this could cause an inconsistent root tree if the existing contents does not fit to the additional installation
 
-## __--set-repo=source__
+## __--set-repo=source,type,alias__
 
-Overwrite the repo source for the first XML repository
+Overwrite the repo source for the first XML repository with the
+given repo source, type and alias.
 
-## __--set-repotype=type__
+## __--add-repo=source,type,alias__
 
-Overwrite the repo type for the first XML repository. Available types are
+Add a new repository with specified source, type and alias
+
+# REPOSITORIES
+
+Available repo types are:
 
 1. yast2
 2. rpm-md
 3. rpm-dir
 
-## __--set-repoalias=alias__
-
-Overwrite the repo alias for the first XML repository

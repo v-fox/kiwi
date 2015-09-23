@@ -20,9 +20,8 @@ usage: kiwi system prepare -h | --help
        kiwi system prepare --description=<directory> --root=<directory>
            [--type=<buildtype>]
            [--allow-existing-root]
-           [--set-repo=<source>]
-           [--set-repotype=<type>]
-           [--set-repoalias=<alias>]
+           [--set-repo=<source,type,alias>]
+           [--add-repo=<source,type,alias>...]
        kiwi system prepare help
 
 commands:
@@ -44,16 +43,12 @@ options:
     --type=<buildtype>
         set the build type. If not set the default XML specified
         build type will be used
-    --set-repo=<source>
-        overwrite the repo source for the first XML repository
-    --set-repotype=<type>
-        overwrite the repo type for the first XML repository
-    --set-repoalias=<alias>
-        overwrite the repo alias for the first XML repository
-    --add-package=<name>
-        install the given package name after upgrading
-    --delete-package=<name>
-        delete the given package name after upgrading
+    --set-repo=<source,type,alias>
+        overwrite the repo source, type and alias for the first
+        repository in the XML description
+    --add-repo=<source,type,alias>
+        add repository with given source, type and alias.
+        this option can be specified multiple times
 """
 # project
 import xml_parse
@@ -78,18 +73,29 @@ class SystemPrepareTask(CliTask):
 
         self.xml = self.__load_xml()
         self.used_profiles = XMLState.used_profiles(
-            self.xml, self.__profiles()
+            self.xml, self.profile_list()
         )
         if self.used_profiles:
             log.info('--> Using profiles: %s', ','.join(self.used_profiles))
 
-        XMLState.set_repository(
-            self.xml,
-            self.command_args['--set-repo'],
-            self.command_args['--set-repotype'],
-            self.command_args['--set-repoalias'],
-            self.used_profiles
-        )
+        if self.command_args['--set-repo']:
+            (repo_source, repo_type, repo_alias) = self.triple_token(
+                self.command_args['--set-repo']
+            )
+            XMLState.set_repository(
+                self.xml,
+                repo_source, repo_type, repo_alias,
+                self.used_profiles
+            )
+
+        if self.command_args['--add-repo']:
+            for add_repo in self.command_args['--add-repo']:
+                (repo_source, repo_type, repo_alias) = self.triple_token(
+                    add_repo
+                )
+                XMLState.add_repository(
+                    self.xml, repo_source, repo_type, repo_alias
+                )
 
         if self.command_args['prepare']:
             log.info('Preparing system')
@@ -105,6 +111,8 @@ class SystemPrepareTask(CliTask):
             self.system.install_system(
                 self.command_args['--type']
             )
+            # TODO
+            # The image description needs to be copied into root/image
 
     def __help(self):
         if self.command_args['help']:
@@ -120,9 +128,3 @@ class SystemPrepareTask(CliTask):
             config_file
         )
         return description.load()
-
-    def __profiles(self):
-        profiles = []
-        if self.global_args['--profile']:
-            profiles = self.global_args['--profile'].split(',')
-        return profiles

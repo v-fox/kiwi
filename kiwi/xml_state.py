@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+# project
+import xml_parse
 
 
 class XMLState(object):
@@ -155,3 +157,16 @@ class XMLState(object):
             repository.set_type(repo_type)
         if repo_source:
             repository.get_source().set_path(repo_source)
+
+    @classmethod
+    def add_repository(self, xml_data, repo_source, repo_type, repo_alias):
+        """
+            add a new repository section as specified
+        """
+        xml_data.add_repository(
+            xml_parse.repository(
+                type_=repo_type,
+                alias=repo_alias,
+                source=xml_parse.source(path=repo_source)
+            )
+        )

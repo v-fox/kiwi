@@ -53,3 +53,9 @@ class TestXMLState(object):
         assert self.xml.get_repository()[0].get_source().get_path() == 'repo'
         assert self.xml.get_repository()[0].get_type() == 'type'
         assert self.xml.get_repository()[0].get_alias() == 'alias'
+
+    def test_add_repository(self):
+        XMLState.add_repository(self.xml, 'repo', 'type', 'alias')
+        assert self.xml.get_repository()[1].get_source().get_path() == 'repo'
+        assert self.xml.get_repository()[1].get_type() == 'type'
+        assert self.xml.get_repository()[1].get_alias() == 'alias'

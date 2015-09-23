@@ -60,7 +60,7 @@ class SystemUpdateTask(CliTask):
 
         self.xml = self.__load_xml()
         self.used_profiles = XMLState.used_profiles(
-            self.xml, self.__profiles()
+            self.xml, self.profile_list()
         )
         if self.used_profiles:
             log.info('--> Using profiles: %s', ','.join(self.used_profiles))
@@ -90,10 +90,3 @@ class SystemUpdateTask(CliTask):
             config_file
         )
         return description.load()
-
-    # FIXME: this should be available globally somehow
-    def __profiles(self):
-        profiles = []
-        if self.global_args['--profile']:
-            profiles = self.global_args['--profile'].split(',')
-        return profiles

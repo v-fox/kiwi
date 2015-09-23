@@ -19,13 +19,12 @@ class TestCli(object):
             '--help': False
         }
         self.command_args = {
+            '--add-repo': [],
             '--allow-existing-root': False,
             '--description': 'description',
             '--help': False,
             '--root': 'directory',
             '--set-repo': None,
-            '--set-repoalias': None,
-            '--set-repotype': None,
             '--type': None,
             '-h': False,
             'help': False,

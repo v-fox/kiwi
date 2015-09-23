@@ -52,3 +52,13 @@ class CliTask(object):
         # set log level
         if self.global_args['--debug']:
             log.setLevel(logging.DEBUG)
+
+    def profile_list(self):
+        profiles = []
+        if self.global_args['--profile']:
+            profiles = self.global_args['--profile'].split(',')
+        return profiles
+
+    def triple_token(self, option):
+        tokens = option.split(',', 2)
+        return [tokens.pop(0) if len(tokens) else None for _ in range(0, 3)]
