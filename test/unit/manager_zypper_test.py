@@ -60,3 +60,16 @@ class TestManager(object):
                 'env'
             ]
         )
+
+    @patch('kiwi.command.Command.call')
+    def test_update(self, mock_call):
+        self.manager.update()
+        mock_call.assert_called_once_with(
+            [
+                'chroot', 'root-dir', 'zypper', '--reposd-dir', '//my/repos',
+                'update', '--auto-agree-with-licenses'
+            ],
+            [
+                'env'
+            ]
+        )

@@ -34,6 +34,10 @@ class TestManager(object):
     def test_install_requests(self):
         self.manager.install_requests()
 
+    @raises(NotImplementedError)
+    def test_update(self):
+        self.manager.update()
+
     def test_cleanup_requests(self):
         self.manager.cleanup_requests()
         assert self.manager.package_requests == []
