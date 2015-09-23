@@ -91,9 +91,9 @@ class TestRepositoryZypper(object):
         assert mock_command.call_args_list[0] == \
             call([
                 'rm', '-r', '-f', '../data/shared-dir/zypper/repos'
-        ])
+            ])
         call = mock_command.call_args_list[1]
         assert mock_command.call_args_list[1] == \
             call([
                 'mkdir', '../data/shared-dir/zypper/repos'
-        ])
+            ])
