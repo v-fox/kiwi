@@ -16,19 +16,19 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 """
-usage: kiwi image prepare -h | --help
-       kiwi image prepare --description=<directory> --root=<directory>
+usage: kiwi system prepare -h | --help
+       kiwi system prepare --description=<directory> --root=<directory>
            [--type=<buildtype>]
            [--allow-existing-root]
            [--set-repo=<source>]
            [--set-repotype=<type>]
            [--set-repoalias=<alias>]
-       kiwi image prepare help
+       kiwi system prepare help
 
 commands:
     prepare
         prepare and install a new system for chroot access
-    help
+    prepare help
         show manual page for prepare command
 
 options:
@@ -50,6 +50,10 @@ options:
         overwrite the repo type for the first XML repository
     --set-repoalias=<alias>
         overwrite the repo alias for the first XML repository
+    --add-package=<name>
+        install the given package name after upgrading
+    --delete-package=<name>
+        delete the given package name after upgrading
 """
 # project
 import xml_parse
@@ -57,13 +61,13 @@ import xml_parse
 from cli_task import CliTask
 from help import Help
 from xml_description import XMLDescription
-from prepare import Prepare
+from system import System
 from xml_state import XMLState
 
 from logger import log
 
 
-class ImagePrepareTask(CliTask):
+class SystemPrepareTask(CliTask):
     """
         Implements preparation and installation of a new root system
     """
@@ -89,22 +93,22 @@ class ImagePrepareTask(CliTask):
 
         if self.command_args['prepare']:
             log.info('Preparing system')
-            self.prepare = Prepare(
+            self.system = System(
                 self.xml, self.used_profiles,
                 self.command_args['--allow-existing-root']
             )
-            self.prepare.setup_root(
+            self.system.setup_root(
                 self.command_args['--root']
             )
-            self.prepare.setup_repositories()
-            self.prepare.install_bootstrap()
-            self.prepare.install_system(
+            self.system.setup_repositories()
+            self.system.install_bootstrap()
+            self.system.install_system(
                 self.command_args['--type']
             )
 
     def __help(self):
         if self.command_args['help']:
-            self.manual.show('kiwi::image::prepare')
+            self.manual.show('kiwi::system::prepare')
         else:
             return False
         return self.manual

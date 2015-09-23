@@ -4,7 +4,7 @@ kiwi - Building Operating System Images
 
 # SYNOPSIS
 
-__kiwi__ image prepare --description=*directory* --root=*directory*
+__kiwi__ system prepare --description=*directory* --root=*directory*
 
     [--type=*buildtype*]
     [--allow-existing-root]

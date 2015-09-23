@@ -47,6 +47,9 @@ class Manager(object):
     def install_requests(self):
         raise NotImplementedError
 
+    def update(self):
+        raise NotImplementedError
+
     def cleanup_requests(self):
         del self.package_requests[:]
         del self.collection_requests[:]

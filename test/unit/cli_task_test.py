@@ -26,7 +26,7 @@ class TestCliTask(object):
     def test_global_args(self, mock_setlevel, mock_section, mock_isfile):
         sys.argv = [
             sys.argv[0], '--debug',
-            'image', 'prepare',
+            'system', 'prepare',
             '--description', 'description',
             '--root', 'directory'
         ]

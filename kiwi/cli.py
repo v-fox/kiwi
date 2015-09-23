@@ -19,7 +19,7 @@
 usage: kiwi -h | --help
        kiwi [--profile=<name>]
             [--debug]
-           image <command> [<args>...]
+           system <command> [<args>...]
        kiwi -v | --version
        kiwi help
 
@@ -63,8 +63,8 @@ class Cli(object):
         return self.all_args['help']
 
     def get_servicename(self):
-        if self.all_args['image']:
-            return 'image'
+        if self.all_args['system']:
+            return 'system'
         else:
             raise KiwiUnknownServiceName(
                 'Unknown/Invalid Servicename'

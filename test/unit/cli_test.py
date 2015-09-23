@@ -11,7 +11,7 @@ class TestCli(object):
     def setup(self):
         self.help_global_args = {
             'help': False,
-            'image': True,
+            'system': True,
             '-h': False,
             '--version': False,
             '--debug': False,
@@ -19,8 +19,8 @@ class TestCli(object):
             '--help': False
         }
         self.command_args = {
-            '--description': 'description',
             '--allow-existing-root': False,
+            '--description': 'description',
             '--help': False,
             '--root': 'directory',
             '--set-repo': None,
@@ -29,12 +29,12 @@ class TestCli(object):
             '--type': None,
             '-h': False,
             'help': False,
-            'image': 1,
-            'prepare': True
+            'prepare': True,
+            'system': True
         }
         sys.argv = [
             sys.argv[0],
-            'image', 'prepare',
+            'system', 'prepare',
             '--description', 'description',
             '--root', 'directory'
         ]
@@ -45,7 +45,7 @@ class TestCli(object):
         assert self.cli.show_help() == False
 
     def test_get_servicename(self):
-        assert self.cli.get_servicename() == 'image'
+        assert self.cli.get_servicename() == 'system'
 
     def test_get_command(self):
         assert self.cli.get_command() == 'prepare'
@@ -80,6 +80,6 @@ class TestCli(object):
 
     @raises(KiwiUnknownServiceName)
     def test_get_servicename_unknown(self):
-        self.cli.all_args['image'] = False
+        self.cli.all_args['system'] = False
         self.cli.all_args['foo'] = False
         self.cli.get_servicename()

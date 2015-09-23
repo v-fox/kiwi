@@ -59,6 +59,17 @@ class ManagerZypper(Manager):
             self.command_env
         )
 
+    def update(self):
+        chroot_zypper_args = Manager.move_to_root(
+            self.root_dir, self.zypper_args
+        )
+        return Command.call(
+            ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
+                'update', '--auto-agree-with-licenses'
+            ],
+            self.command_env
+        )
+
     def __install_items(self):
         items = self.package_requests + self.collection_requests \
             + self.product_requests

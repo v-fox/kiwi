@@ -28,11 +28,12 @@ from logger import log
 
 from exceptions import(
     KiwiBootStrapPhaseFailed,
-    KiwiSystemInstallPhaseFailed
+    KiwiSystemInstallPhaseFailed,
+    KiwiSystemUpgradeFailed
 )
 
 
-class Prepare(object):
+class System(object):
     """
         Implements preparation and installation of a new root system
     """
@@ -128,6 +129,20 @@ class Prepare(object):
         if install.process.returncode != 0:
             raise KiwiSystemInstallPhaseFailed(
                 'System installation failed'
+            )
+
+    def upgrade_system(self):
+        manager = self.__manager()
+        log.info('Upgrade system (chroot)')
+        upgrade = manager.upgrade()
+        while upgrade.process.poll() is None:
+            line = upgrade.output.readline()
+            if line:
+                log.debug('system: %s', line.rstrip('\n'))
+
+        if upgrade.process.returncode != 0:
+            raise KiwiSystemUpgradeFailed(
+                'System upgrade failed'
             )
 
     def __manager(self):
