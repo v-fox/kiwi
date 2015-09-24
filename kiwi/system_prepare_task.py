@@ -79,9 +79,7 @@ class SystemPrepareTask(CliTask):
 
         if self.command_args['--set-repo']:
             (repo_source, repo_type, repo_alias, repo_prio) = \
-            self.quadruple_token(
-                self.command_args['--set-repo']
-            )
+                self.quadruple_token(self.command_args['--set-repo'])
             XMLState.set_repository(
                 self.xml,
                 repo_source, repo_type, repo_alias, repo_prio,
@@ -91,9 +89,7 @@ class SystemPrepareTask(CliTask):
         if self.command_args['--add-repo']:
             for add_repo in self.command_args['--add-repo']:
                 (repo_source, repo_type, repo_alias, repo_prio) = \
-                self.quadruple_token(
-                    add_repo
-                )
+                    self.quadruple_token(add_repo)
                 XMLState.add_repository(
                     self.xml,
                     repo_source, repo_type, repo_alias, repo_prio
