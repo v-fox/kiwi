@@ -15,8 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-import re
 from tempfile import mkdtemp
+from urlparse import urlparse
+import hashlib
 
 # project
 from command import Command
@@ -50,43 +51,49 @@ class Uri(object):
         }
 
     def translate(self):
-        expression = re.search('obs:\/\/(.*)', self.uri)
-        if expression and self.repo_type == 'yast2':
-            return self.__obs_distribution(expression.group(1))
+        uri = urlparse(self.uri)
+        if not uri.scheme:
+            raise KiwiUriStyleUnknown(
+                'URI scheme not detected %s' % self.uri
+            )
 
-        if expression:
-            return self.__obs_project(expression.group(1))
-
-        expression = re.search('dir:\/\/(.*)', self.uri)
-        if expression:
-            return self.__local_directory(expression.group(1))
-
-        expression = re.search('iso:\/\/(.*)', self.uri)
-        if expression:
-            return self.__iso_mount_path(expression.group(1))
-
-        raise KiwiUriStyleUnknown(
-            'URI style %s unknown' % self.uri
-        )
+        if uri.scheme == 'obs' and self.repo_type == 'yast2':
+            return self.__obs_distribution(
+                uri.netloc + uri.path
+            )
+        elif uri.scheme == 'obs':
+            return self.__obs_project(
+                uri.netloc + uri.path
+            )
+        elif uri.scheme == 'dir':
+            return self.__local_directory(uri.path)
+        elif uri.scheme == 'iso':
+            return self.__iso_mount_path(uri.path)
+        else:
+            raise KiwiUriStyleUnknown(
+                'URI schema %s not supported' % self.uri
+            )
 
     def alias(self):
-        return re.escape(self.uri.replace('/', '_'))
+        return hashlib.md5(self.uri).hexdigest()
 
     def is_remote(self):
-        uri_exp = re.search('^(.*):\/\/(.*)', self.uri)
-        if not uri_exp:
-            raise KiwiUriStyleUnknown('URI style %s unknown' % self.uri)
-        uri_type = uri_exp.group(1)
-        uri_name = uri_exp.group(2)
+        uri = urlparse(self.uri)
+        if not uri.scheme:
+            raise KiwiUriStyleUnknown(
+                'URI scheme not detected %s' % self.uri
+            )
         try:
-            self.remote_uri_types[uri_type]
+            self.remote_uri_types[uri.scheme]
             return True
         except KeyError:
             try:
-                self.local_uri_type[uri_type]
+                self.local_uri_type[uri.scheme]
                 return False
             except KeyError:
-                raise KiwiUriTypeUnknown('URI type %s unknown' % uri_type)
+                raise KiwiUriTypeUnknown(
+                    'URI type %s unknown' % uri.scheme
+                )
 
     def __iso_mount_path(self, path):
         iso_path = mkdtemp()

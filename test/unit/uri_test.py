@@ -12,6 +12,7 @@ from kiwi.exceptions import (
 
 from kiwi.uri import Uri
 
+import hashlib
 
 class TestUri(object):
     @raises(KiwiUriStyleUnknown)
@@ -29,6 +30,11 @@ class TestUri(object):
         uri = Uri('xxx', 'rpm-md')
         uri.translate()
 
+    @raises(KiwiUriStyleUnknown)
+    def test_translate_unsupported_style(self):
+        uri = Uri('ms://foo', 'rpm-md')
+        uri.translate()
+
     def test_is_remote(self):
         uri = Uri('https://example.com', 'rpm-md')
         assert uri.is_remote() == True
@@ -37,7 +43,7 @@ class TestUri(object):
 
     def test_alias(self):
         uri = Uri('https://example.com', 'rpm-md')
-        assert uri.alias() == 'https\:\_\_example\.com'
+        assert uri.alias() == hashlib.md5('https://example.com').hexdigest()
 
     def test_translate_obs_distro(self):
         uri = Uri('obs://13.2/repo/oss', 'yast2')
