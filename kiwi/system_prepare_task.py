@@ -111,8 +111,7 @@ class SystemPrepareTask(CliTask):
             self.system.install_system(
                 self.command_args['--type']
             )
-            # TODO
-            # The image description needs to be copied into root/image
+            self.system.store_description()
 
     def __help(self):
         if self.command_args['help']:

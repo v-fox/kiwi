@@ -170,7 +170,7 @@ class RepositoryZypper(Repository):
         }
         try:
             return zypper_type_for[repo_type]
-        except Exception as e:
+        except Exception:
             raise KiwiRepoTypeUnknown(
                 'Unsupported zypper repo type: %s' % repo_type
             )

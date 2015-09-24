@@ -117,5 +117,5 @@ class Uri(object):
             for mount in reversed(self.mount_stack):
                 Command.run(['umount', mount])
                 Command.run(['rmdir', mount])
-        except Exception as e:
+        except Exception:
             pass

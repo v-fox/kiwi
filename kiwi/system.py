@@ -43,8 +43,16 @@ class System(object):
         self.profiles = profiles
         self.allow_existing = allow_existing
 
+    def store_description(self):
+        description = self.root.root_dir + '/image/config.xml'
+        log.info('Writing description to %s', description)
+        Command.run(['mkdir', self.root.root_dir + '/image'])
+        with open(description, 'w') as config:
+            config.write('<?xml version="1.0" encoding="utf-8"?>')
+            self.xml.export(outfile=config, level=0)
+
     def setup_root(self, root_dir):
-        log.info('Creating new root directory: %s', root_dir)
+        log.info('Setup root directory: %s', root_dir)
         self.root = RootInit(
             root_dir, self.allow_existing
         )
