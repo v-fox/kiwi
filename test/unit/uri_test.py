@@ -14,6 +14,7 @@ from kiwi.uri import Uri
 
 import hashlib
 
+
 class TestUri(object):
     @raises(KiwiUriStyleUnknown)
     def test_is_remote_raises_style_error(self):
