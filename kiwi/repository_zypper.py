@@ -104,6 +104,14 @@ class RepositoryZypper(Repository):
             ],
             self.command_env
         )
+        if prio:
+            Command.run(
+                ['zypper'] + self.zypper_args + [
+                    '--root', self.root_dir,
+                    'modifyrepo', '-p', format(prio), name
+                ],
+                self.command_env
+            )
 
     def delete_bootstrap_repo(self, name):
         Command.run(
@@ -127,6 +135,13 @@ class RepositoryZypper(Repository):
             ],
             self.command_env
         )
+        if prio:
+            Command.run(
+                ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
+                    'modifyrepo', '-p', format(prio), name
+                ],
+                self.command_env
+            )
 
     def delete_repo(self, name):
         chroot_zypper_args = Manager.move_to_root(

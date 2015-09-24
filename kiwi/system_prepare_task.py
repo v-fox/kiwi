@@ -20,8 +20,8 @@ usage: kiwi system prepare -h | --help
        kiwi system prepare --description=<directory> --root=<directory>
            [--type=<buildtype>]
            [--allow-existing-root]
-           [--set-repo=<source,type,alias>]
-           [--add-repo=<source,type,alias>...]
+           [--set-repo=<source,type,alias,priority>]
+           [--add-repo=<source,type,alias,priority>...]
        kiwi system prepare help
 
 commands:
@@ -43,12 +43,11 @@ options:
     --type=<buildtype>
         set the build type. If not set the default XML specified
         build type will be used
-    --set-repo=<source,type,alias>
-        overwrite the repo source, type and alias for the first
+    --set-repo=<source,type,alias,priority>
+        overwrite the repo source, type, alias or priority for the first
         repository in the XML description
-    --add-repo=<source,type,alias>
-        add repository with given source, type and alias.
-        this option can be specified multiple times
+    --add-repo=<source,type,alias,priority>
+        add repository with given source, type, alias and priority.
 """
 # project
 import xml_parse
@@ -79,22 +78,25 @@ class SystemPrepareTask(CliTask):
             log.info('--> Using profiles: %s', ','.join(self.used_profiles))
 
         if self.command_args['--set-repo']:
-            (repo_source, repo_type, repo_alias) = self.triple_token(
+            (repo_source, repo_type, repo_alias, repo_prio) = \
+            self.quadruple_token(
                 self.command_args['--set-repo']
             )
             XMLState.set_repository(
                 self.xml,
-                repo_source, repo_type, repo_alias,
+                repo_source, repo_type, repo_alias, repo_prio,
                 self.used_profiles
             )
 
         if self.command_args['--add-repo']:
             for add_repo in self.command_args['--add-repo']:
-                (repo_source, repo_type, repo_alias) = self.triple_token(
+                (repo_source, repo_type, repo_alias, repo_prio) = \
+                self.quadruple_token(
                     add_repo
                 )
                 XMLState.add_repository(
-                    self.xml, repo_source, repo_type, repo_alias
+                    self.xml,
+                    repo_source, repo_type, repo_alias, repo_prio
                 )
 
         if self.command_args['prepare']:

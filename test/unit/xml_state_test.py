@@ -49,13 +49,15 @@ class TestXMLState(object):
         ]
 
     def test_set_repository(self):
-        XMLState.set_repository(self.xml, 'repo', 'type', 'alias')
+        XMLState.set_repository(self.xml, 'repo', 'type', 'alias', 1)
         assert self.xml.get_repository()[0].get_source().get_path() == 'repo'
         assert self.xml.get_repository()[0].get_type() == 'type'
         assert self.xml.get_repository()[0].get_alias() == 'alias'
+        assert self.xml.get_repository()[0].get_priority() == 1
 
     def test_add_repository(self):
-        XMLState.add_repository(self.xml, 'repo', 'type', 'alias')
+        XMLState.add_repository(self.xml, 'repo', 'type', 'alias', 1)
         assert self.xml.get_repository()[1].get_source().get_path() == 'repo'
         assert self.xml.get_repository()[1].get_type() == 'type'
         assert self.xml.get_repository()[1].get_alias() == 'alias'
+        assert self.xml.get_repository()[1].get_priority() == 1

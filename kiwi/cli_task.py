@@ -59,6 +59,6 @@ class CliTask(object):
             profiles = self.global_args['--profile'].split(',')
         return profiles
 
-    def triple_token(self, option):
-        tokens = option.split(',', 2)
-        return [tokens.pop(0) if len(tokens) else None for _ in range(0, 3)]
+    def quadruple_token(self, option):
+        tokens = option.split(',', 3)
+        return [tokens.pop(0) if len(tokens) else None for _ in range(0, 4)]

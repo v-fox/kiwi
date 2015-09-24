@@ -35,8 +35,9 @@ class TestRepositoryZypper(object):
 
     @patch('kiwi.command.Command.run')
     def test_add_bootstrap_repo(self, mock_command):
-        self.repo.add_bootstrap_repo('foo', 'uri')
-        mock_command.assert_called_once_with(
+        self.repo.add_bootstrap_repo('foo', 'uri', 'rpm-md', 42)
+        call = mock_command.call_args_list[0]
+        assert mock_command.call_args_list[0] == call(
             ['zypper'] + self.repo.zypper_args + [
                 '--root', '../data',
                 'addrepo', '-f',
@@ -44,6 +45,13 @@ class TestRepositoryZypper(object):
                 '--keep-packages',
                 'uri',
                 'foo'
+            ], self.repo.command_env
+        )
+        call = mock_command.call_args_list[1]
+        assert mock_command.call_args_list[1] == call(
+            ['zypper'] + self.repo.zypper_args + [
+                '--root', '../data',
+                'modifyrepo', '-p', '42', 'foo'
             ], self.repo.command_env
         )
 
@@ -58,17 +66,24 @@ class TestRepositoryZypper(object):
 
     @patch('kiwi.command.Command.run')
     def test_add_repo(self, mock_command):
-        self.repo.add_repo('foo', 'uri')
+        self.repo.add_repo('foo', 'uri', 'rpm-md', 42)
         chroot_zypper_args = Manager.move_to_root(
             '../data', self.repo.zypper_args
         )
-        mock_command.assert_called_once_with(
+        call = mock_command.call_args_list[0]
+        assert mock_command.call_args_list[0] == call(
             ['chroot', '../data', 'zypper'] + chroot_zypper_args + [
                 'addrepo', '-f',
                 '--type', 'YUM',
                 '--keep-packages',
                 'uri',
                 'foo'
+            ], self.repo.command_env
+        )
+        call = mock_command.call_args_list[1]
+        assert mock_command.call_args_list[1] == call(
+            ['chroot', '../data', 'zypper'] + chroot_zypper_args + [
+                'modifyrepo', '-p', '42', 'foo'
             ], self.repo.command_env
         )
 

@@ -78,8 +78,11 @@ class System(object):
             repo_type = xml_repo.get_type()
             repo_source = xml_repo.get_source().get_path()
             repo_alias = xml_repo.get_alias()
+            repo_priority = xml_repo.get_priority()
             log.info('Setting up repository %s', repo_source)
             log.info('--> Type: %s', repo_type)
+            if repo_priority:
+                log.info('--> Priority: %s', repo_priority)
 
             uri = Uri(repo_source, repo_type)
             repo_source_translated = uri.translate()
@@ -92,7 +95,7 @@ class System(object):
 
             self.uri.append(uri)
             self.repo.add_bootstrap_repo(
-                repo_alias, repo_source_translated, repo_type
+                repo_alias, repo_source_translated, repo_type, repo_priority
             )
 
     def install_bootstrap(self):

@@ -57,7 +57,7 @@ class TestSystemPrepareTask(object):
         self.task.process()
         mock_state.assert_called_once_with(
             self.task.xml, 'http://example.com',
-            'yast2', 'alias', ['vmxFlavour']
+            'yast2', 'alias', None, ['vmxFlavour']
         )
 
     @patch('kiwi.xml_state.XMLState.add_repository')
@@ -69,7 +69,7 @@ class TestSystemPrepareTask(object):
         self.task.process()
         mock_state.assert_called_once_with(
             self.task.xml, 'http://example.com',
-            'yast2', 'alias'
+            'yast2', 'alias', None
         )
 
     def test_process_system_prepare_help(self):

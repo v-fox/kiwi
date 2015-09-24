@@ -140,7 +140,9 @@ class XMLState(object):
 
     @classmethod
     def set_repository(
-        self, xml_data, repo_source, repo_type, repo_alias, profiles=[]
+        self, xml_data,
+        repo_source, repo_type, repo_alias, repo_prio,
+        profiles=[]
     ):
         """
             overwrite repository data for the first repo in the list
@@ -157,9 +159,14 @@ class XMLState(object):
             repository.set_type(repo_type)
         if repo_source:
             repository.get_source().set_path(repo_source)
+        if repo_prio:
+            repository.set_priority(repo_prio)
 
     @classmethod
-    def add_repository(self, xml_data, repo_source, repo_type, repo_alias):
+    def add_repository(
+        self, xml_data,
+        repo_source, repo_type, repo_alias, repo_prio
+    ):
         """
             add a new repository section as specified
         """
@@ -167,6 +174,7 @@ class XMLState(object):
             xml_parse.repository(
                 type_=repo_type,
                 alias=repo_alias,
+                priority=repo_prio,
                 source=xml_parse.source(path=repo_source)
             )
         )

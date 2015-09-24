@@ -33,4 +33,4 @@ class TestCliTask(object):
         task = CliTask()
         mock_setlevel.assert_called_once_with(logging.DEBUG)
         assert task.profile_list() == ['foo']
-        assert task.triple_token('a,b') == ['a', 'b', None]
+        assert task.quadruple_token('a,b') == ['a', 'b', None, None]
