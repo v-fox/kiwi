@@ -45,7 +45,6 @@ from cli_task import CliTask
 from help import Help
 from xml_description import XMLDescription
 from system import System
-from xml_state import XMLState
 
 from logger import log
 
@@ -59,12 +58,9 @@ class SystemUpdateTask(CliTask):
         if self.__help():
             return
 
-        self.xml = self.__load_xml()
-        self.used_profiles = XMLState.used_profiles(
-            self.xml, self.profile_list()
+        self.load_xml_description(
+            self.command_args['--root']
         )
-        if self.used_profiles:
-            log.info('--> Using profiles: %s', ','.join(self.used_profiles))
 
         package_requests = False
         if self.command_args['--add-package']:
@@ -99,11 +95,3 @@ class SystemUpdateTask(CliTask):
         else:
             return False
         return self.manual
-
-    def __load_xml(self):
-        config_file = self.command_args['--root'] + '/image/config.xml'
-        log.info('Loading XML description %s', config_file)
-        description = XMLDescription(
-            config_file
-        )
-        return description.load()

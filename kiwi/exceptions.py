@@ -115,3 +115,7 @@ class KiwiSystemInstallPackagesFailed(KiwiError):
 
 class KiwiSystemDeletePackagesFailed(KiwiError):
     pass
+
+
+class KiwiConfigFileNotFound(KiwiError):
+    pass

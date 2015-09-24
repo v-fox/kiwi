@@ -21,6 +21,9 @@ class TestSystemPrepareTask(object):
         kiwi.system_prepare_task.System = mock.Mock(
             return_value=mock.Mock()
         )
+        kiwi.system_prepare_task.SystemSetup = mock.Mock(
+            return_value=mock.Mock()
+        )
         kiwi.system_prepare_task.Help = mock.Mock(
             return_value=mock.Mock()
         )
@@ -48,7 +51,7 @@ class TestSystemPrepareTask(object):
         self.task.system.install_system.assert_called_once_with(
             self.task.command_args['--type']
         )
-        self.task.system.store_description.assert_called_once_with()
+        self.task.setup.import_description.assert_called_once_with()
 
     @patch('kiwi.xml_state.XMLState.set_repository')
     def test_process_system_prepare_set_repo(self, mock_state):

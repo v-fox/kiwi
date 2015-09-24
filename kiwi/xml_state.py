@@ -15,14 +15,35 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
+
 # project
 import xml_parse
+from xml_description import XMLDescription
+
+from exceptions import (
+    KiwiConfigFileNotFound
+)
 
 
 class XMLState(object):
     """
         Provides methods to get stateful information from the XML data
     """
+    @classmethod
+    def load_xml(self, directory):
+        config_file = directory + '/config.xml'
+        if not os.path.exists(config_file):
+            config_file = directory + '/image/config.xml'
+        if not os.path.exists(config_file):
+            raise KiwiConfigFileNotFound(
+                'no XML description found in %s' % directory
+            )
+        description = XMLDescription(
+            config_file
+        )
+        return [description.load(), config_file]
+
     @classmethod
     def profiled(self, xml_data, matching=[]):
         """

@@ -56,6 +56,7 @@ from cli_task import CliTask
 from help import Help
 from xml_description import XMLDescription
 from system import System
+from system_setup import SystemSetup
 from xml_state import XMLState
 
 from logger import log
@@ -70,12 +71,9 @@ class SystemPrepareTask(CliTask):
         if self.__help():
             return
 
-        self.xml = self.__load_xml()
-        self.used_profiles = XMLState.used_profiles(
-            self.xml, self.profile_list()
+        self.load_xml_description(
+            self.command_args['--description']
         )
-        if self.used_profiles:
-            log.info('--> Using profiles: %s', ','.join(self.used_profiles))
 
         if self.command_args['--set-repo']:
             (repo_source, repo_type, repo_alias, repo_prio) = \
@@ -109,7 +107,12 @@ class SystemPrepareTask(CliTask):
             self.system.install_system(
                 self.command_args['--type']
             )
-            self.system.store_description()
+            self.setup = SystemSetup(
+                self.xml,
+                self.command_args['--description'],
+                self.command_args['--root']
+            )
+            self.setup.import_description()
 
     def __help(self):
         if self.command_args['help']:
@@ -117,11 +120,3 @@ class SystemPrepareTask(CliTask):
         else:
             return False
         return self.manual
-
-    def __load_xml(self):
-        config_file = self.command_args['--description'] + '/config.xml'
-        log.info('Loading XML description %s', config_file)
-        description = XMLDescription(
-            config_file
-        )
-        return description.load()

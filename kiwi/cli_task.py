@@ -21,13 +21,13 @@ import logging
 # project
 from cli import Cli
 from help import Help
+from xml_state import XMLState
 
 
 class CliTask(object):
     """
         Base class for all task classes, loads the task and provides
-        the interface to the command options and the account to use
-        for the task
+        the interface to the command options and the XML description
     """
     def __init__(self):
         from logger import log
@@ -52,6 +52,20 @@ class CliTask(object):
         # set log level
         if self.global_args['--debug']:
             log.setLevel(logging.DEBUG)
+
+    def load_xml_description(self, description_directory):
+        from logger import log
+
+        log.info('Loading XML description')
+        (self.xml, self.config_file) = XMLState.load_xml(
+            description_directory
+        )
+        log.info('--> loaded %s', self.config_file)
+        self.used_profiles = XMLState.used_profiles(
+            self.xml, self.profile_list()
+        )
+        if self.used_profiles:
+            log.info('--> Using profiles: %s', ','.join(self.used_profiles))
 
     def profile_list(self):
         profiles = []

@@ -7,6 +7,9 @@ import nose_helper
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
+from kiwi.exceptions import (
+    KiwiConfigFileNotFound
+)
 
 
 class TestXMLState(object):
@@ -61,3 +64,15 @@ class TestXMLState(object):
         assert self.xml.get_repository()[1].get_type() == 'type'
         assert self.xml.get_repository()[1].get_alias() == 'alias'
         assert self.xml.get_repository()[1].get_priority() == 1
+
+    @raises(KiwiConfigFileNotFound)
+    def test_load_xml(self):
+        XMLState.load_xml('foo')
+
+    def test_load_xml_first_choice(self):
+        assert XMLState.load_xml('../data/description')[1] == \
+            '../data/description/config.xml'
+
+    def test_load_xml_second_choice(self):
+        assert XMLState.load_xml('../data/root-dir')[1] == \
+            '../data/root-dir/image/config.xml'
