@@ -43,9 +43,3 @@ class App(object):
         task_class_name = service.title() + action.title() + 'Task'
         task_class = app.task.__dict__[task_class_name]
         task_class().process()
-
-    def __del__(self):
-        try:
-            self.root_bind.cleanup()
-        except:
-            pass
