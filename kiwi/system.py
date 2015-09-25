@@ -43,14 +43,6 @@ class System(object):
         self.profiles = profiles
         self.allow_existing = allow_existing
 
-    def store_description(self):
-        description = self.root.root_dir + '/image/config.xml'
-        log.info('Writing description to %s', description)
-        Command.run(['mkdir', self.root.root_dir + '/image'])
-        with open(description, 'w') as config:
-            config.write('<?xml version="1.0" encoding="utf-8"?>')
-            self.xml.export(outfile=config, level=0)
-
     def setup_root(self, root_dir):
         log.info('Setup root directory: %s', root_dir)
         self.root = RootInit(
@@ -123,6 +115,9 @@ class System(object):
             )
 
     def install_system(self, build_type=None):
+        if not build_type:
+            build_type = XMLState.build_type(self.xml, self.profiles)
+        log.info('Installing system packages for build type: %s', build_type)
         system_packages = XMLState.system_packages(
             self.xml, self.profiles, build_type
         )

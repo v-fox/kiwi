@@ -3,6 +3,7 @@ from mock import patch
 from collections import namedtuple
 
 import nose_helper
+import logging
 
 from kiwi.logger import *
 
@@ -25,6 +26,22 @@ class TestLoggerSchedulerFilter(object):
             assert self.scheduler_filter.filter(record) == False
 
 
+class TestColorFormatter(object):
+    def setup(self):
+        self.color_formatter = ColorFormatter('%(levelname)s: %(message)s')
+
+    @patch('logging.Formatter.format')
+    def test_format(self, mock_format):
+        MyRecord = namedtuple(
+            'MyRecord',
+            'levelname'
+        )
+        record = MyRecord(levelname='INFO')
+        mock_format.return_value = 'message'
+        self.color_formatter.format(record)
+        assert 'message' in self.color_formatter.format(record)
+
+
 class TestInfoFilter(object):
     def setup(self):
         self.info_filter = InfoFilter()
@@ -34,8 +51,34 @@ class TestInfoFilter(object):
             'MyRecord',
             'levelno'
         )
-        record = MyRecord(levelno=0)
-        assert self.info_filter.filter(record) == 0
+        record = MyRecord(levelno=logging.INFO)
+        assert self.info_filter.filter(record) == True
+
+
+class TestDebugFilter(object):
+    def setup(self):
+        self.debug_filter = DebugFilter()
+
+    def test_filter(self):
+        MyRecord = namedtuple(
+            'MyRecord',
+            'levelno'
+        )
+        record = MyRecord(levelno=logging.DEBUG)
+        assert self.debug_filter.filter(record) == True
+
+
+class TestErrorFilter(object):
+    def setup(self):
+        self.error_filter = ErrorFilter()
+
+    def test_filter(self):
+        MyRecord = namedtuple(
+            'MyRecord',
+            'levelno'
+        )
+        record = MyRecord(levelno=logging.ERROR)
+        assert self.error_filter.filter(record) == True
 
 
 class TestLogger(object):

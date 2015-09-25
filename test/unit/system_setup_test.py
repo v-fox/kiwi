@@ -36,6 +36,13 @@ class TestSystemSetup(object):
                 'cp', 'description_dir/images.sh', 'root_dir/image'
             ])
 
+    @patch('kiwi.command.Command.run')
+    def test_cleanup(self, mock_command):
+        self.setup.cleanup()
+        mock_command.assert_called_once_with(
+            ['rm', '-r', '-f', '/.kconfig', '/image']
+        )
+
     @raises(NotImplementedError)
     def test_import_shell_environment(self):
         self.setup.import_shell_environment()

@@ -40,6 +40,9 @@ class SystemSetup(object):
         self.root_dir = root_dir
 
     def import_description(self):
+        """
+            import XML descriptions, custom scripts and script helper methods
+        """
         description = self.root_dir + '/image/config.xml'
         log.info('Writing description to %s', description)
         Command.run(['mkdir', '-p', self.root_dir + '/image'])
@@ -47,13 +50,42 @@ class SystemSetup(object):
             config.write('<?xml version="1.0" encoding="utf-8"?>')
             self.xml.export(outfile=config, level=0)
 
+        need_script_helper_functions = False
         config_script = self.description_dir + '/config.sh'
-        if os.path.exists(config_script):
-            Command.run(['cp', config_script, self.root_dir + '/image'])
-
         image_script = self.description_dir + '/images.sh'
+        script_target = self.root_dir + '/image'
+
+        if os.path.exists(config_script):
+            log.info(
+                '--> Importing config.sh script to %s', script_target
+            )
+            Command.run(['cp', config_script, script_target])
+            need_script_helper_functions = True
+
         if os.path.exists(image_script):
-            Command.run(['cp', image_script, self.root_dir + '/image'])
+            log.info(
+                '--> Importing image.sh script to %s', script_target
+            )
+            Command.run(['cp', image_script, script_target])
+            need_script_helper_functions = True
+
+        if need_script_helper_functions:
+            script_functions = self.__get_script_helper_functions()
+            script_functions_target = self.root_dir + '/.kconfig'
+            log.info(
+                '--> Importing script helper methods to %s',
+                script_functions_target
+            )
+            Command.run([
+                'cp', script_functions, script_functions_target
+            ])
+
+    def cleanup(self):
+        """
+            delete all traces of a kiwi description which are not
+            required in the later image
+        """
+        Command.run(['rm', '-r', '-f', '/.kconfig', '/image'])
 
     def import_shell_environment(self):
         # TODO
@@ -70,3 +102,6 @@ class SystemSetup(object):
     def call_image_script(self):
         # TODO
         raise NotImplementedError
+
+    def __get_script_helper_functions(self):
+        return 'config/functions.sh'

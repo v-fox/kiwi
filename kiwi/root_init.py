@@ -48,8 +48,6 @@ class RootInit(object):
         root = mkdtemp()
         try:
             Command.run(['mkdir', '-p', root])
-            Command.run(['cp', 'config/functions.sh', root + '/.kconfig'])
-
             for path in [
                 '/dev/pts',
                 '/proc',
