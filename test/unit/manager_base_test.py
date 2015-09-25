@@ -1,0 +1,49 @@
+from nose.tools import *
+from mock import patch
+
+import mock
+
+import nose_helper
+
+from kiwi.manager_base import ManagerBase
+
+
+class TestManagerBase(object):
+    def setup(self):
+        repository = mock.Mock()
+        repository.root_dir = 'root-dir'
+        self.manager = ManagerBase(repository)
+
+    @raises(NotImplementedError)
+    def test_request_package(self):
+        self.manager.request_package('name')
+
+    @raises(NotImplementedError)
+    def test_request_collection(self):
+        self.manager.request_collection('name')
+
+    @raises(NotImplementedError)
+    def test_request_product(self):
+        self.manager.request_product('name')
+
+    @raises(NotImplementedError)
+    def test_process_install_requests_bootstrap(self):
+        self.manager.process_install_requests_bootstrap()
+
+    @raises(NotImplementedError)
+    def test_process_install_requests(self):
+        self.manager.process_install_requests()
+
+    @raises(NotImplementedError)
+    def test_process_delete_requests(self):
+        self.manager.process_delete_requests()
+
+    @raises(NotImplementedError)
+    def test_update(self):
+        self.manager.update()
+
+    def test_cleanup_requests(self):
+        self.manager.cleanup_requests()
+        assert self.manager.package_requests == []
+        assert self.manager.product_requests == []
+        assert self.manager.collection_requests == []

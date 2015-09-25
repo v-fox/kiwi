@@ -21,15 +21,15 @@ from tempfile import NamedTemporaryFile
 
 # project
 from command import Command
-from manager import Manager
-from repository import Repository
+from manager_base import ManagerBase
+from repository_base import RepositoryBase
 
 from exceptions import (
     KiwiRepoTypeUnknown
 )
 
 
-class RepositoryZypper(Repository):
+class RepositoryZypper(RepositoryBase):
     """
         Implements repo handling for zypper package manager
     """
@@ -122,7 +122,7 @@ class RepositoryZypper(Repository):
         )
 
     def add_repo(self, name, uri, repo_type='rpm-md', prio=None):
-        chroot_zypper_args = Manager.move_to_root(
+        chroot_zypper_args = ManagerBase.move_to_root(
             self.root_dir, self.zypper_args
         )
         Command.run(
@@ -144,7 +144,7 @@ class RepositoryZypper(Repository):
             )
 
     def delete_repo(self, name):
-        chroot_zypper_args = Manager.move_to_root(
+        chroot_zypper_args = ManagerBase.move_to_root(
             self.root_dir, self.zypper_args
         )
         Command.run(

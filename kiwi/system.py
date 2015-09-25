@@ -18,8 +18,8 @@
 # project
 from root_init import RootInit
 from root_bind import RootBind
-from repository_zypper import RepositoryZypper
-from manager_zypper import ManagerZypper
+from repository import Repository
+from manager import Manager
 from command import Command
 from xml_state import XMLState
 from uri import Uri
@@ -42,6 +42,9 @@ class System(object):
         self.xml = xml_data
         self.profiles = profiles
         self.allow_existing = allow_existing
+        self.package_manager = XMLState.package_manager(
+            self.xml, self.profiles
+        )
 
     def setup_root(self, root_dir):
         log.info('Setup root directory: %s', root_dir)
@@ -61,8 +64,8 @@ class System(object):
         repository_sections = XMLState.profiled(
             self.xml.get_repository(), self.profiles
         )
-        self.repo = RepositoryZypper(
-            self.root_bind
+        self.repo = Repository.new(
+            self.root_bind, self.package_manager
         )
         if self.allow_existing:
             self.repo.delete_all_repos()
@@ -91,7 +94,7 @@ class System(object):
             )
 
     def install_bootstrap(self):
-        manager = self.__manager()
+        manager = Manager.new(self.repo, self.package_manager)
         bootstrap_packages = XMLState.bootstrap_packages(
             self.xml, self.profiles
         )
@@ -124,7 +127,7 @@ class System(object):
         self.install_packages(system_packages)
 
     def install_packages(self, packages):
-        manager = self.__manager()
+        manager = Manager.new(self.repo, self.package_manager)
         log.info('Installing system packages (chroot)')
         for package in packages:
             log.info('--> package: %s', package)
@@ -142,7 +145,7 @@ class System(object):
             )
 
     def delete_packages(self, packages):
-        manager = self.__manager()
+        manager = Manager.new(self.repo, self.package_manager)
         log.info('Deleting system packages (chroot)')
         for package in packages:
             log.info('--> package: %s', package)
@@ -160,7 +163,7 @@ class System(object):
             )
 
     def update_system(self):
-        manager = self.__manager()
+        manager = Manager.new(self.repo, self.package_manager)
         log.info('Update system (chroot)')
         update = manager.update()
         while update.process.poll() is None:
@@ -172,20 +175,6 @@ class System(object):
             raise KiwiSystemUpdateFailed(
                 'System update failed'
             )
-
-    def __manager(self):
-        package_manager = XMLState.package_manager(self.xml, self.profiles)
-        if package_manager == 'zypper':
-            manager = ManagerZypper(self.repo)
-        else:
-            raise NotImplementedError(
-                'Support for package manager %s not implemented' %
-                package_manager
-            )
-        log.info(
-            'Using package manager backend: %s', package_manager
-        )
-        return manager
 
     def __del__(self):
         log.info('Cleaning up Prepare instance')

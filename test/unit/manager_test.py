@@ -9,41 +9,12 @@ from kiwi.manager import Manager
 
 
 class TestManager(object):
-    def setup(self):
+    @raises(NotImplementedError)
+    def test_package_manager_not_implemented(self):
+        Manager.new('repository', 'ms-manager')
+
+    @patch('kiwi.manager.ManagerZypper')
+    def test_manager_zypper_new(self, mock_manager):
         repository = mock.Mock()
-        repository.root_dir = 'root-dir'
-        self.manager = Manager(repository)
-
-    @raises(NotImplementedError)
-    def test_request_package(self):
-        self.manager.request_package('name')
-
-    @raises(NotImplementedError)
-    def test_request_collection(self):
-        self.manager.request_collection('name')
-
-    @raises(NotImplementedError)
-    def test_request_product(self):
-        self.manager.request_product('name')
-
-    @raises(NotImplementedError)
-    def test_process_install_requests_bootstrap(self):
-        self.manager.process_install_requests_bootstrap()
-
-    @raises(NotImplementedError)
-    def test_process_install_requests(self):
-        self.manager.process_install_requests()
-
-    @raises(NotImplementedError)
-    def test_process_delete_requests(self):
-        self.manager.process_delete_requests()
-
-    @raises(NotImplementedError)
-    def test_update(self):
-        self.manager.update()
-
-    def test_cleanup_requests(self):
-        self.manager.cleanup_requests()
-        assert self.manager.package_requests == []
-        assert self.manager.product_requests == []
-        assert self.manager.collection_requests == []
+        Manager.new(repository, 'zypper')
+        mock_manager.assert_called_once_with(repository, None)

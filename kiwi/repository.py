@@ -15,36 +15,20 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+# project
+from repository_zypper import RepositoryZypper
 
 
 class Repository(object):
     """
-        Implements base class for package manager repo handling
+        Repository factory
     """
-    def __init__(self, root_bind, custom_args=None):
-        self.root_bind = root_bind
-        self.root_dir = root_bind.root_dir
-        self.shared_location = root_bind.shared_location
-
-        self.post_init(custom_args)
-
-    def post_init(self, custom_args):
-        pass
-
-    def runtime_config(self):
-        raise NotImplementedError
-
-    def add_bootstrap_repo(self, name, uri, repo_type, prio):
-        raise NotImplementedError
-
-    def delete_bootstrap_repo(self, name):
-        raise NotImplementedError
-
-    def add_repo(self, name, uri, repo_type, prio):
-        raise NotImplementedError
-
-    def delete_repo(self, name):
-        raise NotImplementedError
-
-    def delete_all_repos(self):
-        raise NotImplementedError
+    @classmethod
+    def new(self, root_bind, package_manager, custom_args=None):
+        if package_manager == 'zypper':
+            return RepositoryZypper(root_bind, custom_args)
+        else:
+            raise NotImplementedError(
+                'Support for %s repository manager not implemented' %
+                package_manager
+            )

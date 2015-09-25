@@ -15,11 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
-from manager import Manager
+from manager_base import ManagerBase
 from command import Command
 
 
-class ManagerZypper(Manager):
+class ManagerZypper(ManagerBase):
     """
         Implements install tasks for the zypper package manager
     """
@@ -49,7 +49,7 @@ class ManagerZypper(Manager):
         )
 
     def process_install_requests(self):
-        chroot_zypper_args = Manager.move_to_root(
+        chroot_zypper_args = ManagerBase.move_to_root(
             self.root_dir, self.zypper_args
         )
         return Command.call(
@@ -60,7 +60,7 @@ class ManagerZypper(Manager):
         )
 
     def process_delete_requests(self):
-        chroot_zypper_args = Manager.move_to_root(
+        chroot_zypper_args = ManagerBase.move_to_root(
             self.root_dir, self.zypper_args
         )
         return Command.call(
@@ -71,7 +71,7 @@ class ManagerZypper(Manager):
         )
 
     def update(self):
-        chroot_zypper_args = Manager.move_to_root(
+        chroot_zypper_args = ManagerBase.move_to_root(
             self.root_dir, self.zypper_args
         )
         return Command.call(
