@@ -23,6 +23,7 @@ class FakeCommandCall(object):
     def __init__(self, returncode=0):
         self.process = self.__poll(returncode)
         self.output = self.__readline()
+        self.error = self.__read()
 
     class __poll(object):
         def __init__(self, returncode):
@@ -41,6 +42,10 @@ class FakeCommandCall(object):
     class __readline(object):
         def readline(self):
             return 'Installing: foo'
+
+    class __read(object):
+        def read(self):
+            return 'error'
 
 
 class TestSystem(object):

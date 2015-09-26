@@ -126,7 +126,7 @@ class System(object):
         self.__stop_progress()
         if install.process.returncode != 0:
             raise KiwiBootStrapPhaseFailed(
-                'Bootstrap installation failed'
+                'Bootstrap installation failed: %s' % install.error.read()
             )
 
     def install_system(self, build_type=None):
@@ -161,7 +161,7 @@ class System(object):
         self.__stop_progress()
         if install.process.returncode != 0:
             raise KiwiSystemInstallPackagesFailed(
-                'Package installation failed'
+                'Package installation failed: %s' % install.error.read()
             )
 
     def delete_packages(self, packages):
@@ -188,7 +188,7 @@ class System(object):
         self.__stop_progress()
         if delete.process.returncode != 0:
             raise KiwiSystemDeletePackagesFailed(
-                'Package deletion failed'
+                'Package deletion failed: %s' % delete.error.read()
             )
 
     def update_system(self):
@@ -202,7 +202,7 @@ class System(object):
 
         if update.process.returncode != 0:
             raise KiwiSystemUpdateFailed(
-                'System update failed'
+                'System update failed: %s' % update.error.read()
             )
 
     def __init_progress(self, packages_requested):
@@ -214,6 +214,10 @@ class System(object):
 
     def __stop_progress(self):
         if not log.level == logging.DEBUG:
+            log.progress(
+                100, 100,
+                'INFO: Processing'
+            )
             print
 
     def __update_progress(

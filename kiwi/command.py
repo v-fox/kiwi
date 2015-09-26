@@ -59,9 +59,9 @@ class Command(object):
     @classmethod
     def call(self, command, environment=os.environ):
         """
-            Execute a program and return a file handle back to the caller.
-            stdout and stderr are both send to the file handle. The caller
-            must read from the file handle in order to actually
+            Execute a program and return an io file handle pair back.
+            stdout and stderr are both on different channels. The caller
+            must read from the output file handle in order to actually
             run the command. This can be done as follows:
 
             cmd = Command.call(...)
@@ -71,23 +71,28 @@ class Command(object):
                 if line:
                     print line
 
-            print cmd.process.returncode
+            if cmd.process.returncode != 0:
+                print 'something failed: %s' % cmd.error.read()
         """
         from logger import log
         log.debug('EXEC: [%s]', ' '.join(command))
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
+            stderr=subprocess.PIPE,
             env=environment
         )
         output = io.open(
             process.stdout.fileno(), 'rb', closefd=False
         )
+        error = io.open(
+            process.stderr.fileno(), 'rb', closefd=False
+        )
         command = namedtuple(
-            'command', ['output', 'process']
+            'command', ['output', 'error', 'process']
         )
         return command(
             output=output,
+            error=error,
             process=process
         )

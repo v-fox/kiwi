@@ -57,10 +57,11 @@ class TestCommand(object):
         mock_io_open.return_value = mock_io
         mock_popen.return_value = mock_process
         command_call = namedtuple(
-            'command', ['output', 'process']
+            'command', ['output', 'error', 'process']
         )
         call_result = command_call(
             output=mock_io,
+            error=mock_io,
             process=mock_process
         )
         assert Command.call(['command', 'args']) == call_result
