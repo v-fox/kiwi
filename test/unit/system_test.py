@@ -40,7 +40,7 @@ class FakeCommandCall(object):
 
     class __readline(object):
         def readline(self):
-            return 'line'
+            return 'Installing: foo'
 
 
 class TestSystem(object):
