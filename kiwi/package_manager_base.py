@@ -17,13 +17,14 @@
 #
 
 
-class ManagerBase(object):
+class PackageManagerBase(object):
     """
         Implements base class for package manager install tasks
     """
     def __init__(self, repository, custom_args=None):
         self.repository = repository
         self.root_dir = repository.root_dir
+        self.root_bind = repository.root_bind
         self.package_requests = []
         self.collection_requests = []
         self.product_requests = []
@@ -57,10 +58,3 @@ class ManagerBase(object):
         del self.package_requests[:]
         del self.collection_requests[:]
         del self.product_requests[:]
-
-    @classmethod
-    def move_to_root(self, root_dir, elements):
-        result = []
-        for element in elements:
-            result.append(element.replace(root_dir, '/'))
-        return result

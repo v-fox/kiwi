@@ -5,20 +5,27 @@ import mock
 
 import nose_helper
 
-from kiwi.manager_zypper import ManagerZypper
+from kiwi.package_manager_zypper import PackageManagerZypper
 
 
-class TestManager(object):
+class TestPackageManagerZypper(object):
     def setup(self):
         repository = mock.Mock()
         repository.root_dir = 'root-dir'
+
+        root_bind = mock.Mock()
+        root_bind.move_to_root = mock.Mock(
+            return_value = ['root-moved-arguments']
+        )
+        repository.root_bind = root_bind
+
         repository.runtime_config = mock.Mock(
             return_value={
                 'zypper_args': ['--reposd-dir', 'root-dir/my/repos'],
                 'command_env': ['env']
             }
         )
-        self.manager = ManagerZypper(repository)
+        self.manager = PackageManagerZypper(repository)
 
     def test_request_package(self):
         self.manager.request_package('name')
@@ -51,9 +58,11 @@ class TestManager(object):
     def test_process_install_requests(self, mock_call):
         self.manager.request_package('vim')
         self.manager.process_install_requests()
+        chroot_zypper_args = self.manager.root_bind.move_to_root(
+            self.manager.zypper_args
+        )
         mock_call.assert_called_once_with(
-            [
-                'chroot', 'root-dir', 'zypper', '--reposd-dir', '//my/repos',
+            ['chroot', 'root-dir', 'zypper'] + chroot_zypper_args + [
                 'install', '--auto-agree-with-licenses', 'vim'
             ],
             [
@@ -65,9 +74,11 @@ class TestManager(object):
     def test_process_delete_requests(self, mock_call):
         self.manager.request_package('vim')
         self.manager.process_delete_requests()
+        chroot_zypper_args = self.manager.root_bind.move_to_root(
+            self.manager.zypper_args
+        )
         mock_call.assert_called_once_with(
-            [
-                'chroot', 'root-dir', 'zypper', '--reposd-dir', '//my/repos',
+            ['chroot', 'root-dir', 'zypper'] + chroot_zypper_args + [
                 'remove', '--auto-agree-with-licenses', 'vim'
             ],
             [
@@ -78,9 +89,11 @@ class TestManager(object):
     @patch('kiwi.command.Command.call')
     def test_update(self, mock_call):
         self.manager.update()
+        chroot_zypper_args = self.manager.root_bind.move_to_root(
+            self.manager.zypper_args
+        )
         mock_call.assert_called_once_with(
-            [
-                'chroot', 'root-dir', 'zypper', '--reposd-dir', '//my/repos',
+            ['chroot', 'root-dir', 'zypper'] + chroot_zypper_args + [
                 'update', '--auto-agree-with-licenses'
             ],
             [

@@ -16,10 +16,10 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from manager_zypper import ManagerZypper
+from package_manager_zypper import PackageManagerZypper
 
 
-class Manager(object):
+class PackageManager(object):
     """
         package manager factory
     """
@@ -28,7 +28,7 @@ class Manager(object):
         from logger import log
 
         if package_manager == 'zypper':
-            manager = ManagerZypper(repository, custom_args)
+            manager = PackageManagerZypper(repository, custom_args)
         else:
             raise NotImplementedError(
                 'Support for package manager %s not implemented' %

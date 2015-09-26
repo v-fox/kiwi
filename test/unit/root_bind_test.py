@@ -121,3 +121,8 @@ class TestRootBind(object):
     def test_cleanup_no_stop_on_exception(self, mock_command):
         mock_command.side_effect = Exception
         self.bind_root.cleanup()
+
+    def test_move_to_root(self):
+        assert self.bind_root.move_to_root(
+            [self.bind_root.root_dir + '/argument']
+        ) == ['//argument']

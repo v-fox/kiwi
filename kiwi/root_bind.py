@@ -105,6 +105,12 @@ class RootBind(object):
                 '%s: %s' % (type(e).__name__, format(e))
             )
 
+    def move_to_root(self, elements):
+        result = []
+        for element in elements:
+            result.append(element.replace(self.root_dir, '/'))
+        return result
+
     def cleanup(self):
         try:
             self.__cleanup_mount_stack()

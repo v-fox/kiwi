@@ -11,13 +11,15 @@ from kiwi.exceptions import (
 
 from kiwi.repository_zypper import RepositoryZypper
 from kiwi.root_bind import RootBind
-from kiwi.manager_base import ManagerBase
 
 
 class TestRepositoryZypper(object):
     @patch('kiwi.command.Command.run')
     def setup(self, mock_command):
         root_bind = mock.Mock()
+        root_bind.move_to_root = mock.Mock(
+            return_value = ['root-moved-arguments']
+        )
         root_bind.root_dir = '../data'
         root_bind.shared_location = '/shared-dir'
         self.repo = RepositoryZypper(root_bind)
@@ -67,8 +69,8 @@ class TestRepositoryZypper(object):
     @patch('kiwi.command.Command.run')
     def test_add_repo(self, mock_command):
         self.repo.add_repo('foo', 'uri', 'rpm-md', 42)
-        chroot_zypper_args = ManagerBase.move_to_root(
-            '../data', self.repo.zypper_args
+        chroot_zypper_args = self.repo.root_bind.move_to_root(
+            self.repo.zypper_args
         )
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == call(
@@ -90,8 +92,8 @@ class TestRepositoryZypper(object):
     @patch('kiwi.command.Command.run')
     def test_delete_repo(self, mock_command):
         self.repo.delete_repo('foo')
-        chroot_zypper_args = ManagerBase.move_to_root(
-            '../data', self.repo.zypper_args
+        chroot_zypper_args = self.repo.root_bind.move_to_root(
+            self.repo.zypper_args
         )
         mock_command.assert_called_once_with(
             ['chroot', '../data', 'zypper'] + chroot_zypper_args + [

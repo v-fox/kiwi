@@ -21,7 +21,7 @@ from tempfile import NamedTemporaryFile
 
 # project
 from command import Command
-from manager_base import ManagerBase
+from package_manager_base import PackageManagerBase
 from repository_base import RepositoryBase
 
 from exceptions import (
@@ -122,8 +122,8 @@ class RepositoryZypper(RepositoryBase):
         )
 
     def add_repo(self, name, uri, repo_type='rpm-md', prio=None):
-        chroot_zypper_args = ManagerBase.move_to_root(
-            self.root_dir, self.zypper_args
+        chroot_zypper_args = self.root_bind.move_to_root(
+            self.zypper_args
         )
         Command.run(
             ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
@@ -144,8 +144,8 @@ class RepositoryZypper(RepositoryBase):
             )
 
     def delete_repo(self, name):
-        chroot_zypper_args = ManagerBase.move_to_root(
-            self.root_dir, self.zypper_args
+        chroot_zypper_args = self.root_bind.move_to_root(
+            self.zypper_args
         )
         Command.run(
             ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [

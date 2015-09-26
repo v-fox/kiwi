@@ -15,21 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+# project
 from cli_task import CliTask
-
-
-import logging
-import sys
-
-import xml_parse
-from xml_description import XMLDescription
-
-from root_init import RootInit
-from root_bind import RootBind
-from repository_zypper import RepositoryZypper
-from manager_zypper import ManagerZypper
-from command import Command
-from xml_state import XMLState
 
 
 class App(object):

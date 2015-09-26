@@ -19,7 +19,7 @@
 from root_init import RootInit
 from root_bind import RootBind
 from repository import Repository
-from manager import Manager
+from package_manager import PackageManager
 from command import Command
 from xml_state import XMLState
 from uri import Uri
@@ -94,7 +94,7 @@ class System(object):
             )
 
     def install_bootstrap(self):
-        manager = Manager.new(self.repo, self.package_manager)
+        manager = PackageManager.new(self.repo, self.package_manager)
         bootstrap_packages = XMLState.bootstrap_packages(
             self.xml, self.profiles
         )
@@ -127,7 +127,7 @@ class System(object):
         self.install_packages(system_packages)
 
     def install_packages(self, packages):
-        manager = Manager.new(self.repo, self.package_manager)
+        manager = PackageManager.new(self.repo, self.package_manager)
         log.info('Installing system packages (chroot)')
         for package in packages:
             log.info('--> package: %s', package)
@@ -145,7 +145,7 @@ class System(object):
             )
 
     def delete_packages(self, packages):
-        manager = Manager.new(self.repo, self.package_manager)
+        manager = PackageManager.new(self.repo, self.package_manager)
         log.info('Deleting system packages (chroot)')
         for package in packages:
             log.info('--> package: %s', package)
@@ -163,7 +163,7 @@ class System(object):
             )
 
     def update_system(self):
-        manager = Manager.new(self.repo, self.package_manager)
+        manager = PackageManager.new(self.repo, self.package_manager)
         log.info('Update system (chroot)')
         update = manager.update()
         while update.process.poll() is None:

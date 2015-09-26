@@ -5,14 +5,14 @@ import mock
 
 import nose_helper
 
-from kiwi.manager_base import ManagerBase
+from kiwi.package_manager_base import PackageManagerBase
 
 
-class TestManagerBase(object):
+class TestPackageManagerBase(object):
     def setup(self):
         repository = mock.Mock()
         repository.root_dir = 'root-dir'
-        self.manager = ManagerBase(repository)
+        self.manager = PackageManagerBase(repository)
 
     @raises(NotImplementedError)
     def test_request_package(self):

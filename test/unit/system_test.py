@@ -53,7 +53,7 @@ class TestSystem(object):
         )
 
     @raises(KiwiBootStrapPhaseFailed)
-    @patch('kiwi.system.Manager.new')
+    @patch('kiwi.system.PackageManager.new')
     def test_install_bootstrap_raises(self, mock_manager):
         self.system.repo = mock.Mock()
         manager = mock.Mock()
@@ -64,7 +64,7 @@ class TestSystem(object):
         self.system.install_bootstrap()
 
     @raises(KiwiSystemUpdateFailed)
-    @patch('kiwi.system.Manager.new')
+    @patch('kiwi.system.PackageManager.new')
     def test_update_system_raises(self, mock_manager):
         self.system.repo = mock.Mock()
         manager = mock.Mock()
@@ -75,7 +75,7 @@ class TestSystem(object):
         self.system.update_system()
 
     @raises(KiwiSystemInstallPackagesFailed)
-    @patch('kiwi.system.Manager.new')
+    @patch('kiwi.system.PackageManager.new')
     def test_install_packages_raises(self, mock_manager):
         self.system.repo = mock.Mock()
         manager = mock.Mock()
@@ -86,7 +86,7 @@ class TestSystem(object):
         self.system.install_packages([])
 
     @raises(KiwiSystemDeletePackagesFailed)
-    @patch('kiwi.system.Manager.new')
+    @patch('kiwi.system.PackageManager.new')
     def test_delete_packages_raises(self, mock_manager):
         self.system.repo = mock.Mock()
         manager = mock.Mock()
@@ -134,7 +134,7 @@ class TestSystem(object):
         )
         assert self.system.uri == [uri]
 
-    @patch('kiwi.system.Manager.new')
+    @patch('kiwi.system.PackageManager.new')
     def test_install_bootstrap(self, mock_manager):
         self.system.repo = mock.Mock()
         manager = mock.Mock()
@@ -151,7 +151,7 @@ class TestSystem(object):
         self.system.install_system()
         self.system.install_packages.assert_called_once()
 
-    @patch('kiwi.system.Manager.new')
+    @patch('kiwi.system.PackageManager.new')
     def test_install_packages(self, mock_manager):
         self.system.repo = mock.Mock()
         manager = mock.Mock()
@@ -162,7 +162,7 @@ class TestSystem(object):
         self.system.install_packages(['foo'])
         manager.request_package.assert_called_once_with('foo')
 
-    @patch('kiwi.system.Manager.new')
+    @patch('kiwi.system.PackageManager.new')
     def test_delete_packages(self, mock_manager):
         self.system.repo = mock.Mock()
         manager = mock.Mock()
@@ -173,7 +173,7 @@ class TestSystem(object):
         self.system.delete_packages(['foo'])
         manager.request_package.assert_called_once_with('foo')
 
-    @patch('kiwi.system.Manager.new')
+    @patch('kiwi.system.PackageManager.new')
     def test_update_system(self, mock_manager):
         self.system.repo = mock.Mock()
         manager = mock.Mock()
