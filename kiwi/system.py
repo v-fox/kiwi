@@ -95,25 +95,32 @@ class System(object):
             self.repo.add_bootstrap_repo(
                 repo_alias, repo_source_translated, repo_type, repo_priority
             )
+        self.manager = PackageManager.new(
+            self.repo, self.package_manager
+        )
 
     def install_bootstrap(self):
-        manager = PackageManager.new(self.repo, self.package_manager)
         bootstrap_packages = XMLState.bootstrap_packages(
             self.xml, self.profiles
         )
         bootstrap_packages.append(
             XMLState.package_manager(self.xml, self.profiles)
         )
+        # TODO:
+        # collections
+        # archives
+        # products
+        # ignores
         log.info('Installing bootstrap packages')
         packages_requested = 0
         packages_processed = 0
         for package in bootstrap_packages:
             log.info('--> package: %s', package)
-            manager.request_package(package)
+            self.manager.request_package(package)
             packages_requested += 1
 
         self.__init_progress(packages_requested)
-        install = manager.process_install_requests_bootstrap()
+        install = self.manager.process_install_requests_bootstrap()
         while install.process.poll() is None:
             line = install.output.readline()
             if line:
@@ -132,24 +139,69 @@ class System(object):
     def install_system(self, build_type=None):
         if not build_type:
             build_type = XMLState.build_type(self.xml, self.profiles)
-        log.info('Installing system packages for build type: %s', build_type)
+        log.info('Installing system (chroot) for build type: %s', build_type)
         system_packages = XMLState.system_packages(
             self.xml, self.profiles, build_type
         )
-        self.install_packages(system_packages)
+        system_collections = XMLState.system_collections(
+            self.xml, self.profiles, build_type
+        )
+        system_products = XMLState.system_products(
+            self.xml, self.profiles, build_type
+        )
+        # TODO:
+        # archives
+        # ignores
+        items_requested = 0
+        items_processed = 0
+        if system_packages:
+            for package in system_packages:
+                log.info('--> package: %s', package)
+                self.manager.request_package(package)
+                items_requested += 1
+        if system_collections:
+            for collection in system_collections:
+                log.info('--> collection: %s', collection)
+                self.manager.request_collection(collection)
+                items_requested += 1
+        if system_products:
+            for product in system_products:
+                log.info('--> product: %s', product)
+                self.manager.request_product(product)
+                items_requested += 1
+
+        all_install_items = \
+            self.manager.package_requests + \
+            self.manager.collection_requests + \
+            self.manager.product_requests
+
+        self.__init_progress(items_requested)
+        install = self.manager.process_install_requests()
+        while install.process.poll() is None:
+            line = install.output.readline()
+            if line:
+                log.debug('system: %s', line.rstrip('\n'))
+                items_processed = self.__update_progress(
+                    all_install_items, items_processed, items_requested, line
+                )
+
+        self.__stop_progress()
+        if install.process.returncode != 0:
+            raise KiwiSystemInstallPackagesFailed(
+                'System installation failed: %s' % install.error.read()
+            )
 
     def install_packages(self, packages):
-        manager = PackageManager.new(self.repo, self.package_manager)
         log.info('Installing system packages (chroot)')
         packages_requested = 0
         packages_processed = 0
         for package in packages:
             log.info('--> package: %s', package)
-            manager.request_package(package)
+            self.manager.request_package(package)
             packages_requested += 1
 
         self.__init_progress(packages_requested)
-        install = manager.process_install_requests()
+        install = self.manager.process_install_requests()
         while install.process.poll() is None:
             line = install.output.readline()
             if line:
@@ -165,24 +217,23 @@ class System(object):
             )
 
     def delete_packages(self, packages):
-        manager = PackageManager.new(self.repo, self.package_manager)
         log.info('Deleting system packages (chroot)')
         packages_requested = 0
         packages_processed = 0
         for package in packages:
             log.info('--> package: %s', package)
-            manager.request_package(package)
+            self.manager.request_package(package)
             packages_requested += 1
 
         self.__init_progress(packages_requested)
-        delete = manager.process_delete_requests()
+        delete = self.manager.process_delete_requests()
         while delete.process.poll() is None:
             line = delete.output.readline()
             if line:
                 log.debug('system: %s', line.rstrip('\n'))
                 packages_processed = self.__update_progress(
                     packages, packages_processed, packages_requested,
-                    line, 'Removing: '
+                    line, 'deleted'
                 )
 
         self.__stop_progress()
@@ -192,9 +243,8 @@ class System(object):
             )
 
     def update_system(self):
-        manager = PackageManager.new(self.repo, self.package_manager)
         log.info('Update system (chroot)')
-        update = manager.update()
+        update = self.manager.update()
         while update.process.poll() is None:
             line = update.output.readline()
             if line:
@@ -215,22 +265,17 @@ class System(object):
     def __stop_progress(self):
         if not log.level == logging.DEBUG:
             log.progress(
-                100, 100,
-                'INFO: Processing'
+                100, 100, 'INFO: Processing'
             )
             print
 
     def __update_progress(
         self, packages, packages_processed, packages_requested,
-        data, search='Installing: '
+        data, mode='installed'
     ):
         if not log.level == logging.DEBUG:
             for package in packages:
-                # this match for the package to be installed in the output
-                # of the zypper command is not 100% accurate. There might
-                # be false positives due to sub package names starting with
-                # the same base package name
-                if re.match('.*' + search + package + '.*', data):
+                if self.manager.match_package(package, data, mode):
                     packages_processed += 1
                     if packages_processed <= packages_requested:
                         log.progress(

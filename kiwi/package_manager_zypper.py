@@ -15,9 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import re
+
+# project
 from command import Command
 from package_manager_base import PackageManagerBase
 
+from exceptions import (
+    KiwiUnknownPackageMatchMode
+)
 
 class PackageManagerZypper(PackageManagerBase):
     """
@@ -80,6 +86,20 @@ class PackageManagerZypper(PackageManagerBase):
             ],
             self.command_env
         )
+
+    def match_package(self, package_name, log_line, mode='installed'):
+        # this match for the package to be installed in the output
+        # of the zypper command is not 100% accurate. There might
+        # be false positives due to sub package names starting with
+        # the same base package name
+        if mode == 'installed':
+            return re.match('.*Installing: ' + package_name + '.*', log_line)
+        elif mode == 'deleted':
+            return re.match('.*Removing: ' + package_name + '.*', log_line)
+        else:
+            raise KiwiUnknownPackageMatchMode(
+                'Unknown package match mode: %s' % mode
+            )
 
     def __install_items(self):
         items = self.package_requests + self.collection_requests \

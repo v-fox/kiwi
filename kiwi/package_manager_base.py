@@ -54,6 +54,9 @@ class PackageManagerBase(object):
     def update(self):
         raise NotImplementedError
 
+    def match_package(self, package_name, log_line, mode='installed'):
+        raise NotImplementedError
+
     def cleanup_requests(self):
         del self.package_requests[:]
         del self.collection_requests[:]

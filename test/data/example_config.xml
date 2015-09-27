@@ -71,14 +71,8 @@
         <source path="iso:///image/CDs/dvd.iso"/>
     </repository>
     <packages type="image">
-<!--
-        new pattern system seems still not functional in 13.2
-
         <namedCollection name="base"/>
-
-        using pattern package directly instead
--->
-        <package name="patterns-openSUSE-base"/>
+        <product name="openSUSE"/>
         <package name="plymouth-branding-openSUSE" bootinclude="true"/>
         <package name="grub2-branding-openSUSE" bootinclude="true"/>
         <package name="ifplugd"/>
@@ -116,18 +110,6 @@
         <package name="glibc-locale"/>
         <package name="cracklib-dict-full"/>
         <package name="ca-certificates"/>
-<!--
-        The installation of products in SLE12 requires the SLE12 zypper
-        Thus the following definition only works when building on SLE12
-
-        <product name="openSUSE"/>
-
-        In order to stay compatible we just install the product rpm
-        package. It's required to install the release package in the
-        bootstrap phase in order to avoid the installation of an auto
-        selected dummy-release package which later conflicts with all
-        other release packages
--->
         <package name="openSUSE-release"/>
     </packages>
     <packages type="delete">

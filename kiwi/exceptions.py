@@ -119,3 +119,7 @@ class KiwiSystemDeletePackagesFailed(KiwiError):
 
 class KiwiConfigFileNotFound(KiwiError):
     pass
+
+
+class KiwiUnknownPackageMatchMode(KiwiError):
+    pass

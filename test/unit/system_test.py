@@ -52,51 +52,49 @@ class TestSystem(object):
     def setup(self):
         description = XMLDescription('../data/example_config.xml')
         self.xml = description.load()
-
         self.system = System(
             xml_data=self.xml, profiles=[], allow_existing=True
         )
+        self.system.manager = mock.MagicMock(
+            return_value = mock.MagicMock()
+        )
 
     @raises(KiwiBootStrapPhaseFailed)
-    @patch('kiwi.system.PackageManager.new')
-    def test_install_bootstrap_raises(self, mock_manager):
+    def test_install_bootstrap_raises(self):
         self.system.repo = mock.Mock()
-        manager = mock.Mock()
-        mock_manager.return_value = manager
-        manager.process_install_requests_bootstrap = mock.Mock(
+        self.system.manager.process_install_requests_bootstrap = mock.Mock(
             return_value = FakeCommandCall(1)
         )
         self.system.install_bootstrap()
 
     @raises(KiwiSystemUpdateFailed)
-    @patch('kiwi.system.PackageManager.new')
-    def test_update_system_raises(self, mock_manager):
+    def test_update_system_raises(self):
         self.system.repo = mock.Mock()
-        manager = mock.Mock()
-        mock_manager.return_value = manager
-        manager.update = mock.Mock(
+        self.system.manager.update = mock.Mock(
             return_value = FakeCommandCall(1)
         )
         self.system.update_system()
 
     @raises(KiwiSystemInstallPackagesFailed)
-    @patch('kiwi.system.PackageManager.new')
-    def test_install_packages_raises(self, mock_manager):
+    def test_install_packages_raises(self):
         self.system.repo = mock.Mock()
-        manager = mock.Mock()
-        mock_manager.return_value = manager
-        manager.process_install_requests = mock.Mock(
+        self.system.manager.process_install_requests = mock.Mock(
             return_value = FakeCommandCall(1)
         )
         self.system.install_packages([])
 
-    @raises(KiwiSystemDeletePackagesFailed)
-    @patch('kiwi.system.PackageManager.new')
-    def test_delete_packages_raises(self, mock_manager):
+    @raises(KiwiSystemInstallPackagesFailed)
+    def test_install_system_raises(self):
         self.system.repo = mock.Mock()
-        manager = mock.Mock()
-        mock_manager.return_value = manager
-        manager.process_delete_requests = mock.Mock(
+        self.system.manager.process_install_requests = mock.Mock(
+            return_value = FakeCommandCall(1)
+        )
+        self.system.install_system()
+
+    @raises(KiwiSystemDeletePackagesFailed)
+    def test_delete_packages_raises(self):
+        self.system.repo = mock.Mock()
+        self.system.manager.process_delete_requests = mock.Mock(
             return_value = FakeCommandCall(1)
         )
         self.system.delete_packages([])
@@ -117,7 +115,8 @@ class TestSystem(object):
 
     @patch('kiwi.system.Repository.new')
     @patch('kiwi.system.Uri')
-    def test_setup_repositories(self, mock_uri, mock_repo):
+    @patch('kiwi.system.PackageManager.new')
+    def test_setup_repositories(self, mock_manager, mock_uri, mock_repo):
         uri = mock.Mock()
         mock_uri.return_value = uri
         self.system.root_bind = mock.Mock()
@@ -139,55 +138,54 @@ class TestSystem(object):
         )
         assert self.system.uri == [uri]
 
-    @patch('kiwi.system.PackageManager.new')
-    def test_install_bootstrap(self, mock_manager):
+    def test_install_bootstrap(self):
         self.system.repo = mock.Mock()
-        manager = mock.Mock()
-        mock_manager.return_value = manager
-        manager.process_install_requests_bootstrap = mock.Mock(
+        self.system.manager.process_install_requests_bootstrap = mock.Mock(
             return_value = FakeCommandCall(0)
         )
         self.system.install_bootstrap()
-        manager.request_package.assert_called()
-        manager.process_install_requests_bootstrap.assert_called_once()
+        self.system.manager.request_package.assert_called()
+        self.system.manager.process_install_requests_bootstrap.assert_called_once()
 
-    @patch('kiwi.system.System.install_packages')
-    def test_install_system(self, mock_install_packages):
-        self.system.install_system()
-        self.system.install_packages.assert_called_once()
-
-    @patch('kiwi.system.PackageManager.new')
-    def test_install_packages(self, mock_manager):
+    def test_install_system(self):
         self.system.repo = mock.Mock()
-        manager = mock.Mock()
-        mock_manager.return_value = manager
-        manager.process_install_requests = mock.Mock(
+        self.system.manager.process_install_requests = mock.Mock(
+            return_value = FakeCommandCall(0)
+        )
+        self.system.install_system()
+        self.system.manager.request_package.assert_called_with(
+            'plymouth-branding-openSUSE'
+        )
+        self.system.manager.request_collection.assert_called_once_with(
+            'base'
+        )
+        self.system.manager.request_product.assert_called_once_with(
+            'openSUSE'
+        )
+
+    def test_install_packages(self):
+        self.system.repo = mock.Mock()
+        self.system.manager.process_install_requests = mock.Mock(
             return_value = FakeCommandCall(0)
         )
         self.system.install_packages(['foo'])
-        manager.request_package.assert_called_once_with('foo')
+        self.system.manager.request_package.assert_called_once_with('foo')
 
-    @patch('kiwi.system.PackageManager.new')
-    def test_delete_packages(self, mock_manager):
+    def test_delete_packages(self):
         self.system.repo = mock.Mock()
-        manager = mock.Mock()
-        mock_manager.return_value = manager
-        manager.process_delete_requests = mock.Mock(
+        self.system.manager.process_delete_requests = mock.Mock(
             return_value = FakeCommandCall(0)
         )
         self.system.delete_packages(['foo'])
-        manager.request_package.assert_called_once_with('foo')
+        self.system.manager.request_package.assert_called_once_with('foo')
 
-    @patch('kiwi.system.PackageManager.new')
-    def test_update_system(self, mock_manager):
+    def test_update_system(self):
         self.system.repo = mock.Mock()
-        manager = mock.Mock()
-        mock_manager.return_value = manager
-        manager.update = mock.Mock(
+        self.system.manager.update = mock.Mock(
             return_value = FakeCommandCall(0)
         )
         self.system.update_system()
-        manager.update.assert_called_once()
+        self.system.manager.update.assert_called_once()
 
     def test_destructor(self):
         root_bind = mock.Mock()

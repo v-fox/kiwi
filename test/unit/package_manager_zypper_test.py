@@ -2,10 +2,15 @@ from nose.tools import *
 from mock import patch
 
 import mock
+import re
 
 import nose_helper
 
 from kiwi.package_manager_zypper import PackageManagerZypper
+
+from kiwi.exceptions import (
+    KiwiUnknownPackageMatchMode
+)
 
 
 class TestPackageManagerZypper(object):
@@ -99,4 +104,14 @@ class TestPackageManagerZypper(object):
             [
                 'env'
             ]
+        )
+
+    def test_match_package(self):
+        assert self.manager.match_package('foo', 'Installing: foo')
+        assert self.manager.match_package('foo', 'Removing: foo', 'deleted')
+
+    @raises(KiwiUnknownPackageMatchMode)
+    def test_match_package_raises(self):
+        self.manager.match_package(
+            'foo', 'Installing: foo', 'wrong-mode'
         )

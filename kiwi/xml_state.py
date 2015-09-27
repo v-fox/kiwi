@@ -140,23 +140,64 @@ class XMLState(object):
         return result
 
     @classmethod
+    def packages_sections(self, xml_data, profiles=[], build_type=None):
+        """
+            get list of packages sections, take build_type into account
+        """
+        if not profiles:
+            profiles = XMLState.used_profiles(xml_data, profiles)
+        if not build_type:
+            build_type = XMLState.build_type(xml_data, profiles)
+        return XMLState.profiled(
+            xml_data.get_packages(), profiles
+        )
+
+    @classmethod
     def system_packages(self, xml_data, profiles=[], build_type=None):
         """
             get list of system packages, take build_type into account
         """
         result = []
-        if not profiles:
-            profiles = XMLState.used_profiles(xml_data, profiles)
-        if not build_type:
-            build_type = XMLState.build_type(xml_data, profiles)
-        packages_sections = XMLState.profiled(
-            xml_data.get_packages(), profiles
+        packages_sections = XMLState.packages_sections(
+            xml_data, profiles, build_type
         )
         for packages in packages_sections:
             packages_type = packages.get_type()
             if packages_type == 'image' or packages_type == build_type:
                 for package in packages.get_package():
                     result.append(package.get_name())
+        return list(set(result))
+
+    @classmethod
+    def system_collections(self, xml_data, profiles=[], build_type=None):
+        """
+            get list of system collections, take build_type into account
+        """
+        result = []
+        packages_sections = XMLState.packages_sections(
+            xml_data, profiles, build_type
+        )
+        for packages in packages_sections:
+            packages_type = packages.get_type()
+            if packages_type == 'image' or packages_type == build_type:
+                for collection in packages.get_namedCollection():
+                    result.append(collection.get_name())
+        return list(set(result))
+
+    @classmethod
+    def system_products(self, xml_data, profiles=[], build_type=None):
+        """
+            get list of system products, take build_type into account
+        """
+        result = []
+        packages_sections = XMLState.packages_sections(
+            xml_data, profiles, build_type
+        )
+        for packages in packages_sections:
+            packages_type = packages.get_type()
+            if packages_type == 'image' or packages_type == build_type:
+                for product in packages.get_product():
+                    result.append(product.get_name())
         return list(set(result))
 
     @classmethod

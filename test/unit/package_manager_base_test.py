@@ -42,6 +42,10 @@ class TestPackageManagerBase(object):
     def test_update(self):
         self.manager.update()
 
+    @raises(NotImplementedError)
+    def test_match_package(self):
+        self.manager.match_package('package_name', 'log')
+
     def test_cleanup_requests(self):
         self.manager.cleanup_requests()
         assert self.manager.package_requests == []
