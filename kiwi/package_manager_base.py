@@ -21,7 +21,7 @@ class PackageManagerBase(object):
     """
         Implements base class for package manager install tasks
     """
-    def __init__(self, repository, custom_args=None):
+    def __init__(self, repository, custom_args=[]):
         self.repository = repository
         self.root_dir = repository.root_dir
         self.root_bind = repository.root_bind
@@ -52,6 +52,9 @@ class PackageManagerBase(object):
         raise NotImplementedError
 
     def update(self):
+        raise NotImplementedError
+
+    def process_only_required(self):
         raise NotImplementedError
 
     def match_package(self, package_name, log_line, mode='installed'):

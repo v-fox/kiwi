@@ -44,12 +44,25 @@ class TestXMLState(object):
         ]
 
     def test_system_packages(self):
-        print XMLState.system_packages(self.xml) == [
-            'gfxboot-branding-openSUSE', 'iputils',
-            'grub2-branding-openSUSE', 'patterns-openSUSE-base',
-            'vim', 'kernel-default', 'ifplugd', 'openssh',
+        print XMLState.system_packages(self.xml)
+        assert XMLState.system_packages(self.xml) == [
+            'iputils', 'grub2-branding-openSUSE', 'vim',
+            'kernel-default', 'ifplugd', 'openssh',
             'plymouth-branding-openSUSE'
         ]
+
+    def test_system_collections(self):
+        assert XMLState.system_collections(self.xml) == [
+            'base'
+        ]
+
+    def test_system_products(self):
+        assert XMLState.system_products(self.xml) == [
+            'openSUSE'
+        ]
+
+    def test_system_collection_type(self):
+        assert XMLState.system_collection_type(self.xml) == 'plusRecommended'
 
     def test_set_repository(self):
         XMLState.set_repository(self.xml, 'repo', 'type', 'alias', 1)

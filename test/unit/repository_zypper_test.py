@@ -18,7 +18,7 @@ class TestRepositoryZypper(object):
     def setup(self, mock_command):
         root_bind = mock.Mock()
         root_bind.move_to_root = mock.Mock(
-            return_value = ['root-moved-arguments']
+            return_value=['root-moved-arguments']
         )
         root_bind.root_dir = '../data'
         root_bind.shared_location = '/shared-dir'

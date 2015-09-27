@@ -43,6 +43,10 @@ class TestPackageManagerBase(object):
         self.manager.update()
 
     @raises(NotImplementedError)
+    def test_process_only_required(self):
+        self.manager.process_only_required()
+
+    @raises(NotImplementedError)
     def test_match_package(self):
         self.manager.match_package('package_name', 'log')
 

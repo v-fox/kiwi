@@ -56,14 +56,14 @@ class TestSystem(object):
             xml_data=self.xml, profiles=[], allow_existing=True
         )
         self.system.manager = mock.MagicMock(
-            return_value = mock.MagicMock()
+            return_value=mock.MagicMock()
         )
 
     @raises(KiwiBootStrapPhaseFailed)
     def test_install_bootstrap_raises(self):
         self.system.repo = mock.Mock()
         self.system.manager.process_install_requests_bootstrap = mock.Mock(
-            return_value = FakeCommandCall(1)
+            return_value=FakeCommandCall(1)
         )
         self.system.install_bootstrap()
 
@@ -71,7 +71,7 @@ class TestSystem(object):
     def test_update_system_raises(self):
         self.system.repo = mock.Mock()
         self.system.manager.update = mock.Mock(
-            return_value = FakeCommandCall(1)
+            return_value=FakeCommandCall(1)
         )
         self.system.update_system()
 
@@ -79,7 +79,7 @@ class TestSystem(object):
     def test_install_packages_raises(self):
         self.system.repo = mock.Mock()
         self.system.manager.process_install_requests = mock.Mock(
-            return_value = FakeCommandCall(1)
+            return_value=FakeCommandCall(1)
         )
         self.system.install_packages([])
 
@@ -87,7 +87,7 @@ class TestSystem(object):
     def test_install_system_raises(self):
         self.system.repo = mock.Mock()
         self.system.manager.process_install_requests = mock.Mock(
-            return_value = FakeCommandCall(1)
+            return_value=FakeCommandCall(1)
         )
         self.system.install_system()
 
@@ -95,7 +95,7 @@ class TestSystem(object):
     def test_delete_packages_raises(self):
         self.system.repo = mock.Mock()
         self.system.manager.process_delete_requests = mock.Mock(
-            return_value = FakeCommandCall(1)
+            return_value=FakeCommandCall(1)
         )
         self.system.delete_packages([])
 
@@ -141,18 +141,21 @@ class TestSystem(object):
     def test_install_bootstrap(self):
         self.system.repo = mock.Mock()
         self.system.manager.process_install_requests_bootstrap = mock.Mock(
-            return_value = FakeCommandCall(0)
+            return_value=FakeCommandCall(0)
         )
         self.system.install_bootstrap()
         self.system.manager.request_package.assert_called()
         self.system.manager.process_install_requests_bootstrap.assert_called_once()
 
-    def test_install_system(self):
+    @patch('kiwi.xml_state.XMLState.system_collection_type')
+    def test_install_system(self, mock_collection_type):
+        mock_collection_type.return_value = 'onlyRequired'
         self.system.repo = mock.Mock()
         self.system.manager.process_install_requests = mock.Mock(
-            return_value = FakeCommandCall(0)
+            return_value=FakeCommandCall(0)
         )
         self.system.install_system()
+        self.system.manager.process_only_required.assert_called_once()
         self.system.manager.request_package.assert_called_with(
             'plymouth-branding-openSUSE'
         )
@@ -166,7 +169,7 @@ class TestSystem(object):
     def test_install_packages(self):
         self.system.repo = mock.Mock()
         self.system.manager.process_install_requests = mock.Mock(
-            return_value = FakeCommandCall(0)
+            return_value=FakeCommandCall(0)
         )
         self.system.install_packages(['foo'])
         self.system.manager.request_package.assert_called_once_with('foo')
@@ -174,7 +177,7 @@ class TestSystem(object):
     def test_delete_packages(self):
         self.system.repo = mock.Mock()
         self.system.manager.process_delete_requests = mock.Mock(
-            return_value = FakeCommandCall(0)
+            return_value=FakeCommandCall(0)
         )
         self.system.delete_packages(['foo'])
         self.system.manager.request_package.assert_called_once_with('foo')
@@ -182,7 +185,7 @@ class TestSystem(object):
     def test_update_system(self):
         self.system.repo = mock.Mock()
         self.system.manager.update = mock.Mock(
-            return_value = FakeCommandCall(0)
+            return_value=FakeCommandCall(0)
         )
         self.system.update_system()
         self.system.manager.update.assert_called_once()
@@ -190,7 +193,7 @@ class TestSystem(object):
     def test_destructor(self):
         root_bind = mock.Mock()
         self.system.root_bind = mock.Mock(
-            return_value = root_bind
+            return_value=root_bind
         )
         del self.system
         root_bind.cleanup.assert_called_once()

@@ -107,6 +107,7 @@ class System(object):
             XMLState.package_manager(self.xml, self.profiles)
         )
         # TODO:
+        # collection_type
         # collections
         # archives
         # products
@@ -140,6 +141,10 @@ class System(object):
         if not build_type:
             build_type = XMLState.build_type(self.xml, self.profiles)
         log.info('Installing system (chroot) for build type: %s', build_type)
+        collection_type = XMLState.system_collection_type(
+            self.xml, self.profiles, build_type
+        )
+        log.info('--> collection type: %s', collection_type)
         system_packages = XMLState.system_packages(
             self.xml, self.profiles, build_type
         )
@@ -154,6 +159,9 @@ class System(object):
         # ignores
         items_requested = 0
         items_processed = 0
+        if collection_type == 'onlyRequired':
+            self.manager.process_only_required()
+
         if system_packages:
             for package in system_packages:
                 log.info('--> package: %s', package)

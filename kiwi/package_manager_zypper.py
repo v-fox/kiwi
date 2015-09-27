@@ -25,12 +25,13 @@ from exceptions import (
     KiwiUnknownPackageMatchMode
 )
 
+
 class PackageManagerZypper(PackageManagerBase):
     """
         Implements install tasks for the zypper package manager
     """
-    def post_init(self, custom_args):
-        self.init_args = custom_args
+    def post_init(self, custom_args=[]):
+        self.custom_args = custom_args
         runtime_config = self.repository.runtime_config()
 
         self.zypper_args = runtime_config['zypper_args']
@@ -50,7 +51,7 @@ class PackageManagerZypper(PackageManagerBase):
             ['zypper'] + self.zypper_args + [
                 '--root', self.root_dir,
                 'install', '--auto-agree-with-licenses'
-            ] + self.__install_items(),
+            ] + self.custom_args + self.__install_items(),
             self.command_env
         )
 
@@ -61,7 +62,7 @@ class PackageManagerZypper(PackageManagerBase):
         return Command.call(
             ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
                 'install', '--auto-agree-with-licenses'
-            ] + self.__install_items(),
+            ] + self.custom_args + self.__install_items(),
             self.command_env
         )
 
@@ -72,7 +73,7 @@ class PackageManagerZypper(PackageManagerBase):
         return Command.call(
             ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
                 'remove', '--auto-agree-with-licenses'
-            ] + self.__delete_items(),
+            ] + self.custom_args + self.__delete_items(),
             self.command_env
         )
 
@@ -83,9 +84,12 @@ class PackageManagerZypper(PackageManagerBase):
         return Command.call(
             ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
                 'update', '--auto-agree-with-licenses'
-            ],
+            ] + self.custom_args,
             self.command_env
         )
+
+    def process_only_required(self):
+        self.custom_args.append('--no-recommends')
 
     def match_package(self, package_name, log_line, mode='installed'):
         # this match for the package to be installed in the output

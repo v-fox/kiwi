@@ -20,7 +20,7 @@ class TestPackageManagerZypper(object):
 
         root_bind = mock.Mock()
         root_bind.move_to_root = mock.Mock(
-            return_value = ['root-moved-arguments']
+            return_value=['root-moved-arguments']
         )
         repository.root_bind = root_bind
 
@@ -52,8 +52,8 @@ class TestPackageManagerZypper(object):
             [
                 'zypper', '--reposd-dir', 'root-dir/my/repos',
                 '--root', 'root-dir',
-                'install', '--auto-agree-with-licenses', 'vim'
-            ],
+                'install', '--auto-agree-with-licenses'
+            ] + self.manager.custom_args + ['vim'],
             [
                 'env'
             ]
@@ -68,8 +68,8 @@ class TestPackageManagerZypper(object):
         )
         mock_call.assert_called_once_with(
             ['chroot', 'root-dir', 'zypper'] + chroot_zypper_args + [
-                'install', '--auto-agree-with-licenses', 'vim'
-            ],
+                'install', '--auto-agree-with-licenses'
+            ] + self.manager.custom_args + ['vim'],
             [
                 'env'
             ]
@@ -84,8 +84,8 @@ class TestPackageManagerZypper(object):
         )
         mock_call.assert_called_once_with(
             ['chroot', 'root-dir', 'zypper'] + chroot_zypper_args + [
-                'remove', '--auto-agree-with-licenses', 'vim'
-            ],
+                'remove', '--auto-agree-with-licenses'
+            ] + self.manager.custom_args + ['vim'],
             [
                 'env'
             ]
@@ -100,11 +100,15 @@ class TestPackageManagerZypper(object):
         mock_call.assert_called_once_with(
             ['chroot', 'root-dir', 'zypper'] + chroot_zypper_args + [
                 'update', '--auto-agree-with-licenses'
-            ],
+            ] + self.manager.custom_args,
             [
                 'env'
             ]
         )
+
+    def test_process_only_required(self):
+        self.manager.process_only_required()
+        assert self.manager.custom_args == ['--no-recommends']
 
     def test_match_package(self):
         assert self.manager.match_package('foo', 'Installing: foo')

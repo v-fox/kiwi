@@ -153,6 +153,24 @@ class XMLState(object):
         )
 
     @classmethod
+    def system_collection_type(self, xml_data, profiles=[], build_type=None):
+        """
+            get collection type specified in system packages sections
+            if no collection type is specified only required packages
+            are taken into account
+        """
+        packages_sections = XMLState.packages_sections(
+            xml_data, profiles, build_type
+        )
+        collection_type = 'onlyRequired'
+        for packages in packages_sections:
+            packages_collection_type = packages.get_patternType()
+            if packages_collection_type:
+                collection_type = packages_collection_type
+                break
+        return collection_type
+
+    @classmethod
     def system_packages(self, xml_data, profiles=[], build_type=None):
         """
             get list of system packages, take build_type into account
