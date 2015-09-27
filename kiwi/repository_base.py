@@ -21,7 +21,7 @@ class RepositoryBase(object):
     """
         Implements base class for package manager repo handling
     """
-    def __init__(self, root_bind, custom_args=None):
+    def __init__(self, root_bind, custom_args=[]):
         self.root_bind = root_bind
         self.root_dir = root_bind.root_dir
         self.shared_location = root_bind.shared_location

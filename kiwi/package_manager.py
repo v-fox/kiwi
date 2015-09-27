@@ -24,7 +24,7 @@ class PackageManager(object):
         package manager factory
     """
     @classmethod
-    def new(self, repository, package_manager, custom_args=None):
+    def new(self, repository, package_manager, custom_args=[]):
         from logger import log
 
         if package_manager == 'zypper':

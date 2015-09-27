@@ -30,7 +30,7 @@ class PackageManagerBase(object):
         self.product_requests = []
         self.post_init(custom_args)
 
-    def post_init(self, custom_args):
+    def post_init(self, custom_args=[]):
         pass
 
     def request_package(self, name):

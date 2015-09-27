@@ -17,4 +17,4 @@ class TestPackageManager(object):
     def test_manager_zypper_new(self, mock_manager):
         repository = mock.Mock()
         PackageManager.new(repository, 'zypper')
-        mock_manager.assert_called_once_with(repository, None)
+        mock_manager.assert_called_once_with(repository, [])
