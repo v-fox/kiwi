@@ -88,19 +88,19 @@ class SystemSetup(object):
         Command.run(['rm', '-r', '-f', '/.kconfig', '/image'])
 
     def import_shell_environment(self):
-        # TODO
+        # TODO: import_shell_environment
         raise NotImplementedError
 
     def import_overlay_files(self):
-        # TODO
+        # TODO: import_overlay_files
         raise NotImplementedError
 
     def call_config_script(self):
-        # TODO
+        # TODO: call_config_script
         raise NotImplementedError
 
     def call_image_script(self):
-        # TODO
+        # TODO: call_image_script
         raise NotImplementedError
 
     def __get_script_helper_functions(self):

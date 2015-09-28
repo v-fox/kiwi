@@ -115,12 +115,7 @@ class System(object):
         bootstrap_packages.append(
             XMLState.package_manager(self.xml, self.profiles)
         )
-        # TODO:
-        # collection_type
-        # collections
-        # archives
-        # products
-        # ignores
+        # TODO: bootstrap: collections and -type, archives, products, ignores
         log.info('Installing bootstrap packages')
         packages_requested = 0
         packages_processed = 0
@@ -172,9 +167,7 @@ class System(object):
         system_products = XMLState.system_products(
             self.xml, self.profiles, build_type
         )
-        # TODO:
-        # archives
-        # ignores
+        # TODO: install_system: archives, ignores
         items_requested = 0
         items_processed = 0
         if collection_type == 'onlyRequired':
