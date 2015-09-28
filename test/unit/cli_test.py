@@ -1,5 +1,6 @@
 import sys
 from nose.tools import *
+from mock import patch
 
 import nose_helper
 
@@ -40,8 +41,12 @@ class TestCli(object):
         self.cli = Cli()
         self.loaded_command = self.cli.load_command()
 
-    def test_show_help(self):
-        assert self.cli.show_help() == False
+    @raises(SystemExit)
+    @patch('kiwi.cli.Help.show')
+    def test_show_and_exit_on_help_request(self, help_show):
+        self.cli.all_args['help'] = True
+        self.cli.show_and_exit_on_help_request()
+        help_show.assert_called_once_with('kiwi')
 
     def test_get_servicename(self):
         assert self.cli.get_servicename() == 'system'

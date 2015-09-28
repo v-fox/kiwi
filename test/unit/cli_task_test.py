@@ -17,7 +17,8 @@ class TestCliTask(object):
     @patch('os.path.isfile')
     @patch('ConfigParser.ConfigParser.has_section')
     @patch('kiwi.logger.log.setLevel')
-    def setup(self, mock_setlevel, mock_section, mock_isfile):
+    @patch('kiwi.cli.Cli.show_and_exit_on_help_request')
+    def setup(self, mock_help, mock_setlevel, mock_section, mock_isfile):
         sys.argv = [
             sys.argv[0], '--debug', '--profile', 'foo',
             'system', 'prepare',
@@ -25,16 +26,8 @@ class TestCliTask(object):
             '--root', 'directory'
         ]
         self.task = CliTask()
+        mock_help.show_and_exit_on_help_request.assert_called_once()
         mock_setlevel.assert_called_once_with(logging.DEBUG)
-
-    @raises(SystemExit)
-    @patch('kiwi.cli_task.Help.show')
-    def test_show_help(self, help_show):
-        sys.argv = [
-            sys.argv[0], 'help'
-        ]
-        CliTask()
-        help_show.assert_called_once_with('kiwi')
 
     def test_profile_list(self):
         assert self.task.profile_list() == ['foo']

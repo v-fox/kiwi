@@ -33,6 +33,7 @@ global options:
     help
         show manual page
 """
+import sys
 import importlib
 from docopt import docopt
 
@@ -44,6 +45,7 @@ from exceptions import (
     KiwiUnknownCommand
 )
 from version import __VERSION__
+from help import Help
 
 
 class Cli(object):
@@ -59,8 +61,11 @@ class Cli(object):
         self.command_args = self.all_args['<args>']
         self.command_loaded = None
 
-    def show_help(self):
-        return self.all_args['help']
+    def show_and_exit_on_help_request(self):
+        if self.all_args['help']:
+            manual = Help()
+            manual.show('kiwi')
+            sys.exit(0)
 
     def get_servicename(self):
         if self.all_args['system']:

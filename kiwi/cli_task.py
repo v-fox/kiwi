@@ -34,11 +34,8 @@ class CliTask(object):
 
         self.cli = Cli()
 
-        # show main help man page if requested
-        if self.cli.show_help():
-            manual = Help()
-            manual.show('kiwi')
-            sys.exit(0)
+        # want some help
+        self.cli.show_and_exit_on_help_request()
 
         # load/import task module
         self.task = self.cli.load_command()
