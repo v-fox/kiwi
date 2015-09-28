@@ -16,13 +16,18 @@ class TestSystemUpdateTask(object):
             sys.argv[0], '--profile', 'vmxFlavour', 'system', 'update',
             '--root', '../data/root-dir'
         ]
-        self.task = SystemUpdateTask()
+        self.manager = mock.Mock()
+        self.system = mock.Mock()
+        self.system.setup_repositories = mock.Mock(
+            return_value=self.manager
+        )
         kiwi.system_update_task.System = mock.Mock(
-            return_value=mock.Mock()
+            return_value=self.system
         )
         kiwi.system_update_task.Help = mock.Mock(
             return_value=mock.Mock()
         )
+        self.task = SystemUpdateTask()
 
     def __init_command_args(self):
         self.task.command_args = {}
@@ -36,33 +41,28 @@ class TestSystemUpdateTask(object):
         self.__init_command_args()
         self.task.command_args['update'] = True
         self.task.process()
-        self.task.system.setup_root.assert_called_once_with(
-            self.task.command_args['--root']
-        )
-        self.task.system.setup_repositories.assert_called_once_with()
-        self.task.system.update_system.assert_called_once_with()
+        self.task.system.setup_repositories.assert_called_once()
+        self.task.system.update_system.assert_called_once_with(self.manager)
 
     def test_process_system_update_add_package(self):
         self.__init_command_args()
         self.task.command_args['update'] = True
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
-        self.task.system.setup_root.assert_called_once_with(
-            self.task.command_args['--root']
+        self.task.system.setup_repositories.assert_called_once()
+        self.task.system.install_packages.assert_called_once_with(
+            self.manager, ['vim']
         )
-        self.task.system.setup_repositories.assert_called_once_with()
-        self.task.system.install_packages.assert_called_once_with(['vim'])
 
     def test_process_system_update_delete_package(self):
         self.__init_command_args()
         self.task.command_args['update'] = True
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
-        self.task.system.setup_root.assert_called_once_with(
-            self.task.command_args['--root']
+        self.task.system.setup_repositories.assert_called_once()
+        self.task.system.delete_packages.assert_called_once_with(
+            self.manager, ['vim']
         )
-        self.task.system.setup_repositories.assert_called_once_with()
-        self.task.system.delete_packages.assert_called_once_with(['vim'])
 
     def test_process_system_update_help(self):
         self.__init_command_args()

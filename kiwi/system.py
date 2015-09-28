@@ -41,37 +41,43 @@ class System(object):
     """
         Implements preparation and installation of a new root system
     """
-    def __init__(self, xml_data, profiles=[], allow_existing=False):
+    def __init__(self, xml_data, root_dir, profiles=[], allow_existing=False):
+        """
+            setup and host bind new root system at given root_dir directory
+        """
+        log.info('Setup root directory: %s', root_dir)
+        root = RootInit(
+            root_dir, allow_existing
+        )
+        root.create()
+        root_bind = RootBind(
+            root
+        )
+        root_bind.setup_intermediate_config()
+        root_bind.mount_kernel_file_systems()
+        # root_bind.mount_shared_directory()
+
         self.xml = xml_data
         self.profiles = profiles
         self.allow_existing = allow_existing
-        self.package_manager = XMLState.package_manager(
-            self.xml, self.profiles
-        )
-
-    def setup_root(self, root_dir):
-        log.info('Setup root directory: %s', root_dir)
-        self.root = RootInit(
-            root_dir, self.allow_existing
-        )
-        self.root.create()
-        self.root_bind = RootBind(
-            self.root
-        )
-        self.root_bind.setup_intermediate_config()
-        self.root_bind.mount_kernel_file_systems()
-        # self.root_bind.mount_shared_directory()
+        self.root_bind = root_bind
 
     def setup_repositories(self):
-        self.uri = []
+        """
+            set up repositories for software installation and return a
+            package manager for performing software installation tasks
+        """
         repository_sections = XMLState.profiled(
             self.xml.get_repository(), self.profiles
         )
-        self.repo = Repository.new(
-            self.root_bind, self.package_manager
+        package_manager = XMLState.package_manager(
+            self.xml, self.profiles
+        )
+        repo = Repository.new(
+            self.root_bind, package_manager
         )
         if self.allow_existing:
-            self.repo.delete_all_repos()
+            repo.delete_all_repos()
         for xml_repo in repository_sections:
             repo_type = xml_repo.get_type()
             repo_source = xml_repo.get_source().get_path()
@@ -91,15 +97,18 @@ class System(object):
                 repo_alias = uri.alias()
             log.info('--> Alias: %s', repo_alias)
 
-            self.uri.append(uri)
-            self.repo.add_bootstrap_repo(
+            repo.add_bootstrap_repo(
                 repo_alias, repo_source_translated, repo_type, repo_priority
             )
-        self.manager = PackageManager.new(
-            self.repo, self.package_manager
+        return PackageManager.new(
+            repo, package_manager
         )
 
-    def install_bootstrap(self):
+    def install_bootstrap(self, manager):
+        """
+            install system software using the package manager
+            from the host, also known as bootstrapping
+        """
         bootstrap_packages = XMLState.bootstrap_packages(
             self.xml, self.profiles
         )
@@ -117,17 +126,20 @@ class System(object):
         packages_processed = 0
         for package in bootstrap_packages:
             log.info('--> package: %s', package)
-            self.manager.request_package(package)
+            manager.request_package(package)
             packages_requested += 1
 
         self.__init_progress(packages_requested)
-        install = self.manager.process_install_requests_bootstrap()
+        install = manager.process_install_requests_bootstrap()
         while install.process.poll() is None:
             line = install.output.readline()
             if line:
                 log.debug('bootstrap: %s', line.rstrip('\n'))
                 packages_processed = self.__update_progress(
-                    bootstrap_packages, packages_processed, packages_requested,
+                    bootstrap_packages,
+                    packages_processed,
+                    packages_requested,
+                    manager,
                     line
                 )
 
@@ -137,7 +149,13 @@ class System(object):
                 'Bootstrap installation failed: %s' % install.error.read()
             )
 
-    def install_system(self, build_type=None):
+    def install_system(self, manager, build_type=None):
+        """
+            install system software using the package manager inside
+            of the new root directory. This is done via a chroot operation
+            and requires the desired package manager to became installed
+            via the bootstrap phase
+        """
         if not build_type:
             build_type = XMLState.build_type(self.xml, self.profiles)
         log.info('Installing system (chroot) for build type: %s', build_type)
@@ -160,37 +178,41 @@ class System(object):
         items_requested = 0
         items_processed = 0
         if collection_type == 'onlyRequired':
-            self.manager.process_only_required()
+            manager.process_only_required()
 
         if system_packages:
             for package in system_packages:
                 log.info('--> package: %s', package)
-                self.manager.request_package(package)
+                manager.request_package(package)
                 items_requested += 1
         if system_collections:
             for collection in system_collections:
                 log.info('--> collection: %s', collection)
-                self.manager.request_collection(collection)
+                manager.request_collection(collection)
                 items_requested += 1
         if system_products:
             for product in system_products:
                 log.info('--> product: %s', product)
-                self.manager.request_product(product)
+                manager.request_product(product)
                 items_requested += 1
 
         all_install_items = \
-            self.manager.package_requests + \
-            self.manager.collection_requests + \
-            self.manager.product_requests
+            manager.package_requests + \
+            manager.collection_requests + \
+            manager.product_requests
 
         self.__init_progress(items_requested)
-        install = self.manager.process_install_requests()
+        install = manager.process_install_requests()
         while install.process.poll() is None:
             line = install.output.readline()
             if line:
                 log.debug('system: %s', line.rstrip('\n'))
                 items_processed = self.__update_progress(
-                    all_install_items, items_processed, items_requested, line
+                    all_install_items,
+                    items_processed,
+                    items_requested,
+                    manager,
+                    line
                 )
 
         self.__stop_progress()
@@ -199,23 +221,31 @@ class System(object):
                 'System installation failed: %s' % install.error.read()
             )
 
-    def install_packages(self, packages):
+    def install_packages(self, manager, packages):
+        """
+            install one or more packages using the package manager inside
+            of the new root directory
+        """
         log.info('Installing system packages (chroot)')
         packages_requested = 0
         packages_processed = 0
         for package in packages:
             log.info('--> package: %s', package)
-            self.manager.request_package(package)
+            manager.request_package(package)
             packages_requested += 1
 
         self.__init_progress(packages_requested)
-        install = self.manager.process_install_requests()
+        install = manager.process_install_requests()
         while install.process.poll() is None:
             line = install.output.readline()
             if line:
                 log.debug('system: %s', line.rstrip('\n'))
                 packages_processed = self.__update_progress(
-                    packages, packages_processed, packages_requested, line
+                    packages,
+                    packages_processed,
+                    packages_requested,
+                    manager,
+                    line
                 )
 
         self.__stop_progress()
@@ -224,24 +254,32 @@ class System(object):
                 'Package installation failed: %s' % install.error.read()
             )
 
-    def delete_packages(self, packages):
+    def delete_packages(self, manager, packages):
+        """
+            delete one or more packages using the package manager inside
+            of the new root directory
+        """
         log.info('Deleting system packages (chroot)')
         packages_requested = 0
         packages_processed = 0
         for package in packages:
             log.info('--> package: %s', package)
-            self.manager.request_package(package)
+            manager.request_package(package)
             packages_requested += 1
 
         self.__init_progress(packages_requested)
-        delete = self.manager.process_delete_requests()
+        delete = manager.process_delete_requests()
         while delete.process.poll() is None:
             line = delete.output.readline()
             if line:
                 log.debug('system: %s', line.rstrip('\n'))
                 packages_processed = self.__update_progress(
-                    packages, packages_processed, packages_requested,
-                    line, 'deleted'
+                    packages,
+                    packages_processed,
+                    packages_requested,
+                    manager,
+                    line,
+                    'deleted'
                 )
 
         self.__stop_progress()
@@ -250,9 +288,14 @@ class System(object):
                 'Package deletion failed: %s' % delete.error.read()
             )
 
-    def update_system(self):
+    def update_system(self, manager):
+        """
+            install package updates from the used repositories.
+            the process uses the package manager from inside of the
+            new root directory
+        """
         log.info('Update system (chroot)')
-        update = self.manager.update()
+        update = manager.update()
         while update.process.poll() is None:
             line = update.output.readline()
             if line:
@@ -279,11 +322,11 @@ class System(object):
 
     def __update_progress(
         self, packages, packages_processed, packages_requested,
-        data, mode='installed'
+        manager, data, mode='installed'
     ):
         if not log.level == logging.DEBUG:
             for package in packages:
-                if self.manager.match_package(package, data, mode):
+                if manager.match_package(package, data, mode):
                     packages_processed += 1
                     if packages_processed <= packages_requested:
                         log.progress(

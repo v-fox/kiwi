@@ -17,9 +17,13 @@ class TestSystemPrepareTask(object):
             '--description', '../data/description',
             '--root', '../data/root-dir'
         ]
-        self.task = SystemPrepareTask()
+        self.manager = mock.Mock()
+        self.system = mock.Mock()
+        self.system.setup_repositories = mock.Mock(
+            return_value=self.manager
+        )
         kiwi.system_prepare_task.System = mock.Mock(
-            return_value=mock.Mock()
+            return_value=self.system
         )
         kiwi.system_prepare_task.SystemSetup = mock.Mock(
             return_value=mock.Mock()
@@ -27,6 +31,7 @@ class TestSystemPrepareTask(object):
         kiwi.system_prepare_task.Help = mock.Mock(
             return_value=mock.Mock()
         )
+        self.task = SystemPrepareTask()
 
     def __init_command_args(self):
         self.task.command_args = {}
@@ -43,13 +48,10 @@ class TestSystemPrepareTask(object):
         self.__init_command_args()
         self.task.command_args['prepare'] = True
         self.task.process()
-        self.task.system.setup_root.assert_called_once_with(
-            self.task.command_args['--root']
-        )
         self.task.system.setup_repositories.assert_called_once_with()
-        self.task.system.install_bootstrap.assert_called_once_with()
+        self.task.system.install_bootstrap.assert_called_once_with(self.manager)
         self.task.system.install_system.assert_called_once_with(
-            self.task.command_args['--type']
+            self.manager, self.task.command_args['--type']
         )
         self.task.setup.import_description.assert_called_once_with()
 

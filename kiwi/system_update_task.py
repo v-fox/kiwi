@@ -71,22 +71,22 @@ class SystemUpdateTask(CliTask):
         if self.command_args['update']:
             log.info('Updating system')
             self.system = System(
-                self.xml, self.used_profiles, allow_existing=True
+                self.xml,
+                self.command_args['--root'],
+                self.used_profiles,
+                allow_existing=True
             )
-            self.system.setup_root(
-                self.command_args['--root']
-            )
-            self.system.setup_repositories()
+            manager = self.system.setup_repositories()
             if not package_requests:
-                self.system.update_system()
+                self.system.update_system(manager)
             else:
                 if self.command_args['--add-package']:
                     self.system.install_packages(
-                        self.command_args['--add-package']
+                        manager, self.command_args['--add-package']
                     )
                 if self.command_args['--delete-package']:
                     self.system.delete_packages(
-                        self.command_args['--delete-package']
+                        manager, self.command_args['--delete-package']
                     )
 
     def __help(self):

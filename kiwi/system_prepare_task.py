@@ -96,16 +96,15 @@ class SystemPrepareTask(CliTask):
         if self.command_args['prepare']:
             log.info('Preparing system')
             self.system = System(
-                self.xml, self.used_profiles,
+                self.xml,
+                self.command_args['--root'],
+                self.used_profiles,
                 self.command_args['--allow-existing-root']
             )
-            self.system.setup_root(
-                self.command_args['--root']
-            )
-            self.system.setup_repositories()
-            self.system.install_bootstrap()
+            manager = self.system.setup_repositories()
+            self.system.install_bootstrap(manager)
             self.system.install_system(
-                self.command_args['--type']
+                manager, self.command_args['--type']
             )
             self.setup = SystemSetup(
                 self.xml,
