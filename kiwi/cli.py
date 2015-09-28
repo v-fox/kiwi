@@ -56,8 +56,8 @@ class Cli(object):
             version='kiwi version ' + __VERSION__,
             options_first=True
         )
-        self.loaded = False
         self.command_args = self.all_args['<args>']
+        self.command_loaded = None
 
     def show_help(self):
         return self.all_args['help']
@@ -74,10 +74,6 @@ class Cli(object):
         return self.all_args['<command>']
 
     def get_command_args(self):
-        if not self.loaded:
-            raise KiwiCommandNotLoaded(
-                '%s command not loaded' % self.get_command()
-            )
         return self.__load_command_args()
 
     def get_global_args(self):
@@ -88,8 +84,6 @@ class Cli(object):
         return result
 
     def load_command(self):
-        if self.loaded:
-            return self.loaded
         command = self.get_command()
         service = self.get_servicename()
         if not command:
@@ -97,7 +91,7 @@ class Cli(object):
                 'No command specified for %s service' % service
             )
         try:
-            loaded = importlib.import_module(
+            self.command_loaded = importlib.import_module(
                 'kiwi.' + service + '_' + command + '_task'
             )
         except Exception as e:
@@ -105,9 +99,13 @@ class Cli(object):
                 'Loading command %s for %s service failed with: %s: %s' %
                 (command, service, type(e).__name__, format(e))
             )
-        self.loaded = loaded
-        return self.loaded
+        return self.command_loaded
 
     def __load_command_args(self):
-        argv = [self.get_servicename(), self.get_command()] + self.command_args
-        return docopt(self.loaded.__doc__, argv=argv)
+        try:
+            argv = [self.get_servicename(), self.get_command()] + self.command_args
+            return docopt(self.command_loaded.__doc__, argv=argv)
+        except Exception:
+            raise KiwiCommandNotLoaded(
+                '%s command not loaded' % self.get_command()
+            )

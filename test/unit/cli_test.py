@@ -74,8 +74,11 @@ class TestCli(object):
 
     @raises(KiwiCommandNotLoaded)
     def test_get_command_args_not_loaded(self):
-        self.cli.loaded = False
-        self.cli.get_command_args()
+        sys.argv = [
+            sys.argv[0], 'system', 'command-not-implemented'
+        ]
+        cli = Cli()
+        cli.get_command_args()
 
     @raises(KiwiUnknownServiceName)
     def test_get_servicename_unknown(self):
