@@ -46,8 +46,13 @@ class TestXMLState(object):
     def test_system_packages(self):
         print XMLState.system_packages(self.xml)
         assert XMLState.system_packages(self.xml) == [
-            'iputils', 'grub2-branding-openSUSE', 'vim',
-            'kernel-default', 'ifplugd', 'openssh',
+            'gfxboot-branding-openSUSE',
+            'iputils',
+            'grub2-branding-openSUSE',
+            'vim',
+            'kernel-default',
+            'ifplugd',
+            'openssh',
             'plymouth-branding-openSUSE'
         ]
 

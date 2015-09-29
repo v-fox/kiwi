@@ -28,6 +28,7 @@ class PackageManagerBase(object):
         self.package_requests = []
         self.collection_requests = []
         self.product_requests = []
+
         self.post_init(custom_args)
 
     def post_init(self, custom_args=[]):

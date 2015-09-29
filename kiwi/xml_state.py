@@ -140,34 +140,27 @@ class XMLState(object):
         return result
 
     @classmethod
-    def packages_sections(self, xml_data, profiles=[], build_type=None):
-        """
-            get list of packages sections, take build_type into account
-        """
-        if not profiles:
-            profiles = XMLState.used_profiles(xml_data, profiles)
-        if not build_type:
-            build_type = XMLState.build_type(xml_data, profiles)
-        return XMLState.profiled(
-            xml_data.get_packages(), profiles
-        )
-
-    @classmethod
     def system_collection_type(self, xml_data, profiles=[], build_type=None):
         """
             get collection type specified in system packages sections
             if no collection type is specified only required packages
             are taken into account
         """
-        packages_sections = XMLState.packages_sections(
-            xml_data, profiles, build_type
+        if not profiles:
+            profiles = XMLState.used_profiles(xml_data, profiles)
+        if not build_type:
+            build_type = XMLState.build_type(xml_data, profiles)
+        packages_sections = XMLState.profiled(
+            xml_data.get_packages(), profiles
         )
         collection_type = 'onlyRequired'
         for packages in packages_sections:
-            packages_collection_type = packages.get_patternType()
-            if packages_collection_type:
-                collection_type = packages_collection_type
-                break
+            packages_type = packages.get_type()
+            if packages_type == 'image' or packages_type == build_type:
+                packages_collection_type = packages.get_patternType()
+                if packages_collection_type:
+                    collection_type = packages_collection_type
+                    break
         return collection_type
 
     @classmethod
@@ -176,8 +169,12 @@ class XMLState(object):
             get list of system packages, take build_type into account
         """
         result = []
-        packages_sections = XMLState.packages_sections(
-            xml_data, profiles, build_type
+        if not profiles:
+            profiles = XMLState.used_profiles(xml_data, profiles)
+        if not build_type:
+            build_type = XMLState.build_type(xml_data, profiles)
+        packages_sections = XMLState.profiled(
+            xml_data.get_packages(), profiles
         )
         for packages in packages_sections:
             packages_type = packages.get_type()
@@ -192,8 +189,12 @@ class XMLState(object):
             get list of system collections, take build_type into account
         """
         result = []
-        packages_sections = XMLState.packages_sections(
-            xml_data, profiles, build_type
+        if not profiles:
+            profiles = XMLState.used_profiles(xml_data, profiles)
+        if not build_type:
+            build_type = XMLState.build_type(xml_data, profiles)
+        packages_sections = XMLState.profiled(
+            xml_data.get_packages(), profiles
         )
         for packages in packages_sections:
             packages_type = packages.get_type()
@@ -208,8 +209,12 @@ class XMLState(object):
             get list of system products, take build_type into account
         """
         result = []
-        packages_sections = XMLState.packages_sections(
-            xml_data, profiles, build_type
+        if not profiles:
+            profiles = XMLState.used_profiles(xml_data, profiles)
+        if not build_type:
+            build_type = XMLState.build_type(xml_data, profiles)
+        packages_sections = XMLState.profiled(
+            xml_data.get_packages(), profiles
         )
         for packages in packages_sections:
             packages_type = packages.get_type()

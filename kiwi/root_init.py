@@ -104,12 +104,12 @@ class RootInit(object):
 
             self.__setup_config_templates(root)
 
+            Command.run(['mv', root, self.root_dir])
         except Exception as e:
             rmtree(root, ignore_errors=True)
             raise KiwiRootInitCreationError(
                 '%s: %s' % (type(e).__name__, format(e))
             )
-        Command.run(['mv', root, self.root_dir])
 
     def __setup_config_templates(self, root):
         group_template = '/var/adm/fillup-templates/group.aaa_base'
