@@ -17,6 +17,7 @@
 #
 import re
 import logging
+from collections import namedtuple
 
 # project
 from root_init import RootInit
@@ -116,31 +117,43 @@ class System(object):
             install system software using the package manager
             from the host, also known as bootstrapping
         """
+        log.info('Installing bootstrap packages')
         bootstrap_packages = XMLState.bootstrap_packages(
             self.xml, self.profiles
         )
         bootstrap_packages.append(
             XMLState.package_manager(self.xml, self.profiles)
         )
-        # TODO: bootstrap: collections and -type, archives, products, ignores
-        log.info('Installing bootstrap packages')
-        packages_requested = 0
-        packages_processed = 0
-        for package in bootstrap_packages:
-            log.info('--> package: %s', package)
-            manager.request_package(package)
-            packages_requested += 1
+        collection_type = XMLState.bootstrap_collection_type(
+            self.xml, self.profiles
+        )
+        log.info('--> collection type: %s', collection_type)
+        bootstrap_collections = XMLState.bootstrap_collections(
+            self.xml, self.profiles
+        )
+        bootstrap_products = XMLState.bootstrap_products(
+            self.xml, self.profiles
+        )
+        # TODO: bootstrap: archives, ignores
 
-        self.__init_progress(packages_requested)
+        if collection_type == 'onlyRequired':
+            manager.process_only_required()
+
+        all_install_items = self.__setup_requests(
+            manager,
+            bootstrap_packages,
+            bootstrap_collections,
+            bootstrap_products
+        )
+        items_processed = self.__init_progress(all_install_items)
         install = manager.process_install_requests_bootstrap()
         while install.process.poll() is None:
             line = install.output.readline()
             if line:
                 log.debug('bootstrap: %s', line.rstrip('\n'))
-                packages_processed = self.__update_progress(
-                    bootstrap_packages,
-                    packages_processed,
-                    packages_requested,
+                items_processed = self.__update_progress(
+                    all_install_items,
+                    items_processed,
                     manager,
                     line
                 )
@@ -175,33 +188,17 @@ class System(object):
             self.xml, self.profiles, build_type
         )
         # TODO: install_system: archives, ignores
-        items_requested = 0
-        items_processed = 0
+
         if collection_type == 'onlyRequired':
             manager.process_only_required()
 
-        if system_packages:
-            for package in system_packages:
-                log.info('--> package: %s', package)
-                manager.request_package(package)
-                items_requested += 1
-        if system_collections:
-            for collection in system_collections:
-                log.info('--> collection: %s', collection)
-                manager.request_collection(collection)
-                items_requested += 1
-        if system_products:
-            for product in system_products:
-                log.info('--> product: %s', product)
-                manager.request_product(product)
-                items_requested += 1
-
-        all_install_items = \
-            manager.package_requests + \
-            manager.collection_requests + \
-            manager.product_requests
-
-        self.__init_progress(items_requested)
+        all_install_items = self.__setup_requests(
+            manager,
+            system_packages,
+            system_collections,
+            system_products
+        )
+        items_processed = self.__init_progress(all_install_items)
         install = manager.process_install_requests()
         while install.process.poll() is None:
             line = install.output.readline()
@@ -210,7 +207,6 @@ class System(object):
                 items_processed = self.__update_progress(
                     all_install_items,
                     items_processed,
-                    items_requested,
                     manager,
                     line
                 )
@@ -227,23 +223,18 @@ class System(object):
             of the new root directory
         """
         log.info('Installing system packages (chroot)')
-        packages_requested = 0
-        packages_processed = 0
-        for package in packages:
-            log.info('--> package: %s', package)
-            manager.request_package(package)
-            packages_requested += 1
-
-        self.__init_progress(packages_requested)
+        all_install_items = self.__setup_requests(
+            manager, packages
+        )
+        packages_processed = self.__init_progress(all_install_items)
         install = manager.process_install_requests()
         while install.process.poll() is None:
             line = install.output.readline()
             if line:
                 log.debug('system: %s', line.rstrip('\n'))
                 packages_processed = self.__update_progress(
-                    packages,
+                    all_install_items,
                     packages_processed,
-                    packages_requested,
                     manager,
                     line
                 )
@@ -260,23 +251,18 @@ class System(object):
             of the new root directory
         """
         log.info('Deleting system packages (chroot)')
-        packages_requested = 0
-        packages_processed = 0
-        for package in packages:
-            log.info('--> package: %s', package)
-            manager.request_package(package)
-            packages_requested += 1
-
-        self.__init_progress(packages_requested)
+        all_delete_items = self.__setup_requests(
+            manager, packages
+        )
+        packages_processed = self.__init_progress(all_delete_items)
         delete = manager.process_delete_requests()
         while delete.process.poll() is None:
             line = delete.output.readline()
             if line:
                 log.debug('system: %s', line.rstrip('\n'))
                 packages_processed = self.__update_progress(
-                    packages,
+                    all_delete_items,
                     packages_processed,
-                    packages_requested,
                     manager,
                     line,
                     'deleted'
@@ -306,12 +292,35 @@ class System(object):
                 'System update failed: %s' % update.error.read()
             )
 
-    def __init_progress(self, packages_requested):
+    def __setup_requests(self, manager, packages, collections=[], products=[]):
+        if packages:
+            for package in packages:
+                log.info('--> package: %s', package)
+                manager.request_package(package)
+        if collections:
+            for collection in collections:
+                log.info('--> collection: %s', collection)
+                manager.request_collection(collection)
+        if products:
+            for product in products:
+                log.info('--> product: %s', product)
+                manager.request_product(product)
+
+        all_items = \
+            manager.package_requests + \
+            manager.collection_requests + \
+            manager.product_requests
+
+        return all_items
+
+    def __init_progress(self, all_items=[]):
+        items_processed = 0
         if not log.level == logging.DEBUG:
             log.progress(
-                0, packages_requested,
+                items_processed, len(all_items),
                 'INFO: Processing'
             )
+        return items_processed
 
     def __stop_progress(self):
         if not log.level == logging.DEBUG:
@@ -321,10 +330,10 @@ class System(object):
             print
 
     def __update_progress(
-        self, packages, packages_processed, packages_requested,
-        manager, data, mode='installed'
+        self, packages, packages_processed, manager, data, mode='installed'
     ):
         if not log.level == logging.DEBUG:
+            packages_requested = len(packages)
             for package in packages:
                 if manager.match_package(package, data, mode):
                     packages_processed += 1

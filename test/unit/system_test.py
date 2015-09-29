@@ -54,9 +54,14 @@ class TestSystem(object):
     def setup(self, mock_root_bind, mock_root_init):
         description = XMLDescription('../data/example_config.xml')
         self.xml = description.load()
+
         self.manager = mock.MagicMock(
             return_value=mock.MagicMock()
         )
+        self.manager.package_requests = ['foo']
+        self.manager.collection_requests = ['foo']
+        self.manager.product_requests = ['foo']
+
         root_init = mock.MagicMock()
         mock_root_init.return_value = root_init
         root_bind = mock.MagicMock()
@@ -150,13 +155,26 @@ class TestSystem(object):
             'uri-alias', 'uri', 'yast2', 42
         )
 
-    def test_install_bootstrap(self):
+    @patch('kiwi.xml_state.XMLState.bootstrap_collection_type')
+    def test_install_bootstrap(self, mock_collection_type):
+        mock_collection_type.return_value = 'onlyRequired'
         self.manager.process_install_requests_bootstrap = mock.Mock(
             return_value=FakeCommandCall(0)
         )
         self.system.install_bootstrap(self.manager)
-        self.manager.request_package.assert_any_call('filesystem')
-        self.manager.request_package.assert_any_call('zypper')
+        self.manager.process_only_required.assert_called_once_with()
+        self.manager.request_package.assert_any_call(
+            'filesystem'
+        )
+        self.manager.request_package.assert_any_call(
+            'zypper'
+        )
+        self.manager.request_collection.assert_called_once_with(
+            'bootstrap-collection'
+        )
+        self.manager.request_product.assert_called_once_with(
+            'kiwi'
+        )
         self.manager.process_install_requests_bootstrap.assert_called_once_with()
 
     @patch('kiwi.xml_state.XMLState.system_collection_type')
@@ -176,6 +194,7 @@ class TestSystem(object):
         self.manager.request_product.assert_called_once_with(
             'openSUSE'
         )
+        self.manager.process_install_requests.assert_called_once_with()
 
     def test_install_packages(self):
         self.manager.process_install_requests = mock.Mock(

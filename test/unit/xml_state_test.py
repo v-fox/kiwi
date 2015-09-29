@@ -67,6 +67,17 @@ class TestXMLState(object):
     def test_system_collection_type(self):
         assert XMLState.system_collection_type(self.xml) == 'plusRecommended'
 
+    def test_bootstrap_collections(self):
+        assert XMLState.bootstrap_collections(self.xml) == [
+            'bootstrap-collection'
+        ]
+
+    def test_bootstrap_products(self):
+        assert XMLState.bootstrap_products(self.xml) == ['kiwi']
+
+    def test_bootstrap_collection_type(self):
+        assert XMLState.bootstrap_collection_type(self.xml) == 'onlyRequired'
+
     def test_set_repository(self):
         XMLState.set_repository(self.xml, 'repo', 'type', 'alias', 1)
         assert self.xml.get_repository()[0].get_source().get_path() == 'repo'
