@@ -18,27 +18,57 @@
 import logging
 import sys
 
-BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
 
-COLORS = {
-    'WARNING': YELLOW,
-    'INFO': WHITE,
-    'DEBUG': WHITE,
-    'CRITICAL': YELLOW,
-    'ERROR': RED,
-    'RED': RED,
-    'GREEN': GREEN,
-    'YELLOW': YELLOW,
-    'BLUE': BLUE,
-    'MAGENTA': MAGENTA,
-    'CYAN': CYAN,
-    'WHITE': WHITE
-}
+class ColorMessage(object):
+    def __init__(self):
+        BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
+        self.color = {
+            'WARNING': YELLOW,
+            'INFO': WHITE,
+            'DEBUG': WHITE,
+            'CRITICAL': YELLOW,
+            'ERROR': RED,
+            'RED': RED,
+            'GREEN': GREEN,
+            'YELLOW': YELLOW,
+            'BLUE': BLUE,
+            'MAGENTA': MAGENTA,
+            'CYAN': CYAN,
+            'WHITE': WHITE
+        }
+        self.esc = {
+            'reset': '\033[0m',
+            'color': '\033[3;%dm',
+            'color_light': '\033[2;%dm',
+            'bold': '\033[1m'
+        }
 
-RESET_SEQ = '\033[0m'
-COLOR_SEQ = '\033[3;%dm'
-COLOR_LIGHT_SEQ = '\033[2;%dm'
-BOLD_SEQ = '\033[1m'
+    def format_message(self, level, message):
+        message = message.replace(
+            '$RESET',
+            self.esc['reset']
+        ).replace(
+            '$BOLD',
+            self.esc['bold']
+        ).replace(
+            '$COLOR',
+            self.esc['color'] % (30 + self.color[level])
+        ).replace(
+            '$LIGHTCOLOR',
+            self.esc['color_light'] % (30 + self.color[level])
+        )
+        for color_name, color_id in self.color.items():
+            message = message.replace(
+                '$' + color_name,
+                self.esc['color'] % (color_id + 30)
+            ).replace(
+                '$BG' + color_name,
+                self.esc['color'] % (color_id + 40)
+            ).replace(
+                '$BG-' + color_name,
+                self.esc['color'] % (color_id + 40)
+            )
+        return message + self.esc['reset']
 
 
 class ColorFormatter(logging.Formatter):
@@ -47,28 +77,10 @@ class ColorFormatter(logging.Formatter):
         logging.Formatter.__init__(self, *args, **kwargs)
 
     def format(self, record):
+        color = ColorMessage()
         levelname = record.levelname
-        color_norm = COLOR_SEQ % (30 + COLORS[levelname])
-        color_light = COLOR_LIGHT_SEQ % (30 + COLORS[levelname])
         message = logging.Formatter.format(self, record)
-        message = message.replace(
-            '$RESET', RESET_SEQ
-        ).replace(
-            '$BOLD', BOLD_SEQ
-        ).replace(
-            '$COLOR', color_norm
-        ).replace(
-            '$LIGHTCOLOR', color_light
-        )
-        for k, v in COLORS.items():
-            message = message.replace(
-                '$' + k, COLOR_SEQ % (v + 30)
-            ).replace(
-                '$BG' + k, COLOR_SEQ % (v + 40)
-            ).replace(
-                '$BG-' + k, COLOR_SEQ % (v + 40)
-            )
-        return message + RESET_SEQ
+        return color.format_message(levelname, message)
 
 
 class LoggerSchedulerFilter(logging.Filter):
