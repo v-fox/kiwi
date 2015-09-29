@@ -62,6 +62,12 @@ class System(object):
         self.allow_existing = allow_existing
         self.root_bind = root_bind
 
+        # A list of Uri references is stored inside of the System instance
+        # in order to delay the Uri destructors until the System instance
+        # dies. This is needed to keep bind mounted Uri locations alive
+        # for System operations
+        self.uri_list = []
+
     def setup_repositories(self):
         """
             set up repositories for software installation and return a
@@ -100,6 +106,7 @@ class System(object):
             repo.add_bootstrap_repo(
                 repo_alias, repo_source_translated, repo_type, repo_priority
             )
+            self.uri_list.append(uri)
         return PackageManager.new(
             repo, package_manager
         )
