@@ -245,7 +245,7 @@ class XMLState(object):
         if repo_source:
             repository.get_source().set_path(repo_source)
         if repo_prio:
-            repository.set_priority(repo_prio)
+            repository.set_priority(int(repo_prio))
 
     @classmethod
     def add_repository(
@@ -259,7 +259,7 @@ class XMLState(object):
             xml_parse.repository(
                 type_=repo_type,
                 alias=repo_alias,
-                priority=repo_prio,
+                priority=int(repo_prio),
                 source=xml_parse.source(path=repo_source)
             )
         )
