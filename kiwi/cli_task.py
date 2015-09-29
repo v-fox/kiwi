@@ -29,7 +29,7 @@ class CliTask(object):
         Base class for all task classes, loads the task and provides
         the interface to the command options and the XML description
     """
-    def __init__(self):
+    def __init__(self, should_perform_task_setup=True):
         from logger import log
 
         self.cli = Cli()
@@ -46,9 +46,18 @@ class CliTask(object):
         # get global args
         self.global_args = self.cli.get_global_args()
 
-        # set log level
-        if self.global_args['--debug']:
-            log.setLevel(logging.DEBUG)
+        if should_perform_task_setup:
+            # set log level
+            if self.global_args['--debug']:
+                log.setLogLevel(logging.DEBUG)
+            else:
+                log.setLogLevel(logging.INFO)
+
+            # set log file
+            if self.global_args['--logfile']:
+                log.set_logfile(
+                    self.global_args['--logfile']
+                )
 
     def load_xml_description(self, description_directory):
         from logger import log

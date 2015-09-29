@@ -18,6 +18,11 @@
 import logging
 import sys
 
+# project
+from exceptions import (
+    KiwiLogFileSetupFailed
+)
+
 
 class ColorMessage(object):
     def __init__(self):
@@ -125,34 +130,51 @@ class Logger(logging.Logger):
     """
     def __init__(self, name):
         logging.Logger.__init__(self, name)
-
+        self.console_handlers = []
         # log INFO and WARNING messages to stdout
-        console_info = logging.StreamHandler(sys.__stdout__)
-        console_info.setFormatter(
-            ColorFormatter('%(levelname)s: %(message)s')
+        self.__add_stream_handler(
+            '%(levelname)s: %(message)s',
+            [InfoFilter(), LoggerSchedulerFilter()]
         )
-        console_info.addFilter(InfoFilter())
-        console_info.addFilter(LoggerSchedulerFilter())
-
         # log DEBUG messages to stdout
-        console_debug = logging.StreamHandler(sys.__stdout__)
-        console_debug.setFormatter(
-            ColorFormatter('$LIGHTCOLOR%(levelname)s: %(message)s')
+        self.__add_stream_handler(
+            '$LIGHTCOLOR%(levelname)s: %(message)s',
+            [DebugFilter()]
         )
-        console_debug.addFilter(DebugFilter())
-
         # log ERROR messages to stderr
-        console_error = logging.StreamHandler(sys.__stderr__)
-        console_error.setFormatter(
-            ColorFormatter('$COLOR%(levelname)s: %(message)s')
+        self.__add_stream_handler(
+            '$COLOR%(levelname)s: %(message)s',
+            [ErrorFilter()],
+            sys.__stderr__
         )
-        console_error.addFilter(ErrorFilter())
 
-        self.addHandler(console_info)
-        self.addHandler(console_error)
-        self.addHandler(console_debug)
+    def setLogLevel(self, level):
+        """
+            set custom log level for all console handlers
+        """
+        for handler in self.console_handlers:
+            handler.setLevel(level)
+
+    def set_logfile(self, filename):
+        try:
+            logfile = logging.FileHandler(filename)
+            logfile.setFormatter(
+                ColorFormatter('%(levelname)s: %(message)s')
+            )
+            logfile.addFilter(LoggerSchedulerFilter())
+            self.addHandler(logfile)
+        except Exception as e:
+            raise KiwiLogFileSetupFailed(
+                '%s: %s' % (type(e).__name__, format(e))
+            )
 
     def progress(self, current, total, prefix, bar_length=40):
+        """
+            custom progress log information. progress information is
+            intentionally only logged to stdout and will bypass any
+            handlers. We don't want this information to show up in
+            the log file
+        """
         try:
             percent = float(current) / total
         except Exception:
@@ -167,9 +189,26 @@ class Logger(logging.Logger):
         ))
         sys.stdout.flush()
 
+    def __add_stream_handler(
+        self, message_format, message_filter=[], channel=sys.__stdout__
+    ):
+        handler = logging.StreamHandler(channel)
+        handler.setFormatter(
+            ColorFormatter(message_format)
+        )
+        for rule in message_filter:
+            handler.addFilter(rule)
+        self.addHandler(handler)
+        self.console_handlers.append(handler)
 
-def init(level=logging.INFO):
+
+def init():
     global log
     logging.setLoggerClass(Logger)
     log = logging.getLogger("kiwi")
-    log.setLevel(level)
+    # set the highest log level possible as the default log level
+    # in the main Logger class. This is needed to allow any logfile
+    # handler to log all messages by default and to allow custom log
+    # levels per handler. Our own implementation in Logger::setLogLevel
+    # will then set the log level on a handler basis
+    log.setLevel(logging.DEBUG)

@@ -16,18 +16,27 @@ import kiwi.xml_parse
 class TestCliTask(object):
     @patch('os.path.isfile')
     @patch('ConfigParser.ConfigParser.has_section')
-    @patch('kiwi.logger.log.setLevel')
+    @patch('kiwi.logger.log.setLogLevel')
+    @patch('kiwi.logger.log.set_logfile')
     @patch('kiwi.cli.Cli.show_and_exit_on_help_request')
-    def setup(self, mock_help, mock_setlevel, mock_section, mock_isfile):
+    def setup(
+        self, mock_help, mock_setlog, mock_setlevel, mock_section, mock_isfile
+    ):
         sys.argv = [
-            sys.argv[0], '--debug', '--profile', 'foo',
-            'system', 'prepare',
+            sys.argv[0],
+            '--debug',
+            '--logfile', 'log',
+            '--profile', 'foo',
+            'system',
+            'prepare',
             '--description', 'description',
             '--root', 'directory'
         ]
         self.task = CliTask()
-        mock_help.show_and_exit_on_help_request.assert_called_once()
+
+        mock_help.assert_called_once_with()
         mock_setlevel.assert_called_once_with(logging.DEBUG)
+        mock_setlog.assert_called_once_with('log')
 
     def test_profile_list(self):
         assert self.task.profile_list() == ['foo']

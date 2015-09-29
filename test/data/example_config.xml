@@ -105,12 +105,7 @@
         <package name="kernel-default" replaces="xen"/>
     </packages>
     <packages type="bootstrap">
-        <package name="udev"/>
         <package name="filesystem"/>
-        <package name="glibc-locale"/>
-        <package name="cracklib-dict-full"/>
-        <package name="ca-certificates"/>
-        <package name="openSUSE-release"/>
     </packages>
     <packages type="delete">
         <package name="kernel-debug"/>

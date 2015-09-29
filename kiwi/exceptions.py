@@ -123,3 +123,7 @@ class KiwiConfigFileNotFound(KiwiError):
 
 class KiwiUnknownPackageMatchMode(KiwiError):
     pass
+
+
+class KiwiLogFileSetupFailed(KiwiError):
+    pass

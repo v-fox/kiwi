@@ -18,6 +18,7 @@
 """
 usage: kiwi -h | --help
        kiwi [--profile=<name>]
+            [--logfile=<filename>]
             [--debug]
            system <command> [<args>...]
        kiwi -v | --version
@@ -28,6 +29,10 @@ global options:
         show program version
     --profile=<name>
         comma separated list of profile names
+    --logfile=<filename>
+        create a log file containing all log information including
+        debug information even if this is was not requested by the
+        debug switch
     --debug
         print debug information
     help

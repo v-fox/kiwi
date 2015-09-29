@@ -6,6 +6,9 @@ import nose_helper
 import logging
 
 from kiwi.logger import *
+from kiwi.exceptions import (
+    KiwiLogFileSetupFailed
+)
 
 
 class TestLoggerSchedulerFilter(object):
@@ -92,3 +95,14 @@ class TestLogger(object):
 
     def test_progress_raise(self):
         assert log.progress(50, 0, 'foo') == None
+
+    @patch('logging.FileHandler')
+    def test_set_logfile(self, mock_file_handler):
+        log.set_logfile('logfile')
+        mock_file_handler.assert_called_once_with('logfile')
+
+    @raises(KiwiLogFileSetupFailed)
+    @patch('logging.FileHandler')
+    def test_set_logfile_raise(self, mock_file_handler):
+        mock_file_handler.side_effect = KiwiLogFileSetupFailed
+        log.set_logfile('logfile')

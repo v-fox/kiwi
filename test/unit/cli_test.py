@@ -14,6 +14,7 @@ class TestCli(object):
             'help': False,
             'system': True,
             '-h': False,
+            '--logfile': None,
             '--version': False,
             '--debug': False,
             '--profile': None,

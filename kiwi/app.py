@@ -24,7 +24,7 @@ class App(object):
         Application class to create task instances and process them
     """
     def __init__(self):
-        app = CliTask()
+        app = CliTask(should_perform_task_setup=False)
         action = app.cli.get_command()
         service = app.cli.get_servicename()
         task_class_name = service.title() + action.title() + 'Task'

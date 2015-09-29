@@ -68,12 +68,12 @@ class TestSystem(object):
         mock_root_init.assert_called_once_with(
             'root_dir', True
         )
-        root_init.create.assert_called_once()
+        root_init.create.assert_called_once_with()
         mock_root_bind.assert_called_once_with(
             root_init
         )
-        root_bind.setup_intermediate_config.assert_called_once()
-        root_bind.mount_kernel_file_systems.assert_called_once()
+        root_bind.setup_intermediate_config.assert_called_once_with()
+        root_bind.mount_kernel_file_systems.assert_called_once_with()
 
     @raises(KiwiBootStrapPhaseFailed)
     def test_install_bootstrap_raises(self):
@@ -132,18 +132,20 @@ class TestSystem(object):
         )
         repo = mock.Mock()
         mock_repo.return_value = repo
+
         self.system.setup_repositories()
+
         mock_repo.assert_called_once_with(
             self.system.root_bind, 'package-manager-name'
         )
         # allow_existing is set to true in setup
-        mock_repo.delete_all_repos.assert_called_once()
+        repo.delete_all_repos.assert_called_once_with()
         # simulated local repo will be translated and bind mounted
-        uri.translate.assert_called_once()
+        uri.translate.assert_called_once_with()
         self.system.root_bind.mount_shared_directory.assert_called_once_with(
             'uri'
         )
-        uri.alias.assert_called_once()
+        uri.alias.assert_called_once_with()
         repo.add_bootstrap_repo.assert_called_once_with(
             'uri-alias', 'uri', 'yast2', 42
         )
@@ -153,8 +155,9 @@ class TestSystem(object):
             return_value=FakeCommandCall(0)
         )
         self.system.install_bootstrap(self.manager)
-        self.manager.request_package.assert_called()
-        self.manager.process_install_requests_bootstrap.assert_called_once()
+        self.manager.request_package.assert_any_call('filesystem')
+        self.manager.request_package.assert_any_call('zypper')
+        self.manager.process_install_requests_bootstrap.assert_called_once_with()
 
     @patch('kiwi.xml_state.XMLState.system_collection_type')
     def test_install_system(self, mock_collection_type):
@@ -163,7 +166,7 @@ class TestSystem(object):
             return_value=FakeCommandCall(0)
         )
         self.system.install_system(self.manager)
-        self.manager.process_only_required.assert_called_once()
+        self.manager.process_only_required.assert_called_once_with()
         self.manager.request_package.assert_called_with(
             'plymouth-branding-openSUSE'
         )
@@ -193,15 +196,11 @@ class TestSystem(object):
             return_value=FakeCommandCall(0)
         )
         self.system.update_system(self.manager)
-        self.manager.update.assert_called_once()
+        self.manager.update.assert_called_once_with()
 
     def test_destructor(self):
-        root_bind = mock.Mock()
-        self.system.root_bind = mock.Mock(
-            return_value=root_bind
-        )
-        del self.system
-        root_bind.cleanup.assert_called_once()
+        self.system.__del__()
+        self.system.root_bind.cleanup.assert_called_once_with()
 
     def test_destructor_raising(self):
         self.system.root_bind = mock.Mock()

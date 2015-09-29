@@ -41,7 +41,7 @@ class TestSystemUpdateTask(object):
         self.__init_command_args()
         self.task.command_args['update'] = True
         self.task.process()
-        self.task.system.setup_repositories.assert_called_once()
+        self.task.system.setup_repositories.assert_called_once_with()
         self.task.system.update_system.assert_called_once_with(self.manager)
 
     def test_process_system_update_add_package(self):
@@ -49,7 +49,7 @@ class TestSystemUpdateTask(object):
         self.task.command_args['update'] = True
         self.task.command_args['--add-package'] = ['vim']
         self.task.process()
-        self.task.system.setup_repositories.assert_called_once()
+        self.task.system.setup_repositories.assert_called_once_with()
         self.task.system.install_packages.assert_called_once_with(
             self.manager, ['vim']
         )
@@ -59,7 +59,7 @@ class TestSystemUpdateTask(object):
         self.task.command_args['update'] = True
         self.task.command_args['--delete-package'] = ['vim']
         self.task.process()
-        self.task.system.setup_repositories.assert_called_once()
+        self.task.system.setup_repositories.assert_called_once_with()
         self.task.system.delete_packages.assert_called_once_with(
             self.manager, ['vim']
         )

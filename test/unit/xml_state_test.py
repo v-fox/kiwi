@@ -38,9 +38,7 @@ class TestXMLState(object):
 
     def test_bootstrap_packages(self):
         assert XMLState.bootstrap_packages(self.xml) == [
-            'udev', 'filesystem', 'glibc-locale',
-            'cracklib-dict-full', 'ca-certificates',
-            'openSUSE-release'
+            'filesystem'
         ]
 
     def test_system_packages(self):
