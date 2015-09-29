@@ -147,11 +147,16 @@ class Logger(logging.Logger):
             [ErrorFilter()],
             sys.__stderr__
         )
+        self.log_level = self.level
+
+    def getLogLevel(self):
+        return self.log_level
 
     def setLogLevel(self, level):
         """
             set custom log level for all console handlers
         """
+        self.log_level = level
         for handler in self.console_handlers:
             handler.setLevel(level)
 

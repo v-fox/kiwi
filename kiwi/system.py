@@ -315,7 +315,7 @@ class System(object):
 
     def __init_progress(self, all_items=[]):
         items_processed = 0
-        if not log.level == logging.DEBUG:
+        if not log.getLogLevel() == logging.DEBUG:
             log.progress(
                 items_processed, len(all_items),
                 'INFO: Processing'
@@ -323,7 +323,7 @@ class System(object):
         return items_processed
 
     def __stop_progress(self):
-        if not log.level == logging.DEBUG:
+        if not log.getLogLevel() == logging.DEBUG:
             log.progress(
                 100, 100, 'INFO: Processing'
             )
@@ -332,7 +332,7 @@ class System(object):
     def __update_progress(
         self, packages, packages_processed, manager, data, mode='installed'
     ):
-        if not log.level == logging.DEBUG:
+        if not log.getLogLevel() == logging.DEBUG:
             packages_requested = len(packages)
             for package in packages:
                 if manager.match_package(package, data, mode):
