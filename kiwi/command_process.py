@@ -54,6 +54,15 @@ class CommandProcess(object):
         if self.command.process.returncode != 0:
             raise KiwiCommandError(self.command.error.read())
 
+    def create_match_method(self, method):
+        """
+            create a matcher method with the following interface
+            f(item_to_match, data)
+        """
+        def create_method(item_to_match, data):
+            return method(item_to_match, data)
+        return create_method
+
     def __init_progress(self):
         log.progress(
             0, 100, 'INFO: Processing'

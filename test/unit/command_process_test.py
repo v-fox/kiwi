@@ -13,14 +13,66 @@ from kiwi.command_process import CommandProcess
 
 
 class TestCommandProcess(object):
+    def fake_matcher(self, item, output):
+        return True
+
+    def poll(self):
+        return self.data_flow.pop()
+
+    def create_flow_method(self, method):
+        def create_method():
+            return method()
+        return create_method
+
     def setup(self):
-        self.command = mock.MagicMock()
-        self.process = CommandProcess(self.command)
+        self.data_flow = [True, None]
+        self.flow = self.create_flow_method(self.poll)
 
-    def test_poll_show_progress(self):
-        # TODO
-        pass
+    @patch('kiwi.command.Command')
+    def test_poll_show_progress(self, mock_command):
+        match_method = CommandProcess(None).create_match_method(
+            self.fake_matcher
+        )
+        process = CommandProcess(mock_command)
+        process.command.process.poll = self.flow
+        process.command.output.readline.return_value = 'data'
+        process.command.process.returncode = 0
+        process.poll_show_progress(['a', 'b'], match_method)
+        process.command.output.readline.assert_called_once_with()
+        assert process.items_processed == 2
 
-    def test_poll(self):
-        # TODO
-        pass
+    @raises(KiwiCommandError)
+    @patch('kiwi.command.Command')
+    def test_poll_show_progress_raises(self, mock_command):
+        match_method = CommandProcess(None).create_match_method(
+            self.fake_matcher
+        )
+        process = CommandProcess(mock_command)
+        process.command.process.poll = self.flow
+        process.command.output.readline.return_value = 'data'
+        process.command.process.returncode = 1
+        process.poll_show_progress(['a', 'b'], match_method)
+
+    @patch('kiwi.command.Command')
+    def test_poll(self, mock_command):
+        process = CommandProcess(mock_command)
+        process.command.process.poll = self.flow
+        process.command.output.readline.return_value = 'data'
+        process.command.process.returncode = 0
+        process.poll()
+        process.command.output.readline.assert_called_once_with()
+
+    @raises(KiwiCommandError)
+    @patch('kiwi.command.Command')
+    def test_poll(self, mock_command):
+        process = CommandProcess(mock_command)
+        process.command.process.poll = self.flow
+        process.command.output.readline.return_value = 'data'
+        process.command.process.returncode = 1
+        process.poll()
+
+    def test_create_match_method(self):
+        match_method = CommandProcess(None).create_match_method(
+            self.fake_matcher
+        )
+        assert match_method('a', 'b') == True

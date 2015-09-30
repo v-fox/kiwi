@@ -152,7 +152,7 @@ class System(object):
         try:
             process.poll_show_progress(
                 items_to_complete=all_install_items,
-                match_method=self.__create_method(
+                match_method=process.create_match_method(
                     manager.match_package_installed
                 )
             )
@@ -199,7 +199,7 @@ class System(object):
         try:
             process.poll_show_progress(
                 items_to_complete=all_install_items,
-                match_method=self.__create_method(
+                match_method=process.create_match_method(
                     manager.match_package_installed
                 )
             )
@@ -223,7 +223,7 @@ class System(object):
         try:
             process.poll_show_progress(
                 items_to_complete=all_install_items,
-                match_method=self.__create_method(
+                match_method=process.create_match_method(
                     manager.match_package_installed
                 )
             )
@@ -247,7 +247,7 @@ class System(object):
         try:
             process.poll_show_progress(
                 items_to_complete=all_delete_items,
-                match_method=self.__create_method(
+                match_method=process.create_match_method(
                     manager.match_package_deleted
                 )
             )
@@ -290,11 +290,6 @@ class System(object):
             manager.package_requests + \
             manager.collection_requests + \
             manager.product_requests
-
-    def __create_method(self, method):
-        def create_match_package_method(package_list, log_line):
-            return method(package_list, log_line)
-        return create_match_package_method
 
     def __del__(self):
         log.info('Cleaning up Prepare instance')
