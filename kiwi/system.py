@@ -25,6 +25,7 @@ from root_bind import RootBind
 from repository import Repository
 from package_manager import PackageManager
 from command import Command
+from command_process import CommandProcess
 from xml_state import XMLState
 from uri import Uri
 
@@ -32,6 +33,7 @@ from logger import log
 
 from exceptions import(
     KiwiBootStrapPhaseFailed,
+    KiwiCommandError,
     KiwiSystemUpdateFailed,
     KiwiSystemInstallPackagesFailed,
     KiwiSystemDeletePackagesFailed
@@ -135,33 +137,28 @@ class System(object):
             self.xml, self.profiles
         )
         # TODO: bootstrap: archives, ignores
-
         if collection_type == 'onlyRequired':
             manager.process_only_required()
-
         all_install_items = self.__setup_requests(
             manager,
             bootstrap_packages,
             bootstrap_collections,
             bootstrap_products
         )
-        items_processed = self.__init_progress(all_install_items)
-        install = manager.process_install_requests_bootstrap()
-        while install.process.poll() is None:
-            line = install.output.readline()
-            if line:
-                log.debug('bootstrap: %s', line.rstrip('\n'))
-                items_processed = self.__update_progress(
-                    all_install_items,
-                    items_processed,
-                    manager,
-                    line
+        process = CommandProcess(
+            command=manager.process_install_requests_bootstrap(),
+            log_topic='bootstrap'
+        )
+        try:
+            process.poll_show_progress(
+                items_to_complete=all_install_items,
+                match_method=self.__create_method(
+                    manager.match_package_installed
                 )
-
-        self.__stop_progress()
-        if install.process.returncode != 0:
+            )
+        except Exception as e:
             raise KiwiBootStrapPhaseFailed(
-                'Bootstrap installation failed: %s' % install.error.read()
+                'Bootstrap installation failed: %s' % format(e)
             )
 
     def install_system(self, manager, build_type=None):
@@ -188,33 +185,27 @@ class System(object):
             self.xml, self.profiles, build_type
         )
         # TODO: install_system: archives, ignores
-
         if collection_type == 'onlyRequired':
             manager.process_only_required()
-
         all_install_items = self.__setup_requests(
             manager,
             system_packages,
             system_collections,
             system_products
         )
-        items_processed = self.__init_progress(all_install_items)
-        install = manager.process_install_requests()
-        while install.process.poll() is None:
-            line = install.output.readline()
-            if line:
-                log.debug('system: %s', line.rstrip('\n'))
-                items_processed = self.__update_progress(
-                    all_install_items,
-                    items_processed,
-                    manager,
-                    line
+        process = CommandProcess(
+            command=manager.process_install_requests(), log_topic='system'
+        )
+        try:
+            process.poll_show_progress(
+                items_to_complete=all_install_items,
+                match_method=self.__create_method(
+                    manager.match_package_installed
                 )
-
-        self.__stop_progress()
-        if install.process.returncode != 0:
+            )
+        except Exception as e:
             raise KiwiSystemInstallPackagesFailed(
-                'System installation failed: %s' % install.error.read()
+                'System installation failed: %s' % format(e)
             )
 
     def install_packages(self, manager, packages):
@@ -226,23 +217,19 @@ class System(object):
         all_install_items = self.__setup_requests(
             manager, packages
         )
-        packages_processed = self.__init_progress(all_install_items)
-        install = manager.process_install_requests()
-        while install.process.poll() is None:
-            line = install.output.readline()
-            if line:
-                log.debug('system: %s', line.rstrip('\n'))
-                packages_processed = self.__update_progress(
-                    all_install_items,
-                    packages_processed,
-                    manager,
-                    line
+        process = CommandProcess(
+            command=manager.process_install_requests(), log_topic='system'
+        )
+        try:
+            process.poll_show_progress(
+                items_to_complete=all_install_items,
+                match_method=self.__create_method(
+                    manager.match_package_installed
                 )
-
-        self.__stop_progress()
-        if install.process.returncode != 0:
+            )
+        except Exception as e:
             raise KiwiSystemInstallPackagesFailed(
-                'Package installation failed: %s' % install.error.read()
+                'Package installation failed: %s' % format(e)
             )
 
     def delete_packages(self, manager, packages):
@@ -254,24 +241,19 @@ class System(object):
         all_delete_items = self.__setup_requests(
             manager, packages
         )
-        packages_processed = self.__init_progress(all_delete_items)
-        delete = manager.process_delete_requests()
-        while delete.process.poll() is None:
-            line = delete.output.readline()
-            if line:
-                log.debug('system: %s', line.rstrip('\n'))
-                packages_processed = self.__update_progress(
-                    all_delete_items,
-                    packages_processed,
-                    manager,
-                    line,
-                    'deleted'
+        process = CommandProcess(
+            command=manager.process_delete_requests(), log_topic='system'
+        )
+        try:
+            process.poll_show_progress(
+                items_to_complete=all_delete_items,
+                match_method=self.__create_method(
+                    manager.match_package_deleted
                 )
-
-        self.__stop_progress()
-        if delete.process.returncode != 0:
+            )
+        except Exception as e:
             raise KiwiSystemDeletePackagesFailed(
-                'Package deletion failed: %s' % delete.error.read()
+                'Package deletion failed: %s' % format(e)
             )
 
     def update_system(self, manager):
@@ -281,15 +263,14 @@ class System(object):
             new root directory
         """
         log.info('Update system (chroot)')
-        update = manager.update()
-        while update.process.poll() is None:
-            line = update.output.readline()
-            if line:
-                log.debug('system: %s', line.rstrip('\n'))
-
-        if update.process.returncode != 0:
+        process = CommandProcess(
+            command=manager.update(), log_topic='update'
+        )
+        try:
+            process.poll()
+        except Exception as e:
             raise KiwiSystemUpdateFailed(
-                'System update failed: %s' % update.error.read()
+                'System update failed: %s' % format(e)
             )
 
     def __setup_requests(self, manager, packages, collections=[], products=[]):
@@ -305,44 +286,15 @@ class System(object):
             for product in products:
                 log.info('--> product: %s', product)
                 manager.request_product(product)
-
-        all_items = \
+        return \
             manager.package_requests + \
             manager.collection_requests + \
             manager.product_requests
 
-        return all_items
-
-    def __init_progress(self, all_items=[]):
-        items_processed = 0
-        if not log.getLogLevel() == logging.DEBUG:
-            log.progress(
-                items_processed, len(all_items),
-                'INFO: Processing'
-            )
-        return items_processed
-
-    def __stop_progress(self):
-        if not log.getLogLevel() == logging.DEBUG:
-            log.progress(
-                100, 100, 'INFO: Processing'
-            )
-            print
-
-    def __update_progress(
-        self, packages, packages_processed, manager, data, mode='installed'
-    ):
-        if not log.getLogLevel() == logging.DEBUG:
-            packages_requested = len(packages)
-            for package in packages:
-                if manager.match_package(package, data, mode):
-                    packages_processed += 1
-                    if packages_processed <= packages_requested:
-                        log.progress(
-                            packages_processed, packages_requested,
-                            'INFO: Processing'
-                        )
-        return packages_processed
+    def __create_method(self, method):
+        def create_match_package_method(package_list, log_line):
+            return method(package_list, log_line)
+        return create_match_package_method
 
     def __del__(self):
         log.info('Cleaning up Prepare instance')

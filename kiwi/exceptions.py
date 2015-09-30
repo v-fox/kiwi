@@ -121,9 +121,5 @@ class KiwiConfigFileNotFound(KiwiError):
     pass
 
 
-class KiwiUnknownPackageMatchMode(KiwiError):
-    pass
-
-
 class KiwiLogFileSetupFailed(KiwiError):
     pass

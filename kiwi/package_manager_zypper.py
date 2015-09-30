@@ -21,10 +21,6 @@ import re
 from command import Command
 from package_manager_base import PackageManagerBase
 
-from exceptions import (
-    KiwiUnknownPackageMatchMode
-)
-
 
 class PackageManagerZypper(PackageManagerBase):
     """
@@ -72,7 +68,7 @@ class PackageManagerZypper(PackageManagerBase):
         )
         return Command.call(
             ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
-                'remove', '--auto-agree-with-licenses'
+                'remove', '-u'
             ] + self.custom_args + self.__delete_items(),
             self.command_env
         )
@@ -91,19 +87,19 @@ class PackageManagerZypper(PackageManagerBase):
     def process_only_required(self):
         self.custom_args.append('--no-recommends')
 
-    def match_package(self, package_name, log_line, mode='installed'):
+    def match_package_installed(self, package_name, zypper_output):
         # this match for the package to be installed in the output
         # of the zypper command is not 100% accurate. There might
         # be false positives due to sub package names starting with
         # the same base package name
-        if mode == 'installed':
-            return re.match('.*Installing: ' + package_name + '.*', log_line)
-        elif mode == 'deleted':
-            return re.match('.*Removing: ' + package_name + '.*', log_line)
-        else:
-            raise KiwiUnknownPackageMatchMode(
-                'Unknown package match mode: %s' % mode
-            )
+        return re.match(
+            '.*Installing: ' + package_name + '.*', zypper_output
+        )
+
+    def match_package_deleted(self, package_name, zypper_output):
+        return re.match(
+            '.*Removing: ' + package_name + '.*', zypper_output
+        )
 
     def __install_items(self):
         items = self.package_requests + self.collection_requests \

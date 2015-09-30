@@ -58,7 +58,10 @@ class PackageManagerBase(object):
     def process_only_required(self):
         raise NotImplementedError
 
-    def match_package(self, package_name, log_line, mode='installed'):
+    def match_package_installed(self, package_list, log_line):
+        raise NotImplementedError
+
+    def match_package_deleted(self, package_list, log_line):
         raise NotImplementedError
 
     def cleanup_requests(self):

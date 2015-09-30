@@ -106,3 +106,7 @@ class TestLogger(object):
     def test_set_logfile_raise(self, mock_file_handler):
         mock_file_handler.side_effect = KiwiLogFileSetupFailed
         log.set_logfile('logfile')
+
+    def test_getLogLevel(self):
+        log.setLogLevel(42)
+        assert log.getLogLevel() == 42

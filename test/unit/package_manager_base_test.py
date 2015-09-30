@@ -47,8 +47,12 @@ class TestPackageManagerBase(object):
         self.manager.process_only_required()
 
     @raises(NotImplementedError)
-    def test_match_package(self):
-        self.manager.match_package('package_name', 'log')
+    def test_match_package_installed(self):
+        self.manager.match_package_installed('package_name', 'log')
+
+    @raises(NotImplementedError)
+    def test_match_package_deleted(self):
+        self.manager.match_package_deleted('package_name', 'log')
 
     def test_cleanup_requests(self):
         self.manager.cleanup_requests()

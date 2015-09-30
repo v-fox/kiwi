@@ -8,10 +8,6 @@ import nose_helper
 
 from kiwi.package_manager_zypper import PackageManagerZypper
 
-from kiwi.exceptions import (
-    KiwiUnknownPackageMatchMode
-)
-
 
 class TestPackageManagerZypper(object):
     def setup(self):
@@ -84,7 +80,7 @@ class TestPackageManagerZypper(object):
         )
         mock_call.assert_called_once_with(
             ['chroot', 'root-dir', 'zypper'] + chroot_zypper_args + [
-                'remove', '--auto-agree-with-licenses'
+                'remove', '-u'
             ] + self.manager.custom_args + ['vim'],
             [
                 'env'
@@ -110,12 +106,8 @@ class TestPackageManagerZypper(object):
         self.manager.process_only_required()
         assert self.manager.custom_args == ['--no-recommends']
 
-    def test_match_package(self):
-        assert self.manager.match_package('foo', 'Installing: foo')
-        assert self.manager.match_package('foo', 'Removing: foo', 'deleted')
+    def test_match_package_installed(self):
+        assert self.manager.match_package_installed('foo', 'Installing: foo')
 
-    @raises(KiwiUnknownPackageMatchMode)
-    def test_match_package_raises(self):
-        self.manager.match_package(
-            'foo', 'Installing: foo', 'wrong-mode'
-        )
+    def test_match_package_deleted(self):
+        assert self.manager.match_package_deleted('foo', 'Removing: foo')
