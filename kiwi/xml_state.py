@@ -136,6 +136,20 @@ class XMLState(object):
         return result
 
     @classmethod
+    def to_become_deleted_packages(self, xml_data, profiles=[]):
+        """
+            get list of packages from the type = delete section
+        """
+        result = []
+        to_become_deleted_packages_sections = XMLState.packages_sections(
+            xml_data, profiles, ['delete']
+        )
+        for packages in to_become_deleted_packages_sections:
+            for package in packages.get_package():
+                result.append(package.get_name())
+        return result
+
+    @classmethod
     def bootstrap_packages(self, xml_data, profiles=[]):
         """
             get list of bootstrap packages

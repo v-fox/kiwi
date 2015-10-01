@@ -200,8 +200,9 @@ class System(object):
         system_archives = XMLState.system_archives(
             self.xml, self.profiles
         )
-        # TODO: type=delete packages
-
+        to_become_deleted_packages = XMLState.to_become_deleted_packages(
+            self.xml, self.profiles
+        )
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
@@ -225,6 +226,14 @@ class System(object):
             raise KiwiInstallPhaseFailed(
                 'System package installation failed: %s' % format(e)
             )
+        # process package deletions
+        if to_become_deleted_packages:
+            try:
+                self.delete_packages(manager, to_become_deleted_packages)
+            except Exception as e:
+                raise KiwiInstallPhaseFailed(
+                    'System package deletion failed: %s' % format(e)
+                )
         # process archive installations
         if system_archives:
             try:

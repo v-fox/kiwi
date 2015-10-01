@@ -80,7 +80,7 @@ class TestPackageManagerZypper(object):
         )
         mock_call.assert_called_once_with(
             ['chroot', 'root-dir', 'zypper'] + chroot_zypper_args + [
-                'remove', '-u'
+                'remove', '-u', '--force-resolution'
             ] + self.manager.custom_args + ['vim'],
             [
                 'env'

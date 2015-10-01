@@ -120,10 +120,23 @@ class TestSystem(object):
         self.system.install_system(self.manager)
 
     @raises(KiwiInstallPhaseFailed)
+    def test_install_system_packages_delete_raises(self):
+        self.manager.process_install_requests = mock.Mock(
+            return_value=FakeCommandCall(0)
+        )
+        self.manager.process_delete_requests = mock.Mock(
+            return_value=FakeCommandCall(1)
+        )
+        self.system.install_system(self.manager)
+
+    @raises(KiwiInstallPhaseFailed)
     @patch('kiwi.system.ArchiveTar')
     def test_install_system_archives_raises(self, mock_tar):
         mock_tar.side_effect = KiwiInstallPhaseFailed
         self.manager.process_install_requests = mock.Mock(
+            return_value=FakeCommandCall(0)
+        )
+        self.manager.process_delete_requests = mock.Mock(
             return_value=FakeCommandCall(0)
         )
         self.system.install_system(self.manager)
@@ -214,18 +227,25 @@ class TestSystem(object):
         self.manager.process_install_requests = mock.Mock(
             return_value=FakeCommandCall(0)
         )
+        self.manager.process_delete_requests = mock.Mock(
+            return_value=FakeCommandCall(0)
+        )
         self.system.install_system(self.manager)
         self.manager.process_only_required.assert_called_once_with()
-        self.manager.request_package.assert_called_with(
+        self.manager.request_package.assert_any_call(
+            'kernel-debug'
+        )
+        self.manager.request_package.assert_any_call(
             'plymouth-branding-openSUSE'
         )
-        self.manager.request_collection.assert_called_once_with(
+        self.manager.request_collection.assert_any_call(
             'base'
         )
-        self.manager.request_product.assert_called_once_with(
+        self.manager.request_product.assert_any_call(
             'openSUSE'
         )
         self.manager.process_install_requests.assert_called_once_with()
+        self.manager.process_delete_requests.assert_called_once_with()
         mock_tar.assert_called_once_with('image.tgz')
         tar.extract.assert_called_once_with('root_dir')
 

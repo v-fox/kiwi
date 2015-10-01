@@ -111,3 +111,6 @@ class TestXMLState(object):
     def test_load_xml_second_choice(self):
         assert XMLState.load_xml('../data/root-dir')[1] == \
             '../data/root-dir/image/config.xml'
+
+    def test_to_become_deleted_packages(self):
+        assert XMLState.to_become_deleted_packages(self.xml) == ['kernel-debug']
