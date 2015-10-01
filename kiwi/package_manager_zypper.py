@@ -69,7 +69,7 @@ class PackageManagerZypper(PackageManagerBase):
         return Command.call(
             ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
                 'remove', '-u', '--force-resolution'
-            ] + self.custom_args + self.__delete_items(),
+            ] + self.__delete_items(),
             self.command_env
         )
 
