@@ -64,6 +64,11 @@ class TestXMLState(object):
             'openSUSE'
         ]
 
+    def test_system_archives(self):
+        assert XMLState.system_archives(self.xml) == [
+            'image.tgz'
+        ]
+
     def test_system_collection_type(self):
         assert XMLState.system_collection_type(self.xml) == 'plusRecommended'
 
@@ -74,6 +79,9 @@ class TestXMLState(object):
 
     def test_bootstrap_products(self):
         assert XMLState.bootstrap_products(self.xml) == ['kiwi']
+
+    def test_bootstrap_archives(self):
+        assert XMLState.bootstrap_archives(self.xml) == ['bootstrap.tgz']
 
     def test_bootstrap_collection_type(self):
         assert XMLState.bootstrap_collection_type(self.xml) == 'onlyRequired'

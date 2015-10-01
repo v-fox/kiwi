@@ -136,7 +136,7 @@ class System(object):
         bootstrap_products = XMLState.bootstrap_products(
             self.xml, self.profiles
         )
-        # TODO: bootstrap: archives, ignores
+        # TODO: bootstrap: archives
         if collection_type == 'onlyRequired':
             manager.process_only_required()
         all_install_items = self.__setup_requests(
@@ -184,7 +184,7 @@ class System(object):
         system_products = XMLState.system_products(
             self.xml, self.profiles, build_type
         )
-        # TODO: install_system: archives, ignores
+        # TODO: archives, type=delete packages
         if collection_type == 'onlyRequired':
             manager.process_only_required()
         all_install_items = self.__setup_requests(
