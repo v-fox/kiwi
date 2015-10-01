@@ -28,6 +28,7 @@ from command import Command
 from command_process import CommandProcess
 from xml_state import XMLState
 from uri import Uri
+from archive_tar import ArchiveTar
 
 from logger import log
 
@@ -36,7 +37,8 @@ from exceptions import(
     KiwiCommandError,
     KiwiSystemUpdateFailed,
     KiwiSystemInstallPackagesFailed,
-    KiwiSystemDeletePackagesFailed
+    KiwiSystemDeletePackagesFailed,
+    KiwiInstallPhaseFailed
 )
 
 
@@ -136,7 +138,10 @@ class System(object):
         bootstrap_products = XMLState.bootstrap_products(
             self.xml, self.profiles
         )
-        # TODO: bootstrap: archives
+        bootstrap_archives = XMLState.bootstrap_archives(
+            self.xml, self.profiles
+        )
+        # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
         all_install_items = self.__setup_requests(
@@ -158,8 +163,16 @@ class System(object):
             )
         except Exception as e:
             raise KiwiBootStrapPhaseFailed(
-                'Bootstrap installation failed: %s' % format(e)
+                'Bootstrap package installation failed: %s' % format(e)
             )
+        # process archive installations
+        if bootstrap_archives:
+            try:
+                self.__install_archives(bootstrap_archives)
+            except Exception as e:
+                raise KiwiBootStrapPhaseFailed(
+                    'Bootstrap archive installation failed: %s' % format(e)
+                )
 
     def install_system(self, manager, build_type=None):
         """
@@ -184,7 +197,12 @@ class System(object):
         system_products = XMLState.system_products(
             self.xml, self.profiles, build_type
         )
-        # TODO: archives, type=delete packages
+        system_archives = XMLState.system_archives(
+            self.xml, self.profiles
+        )
+        # TODO: type=delete packages
+
+        # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
         all_install_items = self.__setup_requests(
@@ -204,9 +222,17 @@ class System(object):
                 )
             )
         except Exception as e:
-            raise KiwiSystemInstallPackagesFailed(
-                'System installation failed: %s' % format(e)
+            raise KiwiInstallPhaseFailed(
+                'System package installation failed: %s' % format(e)
             )
+        # process archive installations
+        if system_archives:
+            try:
+                self.__install_archives(system_archives)
+            except Exception as e:
+                raise KiwiInstallPhaseFailed(
+                    'System archive installation failed: %s' % format(e)
+                )
 
     def install_packages(self, manager, packages):
         """
@@ -272,6 +298,11 @@ class System(object):
             raise KiwiSystemUpdateFailed(
                 'System update failed: %s' % format(e)
             )
+
+    def __install_archives(self, archive_list):
+        for archive in archive_list:
+            tar = ArchiveTar(archive)
+            tar.extract(self.root_bind.root_dir)
 
     def __setup_requests(self, manager, packages, collections=[], products=[]):
         if packages:

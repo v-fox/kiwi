@@ -9,7 +9,8 @@ from kiwi.exceptions import (
     KiwiBootStrapPhaseFailed,
     KiwiSystemUpdateFailed,
     KiwiSystemInstallPackagesFailed,
-    KiwiSystemDeletePackagesFailed
+    KiwiSystemDeletePackagesFailed,
+    KiwiInstallPhaseFailed
 )
 
 import kiwi
@@ -65,6 +66,7 @@ class TestSystem(object):
         root_init = mock.MagicMock()
         mock_root_init.return_value = root_init
         root_bind = mock.MagicMock()
+        root_bind.root_dir = 'root_dir'
         mock_root_bind.return_value = root_bind
         self.system = System(
             xml_data=self.xml, root_dir='root_dir',
@@ -81,9 +83,18 @@ class TestSystem(object):
         root_bind.mount_kernel_file_systems.assert_called_once_with()
 
     @raises(KiwiBootStrapPhaseFailed)
-    def test_install_bootstrap_raises(self):
+    def test_install_bootstrap_packages_raises(self):
         self.manager.process_install_requests_bootstrap = mock.Mock(
             return_value=FakeCommandCall(1)
+        )
+        self.system.install_bootstrap(self.manager)
+
+    @raises(KiwiBootStrapPhaseFailed)
+    @patch('kiwi.system.ArchiveTar')
+    def test_install_bootstrap_archives_raises(self, mock_tar):
+        mock_tar.side_effect = KiwiBootStrapPhaseFailed
+        self.manager.process_install_requests_bootstrap = mock.Mock(
+            return_value=FakeCommandCall(0)
         )
         self.system.install_bootstrap(self.manager)
 
@@ -101,10 +112,19 @@ class TestSystem(object):
         )
         self.system.install_packages(self.manager, ['package'])
 
-    @raises(KiwiSystemInstallPackagesFailed)
-    def test_install_system_raises(self):
+    @raises(KiwiInstallPhaseFailed)
+    def test_install_system_packages_raises(self):
         self.manager.process_install_requests = mock.Mock(
             return_value=FakeCommandCall(1)
+        )
+        self.system.install_system(self.manager)
+
+    @raises(KiwiInstallPhaseFailed)
+    @patch('kiwi.system.ArchiveTar')
+    def test_install_system_archives_raises(self, mock_tar):
+        mock_tar.side_effect = KiwiInstallPhaseFailed
+        self.manager.process_install_requests = mock.Mock(
+            return_value=FakeCommandCall(0)
         )
         self.system.install_system(self.manager)
 
@@ -156,7 +176,11 @@ class TestSystem(object):
         )
 
     @patch('kiwi.xml_state.XMLState.bootstrap_collection_type')
-    def test_install_bootstrap(self, mock_collection_type):
+    @patch('kiwi.system.ArchiveTar')
+    def test_install_bootstrap(self, mock_tar, mock_collection_type):
+        tar = mock.Mock()
+        tar.extract = mock.Mock()
+        mock_tar.return_value = tar
         mock_collection_type.return_value = 'onlyRequired'
         self.manager.process_install_requests_bootstrap = mock.Mock(
             return_value=FakeCommandCall(0)
@@ -175,10 +199,17 @@ class TestSystem(object):
         self.manager.request_product.assert_called_once_with(
             'kiwi'
         )
-        self.manager.process_install_requests_bootstrap.assert_called_once_with()
+        self.manager.process_install_requests_bootstrap.assert_called_once_with(
+        )
+        mock_tar.assert_called_once_with('bootstrap.tgz')
+        tar.extract.assert_called_once_with('root_dir')
 
     @patch('kiwi.xml_state.XMLState.system_collection_type')
-    def test_install_system(self, mock_collection_type):
+    @patch('kiwi.system.ArchiveTar')
+    def test_install_system(self, mock_tar, mock_collection_type):
+        tar = mock.Mock()
+        tar.extract = mock.Mock()
+        mock_tar.return_value = tar
         mock_collection_type.return_value = 'onlyRequired'
         self.manager.process_install_requests = mock.Mock(
             return_value=FakeCommandCall(0)
@@ -195,6 +226,8 @@ class TestSystem(object):
             'openSUSE'
         )
         self.manager.process_install_requests.assert_called_once_with()
+        mock_tar.assert_called_once_with('image.tgz')
+        tar.extract.assert_called_once_with('root_dir')
 
     def test_install_packages(self):
         self.manager.process_install_requests = mock.Mock(

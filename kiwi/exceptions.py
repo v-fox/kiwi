@@ -113,6 +113,10 @@ class KiwiSystemInstallPackagesFailed(KiwiError):
     pass
 
 
+class KiwiInstallPhaseFailed(KiwiError):
+    pass
+
+
 class KiwiSystemDeletePackagesFailed(KiwiError):
     pass
 
