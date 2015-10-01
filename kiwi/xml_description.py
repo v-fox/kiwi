@@ -17,6 +17,7 @@
 #
 from lxml import etree
 from tempfile import NamedTemporaryFile
+import os
 
 # project
 from command import Command
@@ -73,9 +74,11 @@ class XMLDescription(object):
 
     def __parse(self):
         try:
-            return xml_parse.parse(
+            parse = xml_parse.parse(
                 self.description_xslt_processed.name, True
             )
+            parse.description_dir = os.path.dirname(self.description)
+            return parse
         except Exception as e:
             raise KiwiDataStructureError(
                 '%s: %s' % (type(e).__name__, format(e))

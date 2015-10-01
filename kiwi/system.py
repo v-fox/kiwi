@@ -310,7 +310,7 @@ class System(object):
 
     def __install_archives(self, archive_list):
         for archive in archive_list:
-            tar = ArchiveTar(archive)
+            tar = ArchiveTar(self.xml.description_dir + '/' + archive)
             tar.extract(self.root_bind.root_dir)
 
     def __setup_requests(self, manager, packages, collections=[], products=[]):

@@ -214,7 +214,7 @@ class TestSystem(object):
         )
         self.manager.process_install_requests_bootstrap.assert_called_once_with(
         )
-        mock_tar.assert_called_once_with('bootstrap.tgz')
+        mock_tar.assert_called_once_with('../data/bootstrap.tgz')
         tar.extract.assert_called_once_with('root_dir')
 
     @patch('kiwi.xml_state.XMLState.system_collection_type')
@@ -246,7 +246,7 @@ class TestSystem(object):
         )
         self.manager.process_install_requests.assert_called_once_with()
         self.manager.process_delete_requests.assert_called_once_with()
-        mock_tar.assert_called_once_with('image.tgz')
+        mock_tar.assert_called_once_with('../data/image.tgz')
         tar.extract.assert_called_once_with('root_dir')
 
     def test_install_packages(self):
