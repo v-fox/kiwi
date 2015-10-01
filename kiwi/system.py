@@ -309,7 +309,9 @@ class System(object):
             )
 
     def __install_archives(self, archive_list):
+        log.info("Installing archives")
         for archive in archive_list:
+            log.info("--> archive: %s", archive)
             tar = ArchiveTar(self.xml.description_dir + '/' + archive)
             tar.extract(self.root_bind.root_dir)
 
