@@ -4552,6 +4552,27 @@ function searchBusIDBootDevice {
     return 0
 }
 #======================================
+# setupBootDeviceIfMultipath
+#--------------------------------------
+function setupBootDeviceIfMultipath {
+    local IFS=$IFS_ORIG
+    local disk
+    local found_multipath_device=0
+    if startMultipathd; then
+        for wwn in $(multipath -l -v1 $biosBootDevice);do
+            disk=/dev/mapper/$wwn
+            if [ -e $disk ];then
+                biosBootDevice=$disk
+                found_multipath_device=1
+                break
+            fi
+        done
+        if [ ! $found_multipath_device = 1 ];then
+            stopMultipathd
+        fi
+    fi
+}
+#======================================
 # lookupDiskDevices
 #--------------------------------------
 function lookupDiskDevices {
@@ -11268,6 +11289,83 @@ function loop_delete {
     local IFS=$IFS_ORIG
     local target=$1
     losetup -d $target
+}
+#======================================
+# startMultipathd
+#--------------------------------------
+function startMultipathd {
+    local multipath_config=/etc/multipath.conf
+    local wwid_timeout=3
+    #======================================
+    # check already running
+    #--------------------------------------
+    if pidof multipathd &>/dev/null; then
+        Echo "startMultipathd: daemon already running"
+        return 0
+    fi
+    #======================================
+    # check the tools
+    #--------------------------------------
+    for tool in multipathd multipath;do
+        if ! lookup $tool &>/dev/null;then
+            Echo "startMultipathd: $tool not found"
+            return 1
+        fi
+    done
+    #======================================
+    # lookup multipath configuration
+    #--------------------------------------
+    if [ ! -f $multipath_config ];then
+        Echo "startMultipathd: no multipath configuration found"
+        return 1
+    fi
+    #======================================
+    # load multipath dm modules
+    #--------------------------------------
+    if ! modprobe dm-multipath;then
+        Echo "startMultipathd: can't load dm-multipath"
+        return 1
+    fi
+    #======================================
+    # start multipath daemon
+    #--------------------------------------
+    mkdir -p /etc/multipath
+    if ! multipathd;then
+        Echo "startMultipathd: failed to start multipathd"
+        return 1
+    fi
+    #======================================
+    # wait for devices to settle
+    #--------------------------------------
+    udevPending
+    #======================================
+    # sleep for a while
+    #--------------------------------------
+    # make sure /etc/multipath/wwids are written
+    if [ ! -z "$kiwi_wwid_wait_timeout" ];then
+        wwid_timeout=$kiwi_wwid_wait_timeout
+    fi
+    sleep $wwid_timeout
+    export MULTIPATHD_PID=$(pidof multipathd | tr ' ' ,)
+    return 0
+}
+#======================================
+# stopMultipathd
+#--------------------------------------
+function stopMultipathd {
+    # /.../
+    # stop multipathd started by us
+    # ----
+    local IFS=$IFS_ORIG
+    if [ -z "$MULTIPATHD_PID" ];then
+        return
+    fi
+    local IFS=,
+    for p in $MULTIPATHD_PID; do
+        if kill -0 $p &>/dev/null;then
+            kill $p
+        fi
+    done
 }
 #======================================
 # initialize
