@@ -200,9 +200,6 @@ class System(object):
         system_archives = XMLState.system_archives(
             self.xml, self.profiles
         )
-        to_become_deleted_packages = XMLState.to_become_deleted_packages(
-            self.xml, self.profiles
-        )
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
@@ -226,14 +223,6 @@ class System(object):
             raise KiwiInstallPhaseFailed(
                 'System package installation failed: %s' % format(e)
             )
-        # process package deletions
-        if to_become_deleted_packages:
-            try:
-                self.delete_packages(manager, to_become_deleted_packages)
-            except Exception as e:
-                raise KiwiInstallPhaseFailed(
-                    'System package deletion failed: %s' % format(e)
-                )
         # process archive installations
         if system_archives:
             try:
@@ -241,6 +230,22 @@ class System(object):
             except Exception as e:
                 raise KiwiInstallPhaseFailed(
                     'System archive installation failed: %s' % format(e)
+                )
+
+    def pinch_system(self, manager):
+        """
+            delete packages marked for deletion in the XML description
+        """
+        to_become_deleted_packages = XMLState.to_become_deleted_packages(
+            self.xml, self.profiles
+        )
+        if to_become_deleted_packages:
+            log.info('Pinch system')
+            try:
+                self.delete_packages(manager, to_become_deleted_packages)
+            except Exception as e:
+                raise KiwiInstallPhaseFailed(
+                    'System package deletion failed: %s' % format(e)
                 )
 
     def install_packages(self, manager, packages):

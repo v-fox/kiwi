@@ -120,6 +120,13 @@ class TestSystem(object):
         self.system.install_system(self.manager)
 
     @raises(KiwiInstallPhaseFailed)
+    def test_pinch_system_raises(self):
+        self.manager.process_install_requests = mock.Mock(
+            return_value=FakeCommandCall(1)
+        )
+        self.system.pinch_system(self.manager)
+
+    @raises(KiwiInstallPhaseFailed)
     def test_install_system_packages_delete_raises(self):
         self.manager.process_install_requests = mock.Mock(
             return_value=FakeCommandCall(0)
@@ -227,14 +234,8 @@ class TestSystem(object):
         self.manager.process_install_requests = mock.Mock(
             return_value=FakeCommandCall(0)
         )
-        self.manager.process_delete_requests = mock.Mock(
-            return_value=FakeCommandCall(0)
-        )
         self.system.install_system(self.manager)
         self.manager.process_only_required.assert_called_once_with()
-        self.manager.request_package.assert_any_call(
-            'kernel-debug'
-        )
         self.manager.request_package.assert_any_call(
             'plymouth-branding-openSUSE'
         )
@@ -245,9 +246,18 @@ class TestSystem(object):
             'openSUSE'
         )
         self.manager.process_install_requests.assert_called_once_with()
-        self.manager.process_delete_requests.assert_called_once_with()
         mock_tar.assert_called_once_with('../data/image.tgz')
         tar.extract.assert_called_once_with('root_dir')
+
+    def test_pinch_system(self):
+        self.manager.process_delete_requests = mock.Mock(
+            return_value=FakeCommandCall(0)
+        )
+        self.system.pinch_system(self.manager)
+        self.manager.request_package.assert_any_call(
+            'kernel-debug'
+        )
+        self.manager.process_delete_requests.assert_called_once_with()
 
     def test_install_packages(self):
         self.manager.process_install_requests = mock.Mock(

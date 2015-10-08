@@ -24,15 +24,10 @@ from logger import log
 
 class SystemSetup(object):
     """
-        Implementation of system setup steps regarding the
-        the root directory contents to match the requirements
-        of the system description. This includes:
-        + import of overlay files
-        + creation of .profile environment (boot images)
-        + import of config.sh script
-        + import of images.sh script
-        + calling config.sh|images.sh scripts
-        + import of stateful XML description
+        Implementation of system setup steps supported by kiwi.
+        kiwi is not responsible for the system configuration, however
+        some setup steps needs to be performed in order to provide
+        a minimal work environment inside of the image.
     """
     def __init__(self, xml_data, description_dir, root_dir):
         self.xml = xml_data
@@ -91,17 +86,60 @@ class SystemSetup(object):
         # TODO: import_shell_environment
         raise NotImplementedError
 
-    def import_overlay_files(self):
-        # TODO: import_overlay_files
+    def import_overlay_files(self, follow_links=False):
+        overlay_directory = self.description_dir + '/root/'
+        if os.path.exists(overlay_directory):
+            log.info('Copying user defined files to image tree')
+            rsync_options = [
+                '-a', '-H', '-X', '-A', '--one-file-system'
+            ]
+            if follow_links:
+                rsync_options.append('--copy-links')
+            Command.run(
+                ['rsync'] + rsync_options + [
+                    overlay_directory, self.root_dir
+                ]
+            )
+
+    def import_autoyast_profile(self):
+        # TODO: import autoyast profile and setup the firstboot launcher
+        raise NotImplementedError
+
+    def setup_hardware_clock(self):
+        # TODO: setup hwclock from XML data
+        raise NotImplementedError
+
+    def setup_keyboard_map(self):
+        # TODO: setup keyboard map from XML data
+        raise NotImplementedError
+
+    def setup_locale(self):
+        # TODO: setup locale from XML data
+        raise NotImplementedError
+
+    def setup_timezone(self):
+        # TODO: setup timezone from XML data
+        raise NotImplementedError
+
+    def setup_groups(self):
+        # TODO: setup user groups from XML
+        raise NotImplementedError
+
+    def setup_users(self):
+        # TODO: setup users from XML
+        raise NotImplementedError
+
+    def import_image_identifier(self):
+        # TODO: create etc/imageID containing the image ID from XML
         raise NotImplementedError
 
     def call_config_script(self):
-        # TODO: call_config_script
-        raise NotImplementedError
+        log.info('Calling config.sh script')
+        Command.run(['chroot', self.root_dir, '/image/config.sh'])
 
     def call_image_script(self):
-        # TODO: call_image_script
-        raise NotImplementedError
+        log.info('Calling images.sh script')
+        Command.run(['chroot', self.root_dir, '/image/images.sh'])
 
     def __get_script_helper_functions(self):
         return 'config/functions.sh'

@@ -47,14 +47,61 @@ class TestSystemSetup(object):
     def test_import_shell_environment(self):
         self.setup.import_shell_environment()
 
-    @raises(NotImplementedError)
-    def test_import_overlay_files(self):
-        self.setup.import_overlay_files()
+    @patch('kiwi.command.Command.run')
+    @patch('os.path.exists')
+    def test_import_overlay_files(self, mock_os_path, mock_command):
+        mock_os_path.return_value = True
+        self.setup.import_overlay_files(follow_links=True)
+        mock_command.assert_called_once_with(
+            [
+                'rsync', '-a', '-H', '-X', '-A',
+                '--one-file-system', '--copy-links',
+                'description_dir/root/', 'root_dir'
+            ]
+        )
 
     @raises(NotImplementedError)
-    def test_call_config_script(self):
+    def test_import_autoyast_profile(self):
+        self.setup.import_autoyast_profile()
+
+    @raises(NotImplementedError)
+    def test_setup_hardware_clock(self):
+        self.setup.setup_hardware_clock()
+
+    @raises(NotImplementedError)
+    def test_setup_keyboard_map(self):
+        self.setup.setup_keyboard_map()
+
+    @raises(NotImplementedError)
+    def test_setup_locale(self):
+        self.setup.setup_locale()
+
+    @raises(NotImplementedError)
+    def test_setup_timezone(self):
+        self.setup.setup_timezone()
+
+    @raises(NotImplementedError)
+    def test_setup_groups(self):
+        self.setup.setup_groups()
+
+    @raises(NotImplementedError)
+    def test_setup_users(self):
+        self.setup.setup_users()
+
+    @raises(NotImplementedError)
+    def test_import_image_identifier(self):
+        self.setup.import_image_identifier()
+
+    @patch('kiwi.command.Command.run')
+    def test_call_config_script(self, mock_command):
         self.setup.call_config_script()
+        mock_command.assert_called_once_with(
+            ['chroot', 'root_dir', '/image/config.sh']
+        )
 
-    @raises(NotImplementedError)
-    def test_call_image_script(self):
+    @patch('kiwi.command.Command.run')
+    def test_call_image_script(self, mock_command):
         self.setup.call_image_script()
+        mock_command.assert_called_once_with(
+            ['chroot', 'root_dir', '/image/images.sh']
+        )

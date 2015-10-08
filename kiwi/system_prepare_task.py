@@ -106,12 +106,19 @@ class SystemPrepareTask(CliTask):
             self.system.install_system(
                 manager, self.command_args['--type']
             )
+
             self.setup = SystemSetup(
                 self.xml,
                 self.command_args['--description'],
                 self.command_args['--root']
             )
             self.setup.import_description()
+            self.setup.import_overlay_files()
+            self.setup.call_config_script()
+
+            self.system.pinch_system(
+                manager
+            )
 
     def __help(self):
         if self.command_args['help']:

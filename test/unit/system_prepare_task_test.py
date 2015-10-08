@@ -54,6 +54,9 @@ class TestSystemPrepareTask(object):
             self.manager, self.task.command_args['--type']
         )
         self.task.setup.import_description.assert_called_once_with()
+        self.task.setup.import_overlay_files.assert_called_once_with()
+        self.task.setup.call_config_script.assert_called_once_with()
+        self.task.system.pinch_system.assert_called_once_with(self.manager)
 
     @patch('kiwi.xml_state.XMLState.set_repository')
     def test_process_system_prepare_set_repo(self, mock_state):
