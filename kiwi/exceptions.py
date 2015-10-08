@@ -127,3 +127,7 @@ class KiwiConfigFileNotFound(KiwiError):
 
 class KiwiLogFileSetupFailed(KiwiError):
     pass
+
+
+class KiwiScriptFailed(KiwiError):
+    pass

@@ -4,8 +4,11 @@ from mock import patch
 import mock
 
 import nose_helper
+from collections import namedtuple
 
 from kiwi.system_setup import SystemSetup
+
+from kiwi.exceptions import *
 
 
 class TestSystemSetup(object):
@@ -49,13 +52,30 @@ class TestSystemSetup(object):
 
     @patch('kiwi.command.Command.run')
     @patch('os.path.exists')
-    def test_import_overlay_files(self, mock_os_path, mock_command):
+    def test_import_overlay_files_copy_links(self, mock_os_path, mock_command):
         mock_os_path.return_value = True
-        self.setup.import_overlay_files(follow_links=True)
+        self.setup.import_overlay_files(
+            follow_links=True, preserve_owner_group=True
+        )
         mock_command.assert_called_once_with(
             [
-                'rsync', '-a', '-H', '-X', '-A',
-                '--one-file-system', '--copy-links',
+                'rsync', '-r', '-p', '-t', '-D', '-H', '-X', '-A',
+                '--one-file-system', '--copy-links', '-o', '-g',
+                'description_dir/root/', 'root_dir'
+            ]
+        )
+
+    @patch('kiwi.command.Command.run')
+    @patch('os.path.exists')
+    def test_import_overlay_files_links(self, mock_os_path, mock_command):
+        mock_os_path.return_value = True
+        self.setup.import_overlay_files(
+            follow_links=False, preserve_owner_group=True
+        )
+        mock_command.assert_called_once_with(
+            [
+                'rsync', '-r', '-p', '-t', '-D', '-H', '-X', '-A',
+                '--one-file-system', '--links', '-o', '-g',
                 'description_dir/root/', 'root_dir'
             ]
         )
@@ -92,16 +112,47 @@ class TestSystemSetup(object):
     def test_import_image_identifier(self):
         self.setup.import_image_identifier()
 
-    @patch('kiwi.command.Command.run')
-    def test_call_config_script(self, mock_command):
+    @patch('kiwi.command.Command.call')
+    @patch('kiwi.command_process.CommandProcess.poll_and_watch')
+    @patch('os.path.exists')
+    def test_call_config_script(self, mock_os_path, mock_watch, mock_command):
+        result_type = namedtuple(
+            'result', ['stderr', 'returncode']
+        )
+        mock_result = result_type(stderr='stderr', returncode=0)
+        mock_os_path.return_value = True
+        mock_watch.return_value = mock_result
         self.setup.call_config_script()
         mock_command.assert_called_once_with(
-            ['chroot', 'root_dir', '/image/config.sh']
+            ['chroot', 'root_dir', 'bash', '-x', '/image/config.sh']
         )
 
-    @patch('kiwi.command.Command.run')
-    def test_call_image_script(self, mock_command):
+    @patch('kiwi.command.Command.call')
+    @patch('kiwi.command_process.CommandProcess.poll_and_watch')
+    @patch('os.path.exists')
+    def test_call_image_script(self, mock_os_path, mock_watch, mock_command):
+        result_type = namedtuple(
+            'result_type', ['stderr', 'returncode']
+        )
+        mock_result = result_type(stderr='stderr', returncode=0)
+        mock_os_path.return_value = True
+        mock_watch.return_value = mock_result
         self.setup.call_image_script()
         mock_command.assert_called_once_with(
-            ['chroot', 'root_dir', '/image/images.sh']
+            ['chroot', 'root_dir', 'bash', '-x', '/image/images.sh']
         )
+
+    @raises(KiwiScriptFailed)
+    @patch('kiwi.command.Command.call')
+    @patch('kiwi.command_process.CommandProcess.poll_and_watch')
+    @patch('os.path.exists')
+    def test_call_image_script_raises(
+        self, mock_os_path, mock_watch, mock_command
+    ):
+        result_type = namedtuple(
+            'result_type', ['stderr', 'returncode']
+        )
+        mock_result = result_type(stderr='stderr', returncode=1)
+        mock_os_path.return_value = True
+        mock_watch.return_value = mock_result
+        self.setup.call_image_script()

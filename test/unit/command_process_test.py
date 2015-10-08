@@ -62,6 +62,16 @@ class TestCommandProcess(object):
         process.poll()
         process.command.output.readline.assert_called_once_with()
 
+    @patch('kiwi.command.Command')
+    def test_poll_and_watch(self, mock_command):
+        process = CommandProcess(mock_command)
+        process.command.process.poll = self.flow
+        process.command.output.readline.return_value = 'data'
+        process.command.process.returncode = 0
+        result = process.poll_and_watch()
+        process.command.output.readline.assert_called_once_with()
+        assert result.returncode == 0
+
     @raises(KiwiCommandError)
     @patch('kiwi.command.Command')
     def test_poll(self, mock_command):

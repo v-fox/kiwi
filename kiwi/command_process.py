@@ -17,6 +17,7 @@
 #
 # project
 from logger import log
+from collections import namedtuple
 
 from exceptions import (
     KiwiCommandError
@@ -53,6 +54,22 @@ class CommandProcess(object):
                 log.debug('%s: %s', self.log_topic, command_output.rstrip('\n'))
         if self.command.process.returncode != 0:
             raise KiwiCommandError(self.command.error.read())
+
+    def poll_and_watch(self):
+        log.info(self.log_topic)
+        log.info('--------------start--------------')
+        while self.command.process.poll() is None:
+            command_output = self.command.output.readline()
+            if command_output:
+                log.info(command_output.rstrip('\n'))
+        result = namedtuple(
+            'result', ['stderr', 'returncode']
+        )
+        log.info('--------------stop--------------')
+        return result(
+            stderr=self.command.error.read(),
+            returncode=self.command.process.returncode
+        )
 
     def create_match_method(self, method):
         """

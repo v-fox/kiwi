@@ -42,7 +42,7 @@ class XMLState(object):
         description = XMLDescription(
             config_file
         )
-        return [description.load(), config_file]
+        return [description.load(), config_file.replace('//', '/')]
 
     @classmethod
     def profiled(self, xml_data, matching=[]):

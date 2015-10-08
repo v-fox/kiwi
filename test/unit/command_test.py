@@ -11,15 +11,6 @@ from kiwi.command import Command
 
 
 class TestCommand(object):
-    def setup(self):
-        command_call = namedtuple(
-            'command', ['output', 'process']
-        )
-        self.call_result = command_call(
-            output='stdout_stderr',
-            process=mock.Mock()
-        )
-
     @raises(KiwiCommandError)
     @patch('subprocess.Popen')
     def test_run_raises_error(self, mock_popen):

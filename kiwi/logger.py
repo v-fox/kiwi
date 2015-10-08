@@ -164,7 +164,7 @@ class Logger(logging.Logger):
         try:
             logfile = logging.FileHandler(filename)
             logfile.setFormatter(
-                ColorFormatter('%(levelname)s: %(message)s')
+                logging.Formatter('%(levelname)s: %(message)s')
             )
             logfile.addFilter(LoggerSchedulerFilter())
             self.addHandler(logfile)

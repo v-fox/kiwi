@@ -19,7 +19,12 @@ import os
 
 # project
 from command import Command
+from command_process import CommandProcess
 from logger import log
+
+from exceptions import (
+    KiwiScriptFailed
+)
 
 
 class SystemSetup(object):
@@ -86,15 +91,22 @@ class SystemSetup(object):
         # TODO: import_shell_environment
         raise NotImplementedError
 
-    def import_overlay_files(self, follow_links=False):
+    def import_overlay_files(
+        self, follow_links=False, preserve_owner_group=False
+    ):
         overlay_directory = self.description_dir + '/root/'
         if os.path.exists(overlay_directory):
             log.info('Copying user defined files to image tree')
             rsync_options = [
-                '-a', '-H', '-X', '-A', '--one-file-system'
+                '-r', '-p', '-t', '-D', '-H', '-X', '-A', '--one-file-system'
             ]
             if follow_links:
                 rsync_options.append('--copy-links')
+            else:
+                rsync_options.append('--links')
+            if preserve_owner_group:
+                rsync_options.append('-o')
+                rsync_options.append('-g')
             Command.run(
                 ['rsync'] + rsync_options + [
                     overlay_directory, self.root_dir
@@ -134,12 +146,25 @@ class SystemSetup(object):
         raise NotImplementedError
 
     def call_config_script(self):
-        log.info('Calling config.sh script')
-        Command.run(['chroot', self.root_dir, '/image/config.sh'])
+        self.__call_script('config.sh')
 
     def call_image_script(self):
-        log.info('Calling images.sh script')
-        Command.run(['chroot', self.root_dir, '/image/images.sh'])
+        self.__call_script('images.sh')
+
+    def __call_script(self, name):
+        if os.path.exists(self.root_dir + '/image/' + name):
+            config_script = Command.call(
+                ['chroot', self.root_dir, 'bash', '-x', '/image/' + name]
+            )
+            process = CommandProcess(
+                command=config_script, log_topic='Calling ' + name + ' script'
+            )
+            result = process.poll_and_watch()
+            if result.returncode != 0:
+                raise KiwiScriptFailed(
+                    '%s failed: %s' % (name, format(result.stderr))
+                )
+            log.debug(result.stderr)
 
     def __get_script_helper_functions(self):
         return 'config/functions.sh'

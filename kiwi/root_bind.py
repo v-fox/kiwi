@@ -142,8 +142,10 @@ class RootBind(object):
                 Command.run(['rm', '-f', self.root_dir + config])
 
     def __cleanup_mount_stack(self):
+        umount_paths = []
         for location in reversed(self.mount_stack):
-            Command.run(['umount', self.root_dir + location])
+            umount_paths.append(self.root_dir + location)
+        Command.run(['umount'] + umount_paths)
         del self.mount_stack[:]
 
     def __cleanup_dir_stack(self):
