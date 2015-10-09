@@ -19,6 +19,7 @@ import os
 
 # project
 from command import Command
+from logger import log
 
 from exceptions import (
     KiwiMountKernelFileSystemsError,
@@ -112,26 +113,17 @@ class RootBind(object):
         return result
 
     def cleanup(self):
-        try:
-            self.__cleanup_mount_stack()
-        except:
-            # don't stop the cleanup process even if this part failed
-            pass
-        try:
-            self.__cleanup_dir_stack()
-        except:
-            # don't stop the cleanup process even if this part failed
-            pass
-        try:
-            self.__cleanup_intermediate_config()
-        except:
-            # don't stop the cleanup process even if this part failed
-            pass
+        self.__cleanup_mount_stack()
+        self.__cleanup_dir_stack()
+        self.__cleanup_intermediate_config()
 
     def __cleanup_intermediate_config(self):
         # delete kiwi copied config files
+        config_files_to_delete = []
+
         for config in self.cleanup_files:
-            Command.run(['rm', '-f', self.root_dir + config])
+            config_files_to_delete.append(self.root_dir + config)
+
         del self.cleanup_files[:]
 
         # delete stale symlinks if there are any. normally the package
@@ -139,21 +131,48 @@ class RootBind(object):
         # real files from the packages
         for config in self.config_files:
             if os.path.islink(self.root_dir + config):
-                Command.run(['rm', '-f', self.root_dir + config])
+                config_files_to_delete.append(self.root_dir + config)
+
+        try:
+            Command.run(['rm', '-f'] + config_files_to_delete)
+        except Exception as e:
+            log.warn(
+                'Failed to remove intermediate config files: %s', format(e)
+            )
 
     def __cleanup_mount_stack(self):
-        umount_paths = []
-        for location in reversed(self.mount_stack):
-            umount_paths.append(self.root_dir + location)
-        Command.run(['umount'] + umount_paths)
+        try:
+            result = Command.run(['umount'] + self.__build_mount_list())
+        except Exception as e:
+            log.warn(
+                'Image root directory %s not cleanly umounted: %s',
+                self.root_dir, format(e)
+            )
+
         del self.mount_stack[:]
 
     def __cleanup_dir_stack(self):
         for location in reversed(self.dir_stack):
-            Command.run(
-                [
-                    'rmdir', '-p', '--ignore-fail-on-non-empty',
-                    self.root_dir + location
-                ]
-            )
+            try:
+                Command.run(
+                    [
+                        'rmdir', '-p', '--ignore-fail-on-non-empty',
+                        self.root_dir + location
+                    ]
+                )
+            except Exception as e:
+                log.warn(
+                    'Failed to remove directory %s: %s', location, format(e)
+                )
         del self.dir_stack[:]
+
+    def __build_mount_list(self):
+        mount_points = []
+        for location in reversed(self.mount_stack):
+            mount_path = self.root_dir + location
+            try:
+                Command.run(['mountpoint', '-q', mount_path])
+                mount_points.append(mount_path)
+            except Exception:
+                log.warn('Path %s not a mountpoint', mount_path)
+        return mount_points

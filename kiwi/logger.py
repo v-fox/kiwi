@@ -103,9 +103,8 @@ class InfoFilter(logging.Filter):
     def filter(self, record):
         # only messages with record level INFO and WARNING can pass
         # for messages with another level an extra handler is used
-        return record.levelno in (
-            logging.INFO, logging.WARNING
-        )
+        if record.levelno == logging.INFO:
+            return True
 
 
 class DebugFilter(logging.Filter):
@@ -123,6 +122,13 @@ class ErrorFilter(logging.Filter):
         if record.levelno == logging.ERROR:
             return True
 
+class WarningFilter(logging.Filter):
+    def filter(self, record):
+        # only messages with record level WARNING can pass
+        # for messages with another level an extra handler is used
+        if record.levelno == logging.WARNING:
+            return True
+
 
 class Logger(logging.Logger):
     """
@@ -131,10 +137,15 @@ class Logger(logging.Logger):
     def __init__(self, name):
         logging.Logger.__init__(self, name)
         self.console_handlers = []
-        # log INFO and WARNING messages to stdout
+        # log INFO to stdout
         self.__add_stream_handler(
             '%(levelname)s: %(message)s',
             [InfoFilter(), LoggerSchedulerFilter()]
+        )
+        # log WARNING messages to stdout
+        self.__add_stream_handler(
+            '$COLOR%(levelname)s: %(message)s',
+            [WarningFilter()]
         )
         # log DEBUG messages to stdout
         self.__add_stream_handler(

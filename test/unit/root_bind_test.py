@@ -13,6 +13,7 @@ from kiwi.exceptions import (
 
 from kiwi.root_bind import RootBind
 
+from kiwi.exceptions import *
 
 class TestRootBind(object):
     def setup(self):
@@ -31,27 +32,33 @@ class TestRootBind(object):
 
     @raises(KiwiMountKernelFileSystemsError)
     @patch('kiwi.command.Command.run')
-    def test_kernel_file_systems_raises_error(self, mock_command):
+    @patch('kiwi.root_bind.RootBind.cleanup')
+    def test_kernel_file_systems_raises_error(self, mock_cleanup, mock_command):
         mock_command.side_effect = KiwiMountKernelFileSystemsError(
             'mount-error'
         )
         self.bind_root.mount_kernel_file_systems()
+        mock.cleanup.assert_called_once_with()
 
     @raises(KiwiMountSharedDirectoryError)
     @patch('kiwi.command.Command.run')
-    def test_shared_directory_raises_error(self, mock_command):
+    @patch('kiwi.root_bind.RootBind.cleanup')
+    def test_shared_directory_raises_error(self, mock_cleanup, mock_command):
         mock_command.side_effect = KiwiMountSharedDirectoryError(
             'mount-error'
         )
         self.bind_root.mount_shared_directory()
+        mock.cleanup.assert_called_once_with()
 
     @raises(KiwiSetupIntermediateConfigError)
     @patch('kiwi.command.Command.run')
-    def test_intermediate_config_raises_error(self, mock_command):
+    @patch('kiwi.root_bind.RootBind.cleanup')
+    def test_intermediate_config_raises_error(self, mock_cleanup, mock_command):
         mock_command.side_effect = KiwiSetupIntermediateConfigError(
             'config-error'
         )
         self.bind_root.setup_intermediate_config()
+        mock.cleanup.assert_called_once_with()
 
     @patch('kiwi.command.Command.run')
     def test_mount_kernel_file_systems(self, mock_command):
@@ -98,28 +105,30 @@ class TestRootBind(object):
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == \
             call([
-                'umount', 'root-dir/mountpoint'
+                'mountpoint', '-q', 'root-dir/mountpoint'
             ])
         call = mock_command.call_args_list[1]
         assert mock_command.call_args_list[1] == \
             call([
-                'rmdir', '-p', '--ignore-fail-on-non-empty',
-                'root-dir/mountpoint'
+                'umount', 'root-dir/mountpoint'
             ])
         call = mock_command.call_args_list[2]
         assert mock_command.call_args_list[2] == \
             call([
-                'rm', '-f', 'root-dir/foo.kiwi'
+                'rmdir', '-p', '--ignore-fail-on-non-empty',
+                'root-dir/mountpoint'
             ])
         call = mock_command.call_args_list[3]
         assert mock_command.call_args_list[3] == \
             call([
-                'rm', '-f', 'root-dir/foo'
+                'rm', '-f', 'root-dir/foo.kiwi', 'root-dir/foo'
             ])
 
     @patch('kiwi.command.Command.run')
-    def test_cleanup_no_stop_on_exception(self, mock_command):
-        mock_command.side_effect = Exception
+    @patch('os.path.islink')
+    def test_cleanup_continue_on_raise(self, mock_islink, mock_command):
+        mock_islink.return_value = True
+        mock_command.side_effect = KiwiCommandError
         self.bind_root.cleanup()
 
     def test_move_to_root(self):

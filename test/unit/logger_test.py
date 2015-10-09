@@ -84,6 +84,19 @@ class TestErrorFilter(object):
         assert self.error_filter.filter(record) == True
 
 
+class TestWarningFilter(object):
+    def setup(self):
+        self.error_filter = WarningFilter()
+
+    def test_filter(self):
+        MyRecord = namedtuple(
+            'MyRecord',
+            'levelno'
+        )
+        record = MyRecord(levelno=logging.WARNING)
+        assert self.error_filter.filter(record) == True
+
+
 class TestLogger(object):
     @patch('sys.stdout')
     def test_progress(self, mock_stdout):
