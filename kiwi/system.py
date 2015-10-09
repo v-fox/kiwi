@@ -182,7 +182,7 @@ class System(object):
             via the bootstrap phase
         """
         if not build_type:
-            build_type = XMLState.build_type(self.xml, self.profiles)
+            build_type = XMLState.default_build_type(self.xml, self.profiles)
         log.info('Installing system (chroot) for build type: %s', build_type)
         collection_type = XMLState.system_collection_type(
             self.xml, self.profiles, build_type

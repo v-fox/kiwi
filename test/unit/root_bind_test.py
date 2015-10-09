@@ -15,6 +15,7 @@ from kiwi.root_bind import RootBind
 
 from kiwi.exceptions import *
 
+
 class TestRootBind(object):
     def setup(self):
         root = mock.Mock()

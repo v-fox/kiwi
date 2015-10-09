@@ -27,11 +27,11 @@ class TestXMLState(object):
                 assert profiles == 'ec2Flavour'
 
     def test_build_type_primary_selected(self):
-        assert XMLState.build_type(self.xml) == 'iso'
+        assert XMLState.default_build_type(self.xml) == 'iso'
 
     def test_build_type_first_selected(self):
         self.xml.get_preferences()[0].get_type()[0].set_primary(False)
-        assert XMLState.build_type(self.xml) == 'iso'
+        assert XMLState.default_build_type(self.xml) == 'iso'
 
     def test_package_manager(self):
         assert XMLState.package_manager(self.xml) == 'zypper'

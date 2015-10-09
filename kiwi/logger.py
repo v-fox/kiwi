@@ -122,6 +122,7 @@ class ErrorFilter(logging.Filter):
         if record.levelno == logging.ERROR:
             return True
 
+
 class WarningFilter(logging.Filter):
     def filter(self, record):
         # only messages with record level WARNING can pass

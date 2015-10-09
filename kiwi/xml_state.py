@@ -45,7 +45,7 @@ class XMLState(object):
         return [description.load(), config_file.replace('//', '/')]
 
     @classmethod
-    def profiled(self, xml_data, matching=[]):
+    def profiled(self, xml_data, matching=None):
         """
             return only those sections matching the given profiles
             sections without a profile are wildcard sections and will
@@ -56,7 +56,7 @@ class XMLState(object):
             profiles = section.get_profiles()
             if profiles:
                 for profile in profiles.split(','):
-                    if profile in matching:
+                    if matching and profile in matching:
                         result.append(section)
                         break
             else:
@@ -64,7 +64,7 @@ class XMLState(object):
         return result
 
     @classmethod
-    def used_profiles(self, xml_data, profiles=[]):
+    def used_profiles(self, xml_data, profiles=None):
         """
             return list of profiles to use. The method looks up the
             profiles section in the XML description and searches for
@@ -74,6 +74,7 @@ class XMLState(object):
             in the XML description
         """
         if not profiles:
+            profiles = []
             profiles_section = xml_data.get_profiles()
             if profiles_section:
                 for profile in profiles_section[0].get_profile():
@@ -84,45 +85,88 @@ class XMLState(object):
         return profiles
 
     @classmethod
-    def build_type(self, xml_data, profiles=[]):
+    def preferences_sections(self, xml_data, profiles=None):
+        """
+            find all preferences sections for selected profiles
+        """
+        if not profiles:
+            profiles = XMLState.used_profiles(xml_data, profiles)
+        return XMLState.profiled(
+            xml_data.get_preferences(), profiles
+        )
+
+    @classmethod
+    def default_build_type(self, xml_data, profiles=None):
         """
             find default build type
+        """
+        return self.build_type_section(xml_data, profiles).get_image()
+
+    @classmethod
+    def build_type_section(self, xml_data, profiles=None, build_type=None):
+        """
+            find type section matching build type or default
         """
         if not profiles:
             profiles = XMLState.used_profiles(xml_data, profiles)
 
         # lookup all preferences sections for selected profiles
         image_type_sections = []
-        preferences_sections = XMLState.profiled(
-            xml_data.get_preferences(), profiles
-        )
+        preferences_sections = self.preferences_sections(xml_data, profiles)
         for preferences in preferences_sections:
             image_type_sections += preferences.get_type()
 
-        # lookup primary type name in preferences or first type listed
-        type_names = []
+        # lookup if build type matches provided type
+        if build_type:
+            for image_type in image_type_sections:
+                if build_type == image_type.get_image():
+                    return image_type
+
+        # lookup if build type matches primary type
         for image_type in image_type_sections:
-            type_name = image_type.get_image()
             if image_type.get_primary():
-                return type_name
-            type_names.append(type_name)
-        return type_names[0]
+                return image_type
+
+        # build type is first type section in XML sequence
+        return image_type_sections[0]
 
     @classmethod
-    def package_manager(self, xml_data, profiles=[]):
+    def build_type_preferences_sections(
+        self, xml_data, profiles=None, build_type=None
+    ):
+        """
+            find preferences sections which belongs to
+            the build type and profiles
+        """
+        preferences_result_sections = []
+        build_type = self.build_type_section(
+            xml_data, profiles, build_type
+        ).get_image()
+        preferences_sections = self.preferences_sections(xml_data, profiles)
+        for preferences in preferences_sections:
+            image_types = preferences.get_type()
+            if not image_types:
+                preferences_result_sections.append(preferences)
+            else:
+                for image_type in image_types:
+                    if image_type.get_image() == build_type:
+                        preferences_result_sections.append(preferences)
+                        break
+        return preferences_result_sections
+
+    @classmethod
+    def package_manager(self, xml_data, profiles=None):
         """
             get configured package manager
         """
         if not profiles:
             profiles = XMLState.used_profiles(xml_data, profiles)
-        preferences_sections = XMLState.profiled(
-            xml_data.get_preferences(), profiles
-        )
+        preferences_sections = self.preferences_sections(xml_data, profiles)
         for preferences in preferences_sections:
             return preferences.get_packagemanager()[0]
 
     @classmethod
-    def packages_sections(self, xml_data, profiles=[], section_types='image'):
+    def packages_sections(self, xml_data, profiles=None, section_types='image'):
         result = []
         if not profiles:
             profiles = XMLState.used_profiles(xml_data, profiles)
@@ -136,7 +180,7 @@ class XMLState(object):
         return result
 
     @classmethod
-    def to_become_deleted_packages(self, xml_data, profiles=[]):
+    def to_become_deleted_packages(self, xml_data, profiles=None):
         """
             get list of packages from the type = delete section
         """
@@ -150,7 +194,7 @@ class XMLState(object):
         return result
 
     @classmethod
-    def bootstrap_packages(self, xml_data, profiles=[]):
+    def bootstrap_packages(self, xml_data, profiles=None):
         """
             get list of bootstrap packages
         """
@@ -164,7 +208,7 @@ class XMLState(object):
         return result
 
     @classmethod
-    def system_packages(self, xml_data, profiles=[], build_type=None):
+    def system_packages(self, xml_data, profiles=None, build_type=None):
         """
             get list of system packages, take build_type into account
         """
@@ -172,7 +216,7 @@ class XMLState(object):
         if not profiles:
             profiles = XMLState.used_profiles(xml_data, profiles)
         if not build_type:
-            build_type = XMLState.build_type(xml_data, profiles)
+            build_type = XMLState.default_build_type(xml_data, profiles)
         image_packages_sections = XMLState.packages_sections(
             xml_data, profiles, ['image', build_type]
         )
@@ -182,7 +226,7 @@ class XMLState(object):
         return list(set(result))
 
     @classmethod
-    def bootstrap_archives(self, xml_data, profiles=[]):
+    def bootstrap_archives(self, xml_data, profiles=None):
         """
             get list of bootstrap archives
         """
@@ -196,7 +240,7 @@ class XMLState(object):
         return result
 
     @classmethod
-    def system_archives(self, xml_data, profiles=[], build_type=None):
+    def system_archives(self, xml_data, profiles=None, build_type=None):
         """
             get list of system archives, take build_type into account
         """
@@ -204,7 +248,7 @@ class XMLState(object):
         if not profiles:
             profiles = XMLState.used_profiles(xml_data, profiles)
         if not build_type:
-            build_type = XMLState.build_type(xml_data, profiles)
+            build_type = XMLState.default_build_type(xml_data, profiles)
         image_packages_sections = XMLState.packages_sections(
             xml_data, profiles, ['image', build_type]
         )
@@ -214,20 +258,20 @@ class XMLState(object):
         return result
 
     @classmethod
-    def bootstrap_collection_type(self, xml_data, profiles=[]):
+    def bootstrap_collection_type(self, xml_data, profiles=None):
         return self.collection_type(
             xml_data, profiles, None, 'bootstrap'
         )
 
     @classmethod
-    def system_collection_type(self, xml_data, profiles=[], build_type=None):
+    def system_collection_type(self, xml_data, profiles=None, build_type=None):
         return self.collection_type(
             xml_data, profiles, build_type, 'image'
         )
 
     @classmethod
     def collection_type(
-        self, xml_data, profiles=[], build_type=None, section_type='image'
+        self, xml_data, profiles=None, build_type=None, section_type='image'
     ):
         """
             get collection type specified in system packages sections
@@ -237,7 +281,7 @@ class XMLState(object):
         if not profiles:
             profiles = XMLState.used_profiles(xml_data, profiles)
         if not build_type:
-            build_type = XMLState.build_type(xml_data, profiles)
+            build_type = XMLState.default_build_type(xml_data, profiles)
         typed_packages_sections = XMLState.packages_sections(
             xml_data, profiles, [section_type, build_type]
         )
@@ -250,20 +294,20 @@ class XMLState(object):
         return collection_type
 
     @classmethod
-    def bootstrap_collections(self, xml_data, profiles=[]):
+    def bootstrap_collections(self, xml_data, profiles=None):
         return self.collections(
             xml_data, profiles, None, 'bootstrap'
         )
 
     @classmethod
-    def system_collections(self, xml_data, profiles=[], build_type=None):
+    def system_collections(self, xml_data, profiles=None, build_type=None):
         return self.collections(
             xml_data, profiles, build_type, 'image'
         )
 
     @classmethod
     def collections(
-        self, xml_data, profiles=[], build_type=None, section_type='image'
+        self, xml_data, profiles=None, build_type=None, section_type='image'
     ):
         """
             get list of system collections, take build_type into account
@@ -272,7 +316,7 @@ class XMLState(object):
         if not profiles:
             profiles = XMLState.used_profiles(xml_data, profiles)
         if not build_type:
-            build_type = XMLState.build_type(xml_data, profiles)
+            build_type = XMLState.default_build_type(xml_data, profiles)
         typed_packages_sections = XMLState.packages_sections(
             xml_data, profiles, [section_type, build_type]
         )
@@ -282,20 +326,20 @@ class XMLState(object):
         return list(set(result))
 
     @classmethod
-    def bootstrap_products(self, xml_data, profiles=[]):
+    def bootstrap_products(self, xml_data, profiles=None):
         return self.products(
             xml_data, profiles, None, 'bootstrap'
         )
 
     @classmethod
-    def system_products(self, xml_data, profiles=[], build_type=None):
+    def system_products(self, xml_data, profiles=None, build_type=None):
         return self.products(
             xml_data, profiles, build_type, 'image'
         )
 
     @classmethod
     def products(
-        self, xml_data, profiles=[], build_type=None, section_type='image'
+        self, xml_data, profiles=None, build_type=None, section_type='image'
     ):
         """
             get list of system products, take build_type into account
@@ -304,7 +348,7 @@ class XMLState(object):
         if not profiles:
             profiles = XMLState.used_profiles(xml_data, profiles)
         if not build_type:
-            build_type = XMLState.build_type(xml_data, profiles)
+            build_type = XMLState.default_build_type(xml_data, profiles)
         typed_packages_sections = XMLState.packages_sections(
             xml_data, profiles, [section_type, build_type]
         )
@@ -317,7 +361,7 @@ class XMLState(object):
     def set_repository(
         self, xml_data,
         repo_source, repo_type, repo_alias, repo_prio,
-        profiles=[]
+        profiles=None
     ):
         """
             overwrite repository data for the first repo in the list
