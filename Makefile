@@ -18,7 +18,7 @@ list_tests:
 %.py:
 	nosetests $@
 
-xml_parser: schema/KIWISchema.xsd
+kiwi/xml_parse.py: schema/KIWISchema.xsd
 	# XML parser code is auto generated from schema using generateDS
 	# http://pythonhosted.org/generateDS
 	generateDS.py --external-encoding='utf-8' \
