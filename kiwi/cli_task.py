@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
 import sys
 import logging
 
@@ -22,6 +23,11 @@ import logging
 from cli import Cli
 from help import Help
 from xml_state import XMLState
+from xml_description import XMLDescription
+
+from exceptions import (
+    KiwiConfigFileNotFound
+)
 
 
 class CliTask(object):
@@ -63,21 +69,30 @@ class CliTask(object):
         from logger import log
 
         log.info('Loading XML description')
-        (self.xml, self.config_file) = XMLState.load_xml(
-            description_directory
-        )
-        log.info('--> loaded %s', self.config_file)
-        self.used_profiles = XMLState.used_profiles(
-            self.xml, self.profile_list()
-        )
-        if self.used_profiles:
-            log.info('--> Using profiles: %s', ','.join(self.used_profiles))
+        config_file = description_directory + '/config.xml'
+        if not os.path.exists(config_file):
+            # alternative config file lookup
+            config_file = description_directory + '/image/config.xml'
 
-    def profile_list(self):
-        profiles = []
-        if self.global_args['--profile']:
-            profiles = self.global_args['--profile'].split(',')
-        return profiles
+        if not os.path.exists(config_file):
+            raise KiwiConfigFileNotFound(
+                'no XML description found in %s' % description_directory
+            )
+
+        description = XMLDescription(
+            config_file
+        )
+        self.xml_data = description.load()
+        self.config_file = config_file.replace('//', '/')
+        self.state = XMLState(
+            self.xml_data,
+            self.global_args['--profile'],
+            self.global_args['--type']
+        )
+
+        log.info('--> loaded %s', self.config_file)
+        if self.state.profiles:
+            log.info('--> Using profiles: %s', ','.join(self.state.profiles))
 
     def quadruple_token(self, option):
         tokens = option.split(',', 3)

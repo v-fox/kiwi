@@ -18,7 +18,6 @@
 """
 usage: kiwi system prepare -h | --help
        kiwi system prepare --description=<directory> --root=<directory>
-           [--type=<buildtype>]
            [--allow-existing-root]
            [--set-repo=<source,type,alias,priority>]
            [--add-repo=<source,type,alias,priority>...]
@@ -40,9 +39,6 @@ options:
         allow to use an existing root directory. Use with caution
         this could cause an inconsistent root tree if the existing
         contents does not fit to the additional installation
-    --type=<buildtype>
-        set the build type. If not set the default XML specified
-        build type will be used
     --set-repo=<source,type,alias,priority>
         overwrite the repo source, type, alias or priority for the first
         repository in the XML description
@@ -57,7 +53,6 @@ from help import Help
 from xml_description import XMLDescription
 from system import System
 from system_setup import SystemSetup
-from xml_state import XMLState
 from profile import Profile
 
 from logger import log
@@ -77,7 +72,7 @@ class SystemPrepareTask(CliTask):
         )
 
         # FIXME: test code only
-        # profile = Profile(self.xml, self.used_profiles)
+        # profile = Profile(self.state)
         # profile.write()
         # print profile.dot_profile
         # return
@@ -85,37 +80,33 @@ class SystemPrepareTask(CliTask):
         if self.command_args['--set-repo']:
             (repo_source, repo_type, repo_alias, repo_prio) = \
                 self.quadruple_token(self.command_args['--set-repo'])
-            XMLState.set_repository(
-                self.xml,
-                repo_source, repo_type, repo_alias, repo_prio,
-                self.used_profiles
+            self.state.set_repository(
+                repo_source, repo_type, repo_alias, repo_prio
             )
 
         if self.command_args['--add-repo']:
             for add_repo in self.command_args['--add-repo']:
                 (repo_source, repo_type, repo_alias, repo_prio) = \
                     self.quadruple_token(add_repo)
-                XMLState.add_repository(
-                    self.xml,
+                self.state.add_repository(
                     repo_source, repo_type, repo_alias, repo_prio
                 )
 
         if self.command_args['prepare']:
             log.info('Preparing system')
             self.system = System(
-                self.xml,
+                self.state,
                 self.command_args['--root'],
-                self.used_profiles,
                 self.command_args['--allow-existing-root']
             )
             manager = self.system.setup_repositories()
             self.system.install_bootstrap(manager)
             self.system.install_system(
-                manager, self.command_args['--type']
+                manager
             )
 
             self.setup = SystemSetup(
-                self.xml,
+                self.state,
                 self.command_args['--description'],
                 self.command_args['--root']
             )

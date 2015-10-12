@@ -17,7 +17,8 @@
 #
 """
 usage: kiwi -h | --help
-       kiwi [--profile=<name>]
+       kiwi [--profile=<name>...]
+            [--type=<build_type>]
             [--logfile=<filename>]
             [--debug]
            system <command> [<args>...]
@@ -28,7 +29,11 @@ global options:
     -v --version
         show program version
     --profile=<name>
-        comma separated list of profile names
+        profile name, multiple profiles can be selected by passing
+        this option multiple times
+    --type=<build_type>
+        image build type. If not set the default XML specified
+        build type will be used
     --logfile=<filename>
         create a log file containing all log information including
         debug information even if this is was not requested by the
@@ -113,7 +118,9 @@ class Cli(object):
 
     def __load_command_args(self):
         try:
-            argv = [self.get_servicename(), self.get_command()] + self.command_args
+            argv = [
+                self.get_servicename(), self.get_command()
+            ] + self.command_args
             return docopt(self.command_loaded.__doc__, argv=argv)
         except Exception:
             raise KiwiCommandNotLoaded(

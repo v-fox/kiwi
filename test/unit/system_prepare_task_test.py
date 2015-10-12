@@ -39,7 +39,6 @@ class TestSystemPrepareTask(object):
         self.task.command_args['prepare'] = False
         self.task.command_args['--description'] = '../data/description'
         self.task.command_args['--root'] = '../data/root-dir'
-        self.task.command_args['--type'] = None
         self.task.command_args['--allow-existing-root'] = False
         self.task.command_args['--set-repo'] = None
         self.task.command_args['--add-repo'] = []
@@ -51,7 +50,7 @@ class TestSystemPrepareTask(object):
         self.task.system.setup_repositories.assert_called_once_with()
         self.task.system.install_bootstrap.assert_called_once_with(self.manager)
         self.task.system.install_system.assert_called_once_with(
-            self.manager, self.task.command_args['--type']
+            self.manager
         )
         self.task.setup.import_description.assert_called_once_with()
         self.task.setup.import_overlay_files.assert_called_once_with()
@@ -64,8 +63,7 @@ class TestSystemPrepareTask(object):
         self.task.command_args['--set-repo'] = 'http://example.com,yast2,alias'
         self.task.process()
         mock_state.assert_called_once_with(
-            self.task.xml, 'http://example.com',
-            'yast2', 'alias', None, ['vmxFlavour']
+            'http://example.com', 'yast2', 'alias', None
         )
 
     @patch('kiwi.xml_state.XMLState.add_repository')
@@ -76,8 +74,7 @@ class TestSystemPrepareTask(object):
         ]
         self.task.process()
         mock_state.assert_called_once_with(
-            self.task.xml, 'http://example.com',
-            'yast2', 'alias', None
+            'http://example.com', 'yast2', 'alias', None
         )
 
     def test_process_system_prepare_help(self):

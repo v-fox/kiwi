@@ -34,8 +34,8 @@ class SystemSetup(object):
         some setup steps needs to be performed in order to provide
         a minimal work environment inside of the image.
     """
-    def __init__(self, xml_data, description_dir, root_dir):
-        self.xml = xml_data
+    def __init__(self, xml_state, description_dir, root_dir):
+        self.xml_state = xml_state
         self.description_dir = description_dir
         self.root_dir = root_dir
 
@@ -48,7 +48,7 @@ class SystemSetup(object):
         Command.run(['mkdir', '-p', self.root_dir + '/image'])
         with open(description, 'w') as config:
             config.write('<?xml version="1.0" encoding="utf-8"?>')
-            self.xml.export(outfile=config, level=0)
+            self.xml_state.xml_data.export(outfile=config, level=0)
 
         need_script_helper_functions = False
         config_script = self.description_dir + '/config.sh'

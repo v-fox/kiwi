@@ -7,43 +7,36 @@ import nose_helper
 
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
-from kiwi.exceptions import (
-    KiwiConfigFileNotFound
-)
+from kiwi.exceptions import *
 
 
 class TestXMLState(object):
     def setup(self):
-        description = XMLDescription('../data/example_config.xml')
-        self.xml = description.load()
-
-    def test_profiled(self):
-        preferences_sections = XMLState.profiled(
-            self.xml.get_preferences(), ['ec2Flavour']
+        description = XMLDescription(
+            '../data/example_config.xml'
         )
-        for preferences in preferences_sections:
-            profiles = preferences.get_profiles()
-            if profiles:
-                assert profiles == 'ec2Flavour'
+        xml_data = description.load()
+        self.state = XMLState(xml_data)
 
     def test_build_type_primary_selected(self):
-        assert XMLState.default_build_type(self.xml) == 'iso'
+        assert self.state.build_type_name() == 'iso'
 
     def test_build_type_first_selected(self):
-        self.xml.get_preferences()[0].get_type()[0].set_primary(False)
-        assert XMLState.default_build_type(self.xml) == 'iso'
+        self.state.xml_data.get_preferences()[1].get_type()[0].set_primary(
+            False
+        )
+        assert self.state.build_type_name() == 'iso'
 
     def test_package_manager(self):
-        assert XMLState.package_manager(self.xml) == 'zypper'
+        assert self.state.package_manager() == 'zypper'
 
     def test_bootstrap_packages(self):
-        assert XMLState.bootstrap_packages(self.xml) == [
+        assert self.state.bootstrap_packages() == [
             'filesystem'
         ]
 
     def test_system_packages(self):
-        print XMLState.system_packages(self.xml)
-        assert XMLState.system_packages(self.xml) == [
+        assert self.state.system_packages() == [
             'gfxboot-branding-openSUSE',
             'iputils',
             'grub2-branding-openSUSE',
@@ -55,62 +48,101 @@ class TestXMLState(object):
         ]
 
     def test_system_collections(self):
-        assert XMLState.system_collections(self.xml) == [
+        assert self.state.system_collections() == [
             'base'
         ]
 
     def test_system_products(self):
-        assert XMLState.system_products(self.xml) == [
+        assert self.state.system_products() == [
             'openSUSE'
         ]
 
     def test_system_archives(self):
-        assert XMLState.system_archives(self.xml) == [
+        assert self.state.system_archives() == [
             'image.tgz'
         ]
 
     def test_system_collection_type(self):
-        assert XMLState.system_collection_type(self.xml) == 'plusRecommended'
+        assert self.state.system_collection_type() == 'plusRecommended'
 
     def test_bootstrap_collections(self):
-        assert XMLState.bootstrap_collections(self.xml) == [
+        assert self.state.bootstrap_collections() == [
             'bootstrap-collection'
         ]
 
     def test_bootstrap_products(self):
-        assert XMLState.bootstrap_products(self.xml) == ['kiwi']
+        assert self.state.bootstrap_products() == ['kiwi']
 
     def test_bootstrap_archives(self):
-        assert XMLState.bootstrap_archives(self.xml) == ['bootstrap.tgz']
+        assert self.state.bootstrap_archives() == ['bootstrap.tgz']
 
     def test_bootstrap_collection_type(self):
-        assert XMLState.bootstrap_collection_type(self.xml) == 'onlyRequired'
+        assert self.state.bootstrap_collection_type() == 'onlyRequired'
 
     def test_set_repository(self):
-        XMLState.set_repository(self.xml, 'repo', 'type', 'alias', 1)
-        assert self.xml.get_repository()[0].get_source().get_path() == 'repo'
-        assert self.xml.get_repository()[0].get_type() == 'type'
-        assert self.xml.get_repository()[0].get_alias() == 'alias'
-        assert self.xml.get_repository()[0].get_priority() == 1
+        self.state.set_repository('repo', 'type', 'alias', 1)
+        assert self.state.xml_data.get_repository()[0].get_source().get_path() \
+            == 'repo'
+        assert self.state.xml_data.get_repository()[0].get_type() == 'type'
+        assert self.state.xml_data.get_repository()[0].get_alias() == 'alias'
+        assert self.state.xml_data.get_repository()[0].get_priority() == 1
 
     def test_add_repository(self):
-        XMLState.add_repository(self.xml, 'repo', 'type', 'alias', 1)
-        assert self.xml.get_repository()[1].get_source().get_path() == 'repo'
-        assert self.xml.get_repository()[1].get_type() == 'type'
-        assert self.xml.get_repository()[1].get_alias() == 'alias'
-        assert self.xml.get_repository()[1].get_priority() == 1
-
-    @raises(KiwiConfigFileNotFound)
-    def test_load_xml(self):
-        XMLState.load_xml('foo')
-
-    def test_load_xml_first_choice(self):
-        assert XMLState.load_xml('../data/description')[1] == \
-            '../data/description/config.xml'
-
-    def test_load_xml_second_choice(self):
-        assert XMLState.load_xml('../data/root-dir')[1] == \
-            '../data/root-dir/image/config.xml'
+        self.state.add_repository('repo', 'type', 'alias', 1)
+        assert self.state.xml_data.get_repository()[1].get_source().get_path() \
+            == 'repo'
+        assert self.state.xml_data.get_repository()[1].get_type() == 'type'
+        assert self.state.xml_data.get_repository()[1].get_alias() == 'alias'
+        assert self.state.xml_data.get_repository()[1].get_priority() == 1
 
     def test_to_become_deleted_packages(self):
-        assert XMLState.to_become_deleted_packages(self.xml) == ['kernel-debug']
+        assert self.state.to_become_deleted_packages() == ['kernel-debug']
+
+    def test_system_disk(self):
+        assert self.state.system_disk() == None
+
+    def test_volume_management(self):
+        assert self.state.volume_management() == None
+
+    def test_build_type_preferences_sections(self):
+        preferences = self.state.build_type_preferences_sections()
+        assert preferences[1].get_version()[0] == '1.13.2'
+
+    def test_volume_management_none(self):
+        assert self.state.volume_management() == None
+
+    def test_volume_management_btrfs(self):
+        description = XMLDescription('../data/example_btrfs_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        assert state.volume_management() == 'btrfs'
+
+    def test_volume_management_lvm_prefer(self):
+        description = XMLDescription('../data/example_lvm_preferred_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        assert state.volume_management() == 'lvm'
+
+    def test_volume_management_lvm_default(self):
+        description = XMLDescription('../data/example_lvm_default_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        assert state.volume_management() == 'lvm'
+
+    def test_build_type_explicitly_selected(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        self.state = XMLState(xml_data, ['vmxFlavour'], 'vmx')
+        assert self.state.build_type_name() == 'vmx'
+
+    @raises(KiwiTypeNotFound)
+    def test_build_type_not_found(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        self.state = XMLState(xml_data, ['vmxFlavour'], 'foo')
+
+    @raises(KiwiProfileNotFound)
+    def test_profile_not_found(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        self.state = XMLState(xml_data, ['foo'])

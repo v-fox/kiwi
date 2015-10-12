@@ -14,6 +14,9 @@
         <profile name="vmxFlavour" description="VMX with default kernel" import="true"/>
     </profiles>
     <preferences>
+        <locale>de_DE</locale>
+    </preferences>
+    <preferences>
         <type image="iso" primary="true" boot="isoboot/suse-13.2" flags="overlay" hybrid="true" firmware="efi" kernelcmdline="splash"/>
         <version>1.13.2</version>
         <packagemanager>zypper</packagemanager>

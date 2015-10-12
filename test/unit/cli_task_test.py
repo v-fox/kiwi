@@ -26,7 +26,7 @@ class TestCliTask(object):
             sys.argv[0],
             '--debug',
             '--logfile', 'log',
-            '--profile', 'foo',
+            '--profile', 'vmxFlavour',
             'system',
             'prepare',
             '--description', 'description',
@@ -38,14 +38,15 @@ class TestCliTask(object):
         mock_setlevel.assert_called_once_with(logging.DEBUG)
         mock_setlog.assert_called_once_with('log')
 
-    def test_profile_list(self):
-        assert self.task.profile_list() == ['foo']
-
     def test_quadruple_token(self):
         assert self.task.quadruple_token('a,b') == ['a', 'b', None, None]
 
     def test_load_xml_description(self):
         self.task.load_xml_description('../data/description')
         assert self.task.config_file == '../data/description/config.xml'
-        assert isinstance(self.task.xml, kiwi.xml_parse.image)
-        assert self.task.used_profiles == ['foo']
+        assert isinstance(self.task.xml_data, kiwi.xml_parse.image)
+        assert self.task.state.profiles == ['vmxFlavour']
+
+    @raises(KiwiConfigFileNotFound)
+    def test_load_xml_description_raises(self):
+        self.task.load_xml_description('foo')

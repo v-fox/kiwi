@@ -71,9 +71,8 @@ class SystemUpdateTask(CliTask):
         if self.command_args['update']:
             log.info('Updating system')
             self.system = System(
-                self.xml,
+                self.state,
                 self.command_args['--root'],
-                self.used_profiles,
                 allow_existing=True
             )
             manager = self.system.setup_repositories()

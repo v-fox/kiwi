@@ -13,8 +13,10 @@ from kiwi.exceptions import *
 
 class TestSystemSetup(object):
     def setup(self):
-        self.xml = mock.Mock()
-        self.setup = SystemSetup(self.xml, 'description_dir', 'root_dir')
+        self.xml_state = mock.Mock()
+        self.setup = SystemSetup(
+            self.xml_state, 'description_dir', 'root_dir'
+        )
 
     @patch('kiwi.command.Command.run')
     @patch('__builtin__.open')
@@ -27,7 +29,7 @@ class TestSystemSetup(object):
             call([
                 'mkdir', '-p', 'root_dir/image'
             ])
-        assert self.xml.export.called
+        assert self.xml_state.xml_data.export.called_once_with()
         call = mock_command.call_args_list[1]
         assert mock_command.call_args_list[1] == \
             call([

@@ -26,7 +26,6 @@ from repository import Repository
 from package_manager import PackageManager
 from command import Command
 from command_process import CommandProcess
-from xml_state import XMLState
 from uri import Uri
 from archive_tar import ArchiveTar
 
@@ -46,7 +45,9 @@ class System(object):
     """
         Implements preparation and installation of a new root system
     """
-    def __init__(self, xml_data, root_dir, profiles=[], allow_existing=False):
+    def __init__(
+        self, xml_state, root_dir, allow_existing=False
+    ):
         """
             setup and host bind new root system at given root_dir directory
         """
@@ -62,8 +63,8 @@ class System(object):
         root_bind.mount_kernel_file_systems()
         # root_bind.mount_shared_directory()
 
-        self.xml = xml_data
-        self.profiles = profiles
+        self.xml_state = xml_state
+        self.profiles = xml_state.profiles
         self.allow_existing = allow_existing
         self.root_bind = root_bind
 
@@ -78,12 +79,8 @@ class System(object):
             set up repositories for software installation and return a
             package manager for performing software installation tasks
         """
-        repository_sections = XMLState.profiled(
-            self.xml.get_repository(), self.profiles
-        )
-        package_manager = XMLState.package_manager(
-            self.xml, self.profiles
-        )
+        repository_sections = self.xml_state.repository_sections()
+        package_manager = self.xml_state.package_manager()
         repo = Repository.new(
             self.root_bind, package_manager
         )
@@ -122,25 +119,15 @@ class System(object):
             from the host, also known as bootstrapping
         """
         log.info('Installing bootstrap packages')
-        bootstrap_packages = XMLState.bootstrap_packages(
-            self.xml, self.profiles
-        )
+        bootstrap_packages = self.xml_state.bootstrap_packages()
         bootstrap_packages.append(
-            XMLState.package_manager(self.xml, self.profiles)
+            self.xml_state.package_manager()
         )
-        collection_type = XMLState.bootstrap_collection_type(
-            self.xml, self.profiles
-        )
+        collection_type = self.xml_state.bootstrap_collection_type()
         log.info('--> collection type: %s', collection_type)
-        bootstrap_collections = XMLState.bootstrap_collections(
-            self.xml, self.profiles
-        )
-        bootstrap_products = XMLState.bootstrap_products(
-            self.xml, self.profiles
-        )
-        bootstrap_archives = XMLState.bootstrap_archives(
-            self.xml, self.profiles
-        )
+        bootstrap_collections = self.xml_state.bootstrap_collections()
+        bootstrap_products = self.xml_state.bootstrap_products()
+        bootstrap_archives = self.xml_state.bootstrap_archives()
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
@@ -174,32 +161,23 @@ class System(object):
                     'Bootstrap archive installation failed: %s' % format(e)
                 )
 
-    def install_system(self, manager, build_type=None):
+    def install_system(self, manager):
         """
             install system software using the package manager inside
             of the new root directory. This is done via a chroot operation
             and requires the desired package manager to became installed
             via the bootstrap phase
         """
-        if not build_type:
-            build_type = XMLState.default_build_type(self.xml, self.profiles)
-        log.info('Installing system (chroot) for build type: %s', build_type)
-        collection_type = XMLState.system_collection_type(
-            self.xml, self.profiles, build_type
+        log.info(
+            'Installing system (chroot) for build type: %s',
+            self.xml_state.build_type_name()
         )
+        collection_type = self.xml_state.system_collection_type()
         log.info('--> collection type: %s', collection_type)
-        system_packages = XMLState.system_packages(
-            self.xml, self.profiles, build_type
-        )
-        system_collections = XMLState.system_collections(
-            self.xml, self.profiles, build_type
-        )
-        system_products = XMLState.system_products(
-            self.xml, self.profiles, build_type
-        )
-        system_archives = XMLState.system_archives(
-            self.xml, self.profiles
-        )
+        system_packages = self.xml_state.system_packages()
+        system_collections = self.xml_state.system_collections()
+        system_products = self.xml_state.system_products()
+        system_archives = self.xml_state.system_archives()
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
@@ -236,9 +214,7 @@ class System(object):
         """
             delete packages marked for deletion in the XML description
         """
-        to_become_deleted_packages = XMLState.to_become_deleted_packages(
-            self.xml, self.profiles
-        )
+        to_become_deleted_packages = self.xml_state.to_become_deleted_packages()
         if to_become_deleted_packages:
             log.info('Pinch system')
             try:
@@ -317,7 +293,9 @@ class System(object):
         log.info("Installing archives")
         for archive in archive_list:
             log.info("--> archive: %s", archive)
-            tar = ArchiveTar(self.xml.description_dir + '/' + archive)
+            tar = ArchiveTar(
+                self.xml_state.xml_data.description_dir + '/' + archive
+            )
             tar.extract(self.root_bind.root_dir)
 
     def __setup_requests(self, manager, packages, collections=[], products=[]):

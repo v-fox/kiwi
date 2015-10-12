@@ -131,3 +131,11 @@ class KiwiLogFileSetupFailed(KiwiError):
 
 class KiwiScriptFailed(KiwiError):
     pass
+
+
+class KiwiProfileNotFound(KiwiError):
+    pass
+
+
+class KiwiTypeNotFound(KiwiError):
+    pass

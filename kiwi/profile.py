@@ -17,7 +17,6 @@
 #
 # project
 from shell import Shell
-from xml_state import XMLState
 
 
 class Profile(object):
@@ -26,9 +25,8 @@ class Profile(object):
         description. The information is used by the kiwi first
         boot code.
     """
-    def __init__(self, xml_data, profiles):
-        self.xml = xml_data
-        self.profiles = profiles
+    def __init__(self, xml_state):
+        self.xml_state = xml_state
         self.dot_profile = {}
 
     def write(self):
@@ -100,7 +98,7 @@ class Profile(object):
         # TODO
         pass
 
-    def __preferences_to_profile(self, build_type=None):
+    def __preferences_to_profile(self):
         # kiwi_iversion
         # kiwi_showlicense
         # kiwi_keytable
@@ -109,10 +107,7 @@ class Profile(object):
         # kiwi_language
         # kiwi_splash_theme
         # kiwi_loader_theme
-        preferences_sections = XMLState.build_type_preferences_sections(
-            self.xml, self.profiles, build_type
-        )
-        for preferences in preferences_sections:
+        for preferences in self.xml_state.build_type_preferences_sections():
             self.dot_profile['kiwi_iversion'] = \
                 self.__text(preferences.get_version())
             self.dot_profile['kiwi_showlicense'] = \
@@ -130,7 +125,7 @@ class Profile(object):
             self.dot_profile['kiwi_loader_theme'] = \
                 self.__text(preferences.get_bootloader_theme())
 
-    def __type_to_profile(self, build_type=None):
+    def __type_to_profile(self):
         # kiwi_type
         # kiwi_compressed
         # kiwi_boot_timeout
@@ -149,9 +144,7 @@ class Profile(object):
         # kiwi_fsmountoptions
         # kiwi_bootprofile
         # kiwi_vga
-        type_section = XMLState.build_type_section(
-            self.xml, self.profiles, build_type
-        )
+        type_section = self.xml_state.build_type
         self.dot_profile['kiwi_type'] = \
             type_section.get_image()
         self.dot_profile['kiwi_compressed'] = \
@@ -192,29 +185,25 @@ class Profile(object):
     def __profile_names_to_profile(self):
         # kiwi_profiles
         self.dot_profile['kiwi_profiles'] = ','.join(
-            XMLState.used_profiles(self.xml, self.profiles)
+            self.xml_state.profiles
         )
 
     def __packages_marked_for_deletion_to_profile(self):
         # kiwi_delete
         self.dot_profile['kiwi_delete'] = ' '.join(
-            XMLState.to_become_deleted_packages(self.xml, self.profiles)
+            self.xml_state.to_become_deleted_packages()
         )
 
-    def __image_names_to_profile(self, build_type=None):
+    def __image_names_to_profile(self):
         # kiwi_displayname
         # kiwi_cpio_name
         # kiwi_iname
         self.dot_profile['kiwi_iname'] = \
-            self.xml.get_name()
+            self.xml_state.xml_data.get_name()
         self.dot_profile['kiwi_displayname'] = \
-            self.xml.get_displayname()
+            self.xml_state.xml_data.get_displayname()
 
-        build_type = XMLState.build_type_section(
-            self.xml, self.profiles, build_type
-        ).get_image()
-
-        if build_type == 'cpio':
+        if self.xml_state.build_type_name() == 'cpio':
             self.dot_profile['kiwi_cpio_name'] = self.dot_profile['kiwi_iname']
 
     def __text(self, section_content):

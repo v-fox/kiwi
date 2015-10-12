@@ -17,6 +17,7 @@ import kiwi
 
 from kiwi.system import System
 from kiwi.xml_description import XMLDescription
+from kiwi.xml_state import XMLState
 from kiwi.command import Command
 
 
@@ -68,9 +69,12 @@ class TestSystem(object):
         root_bind = mock.MagicMock()
         root_bind.root_dir = 'root_dir'
         mock_root_bind.return_value = root_bind
+        self.state = XMLState(
+            self.xml
+        )
         self.system = System(
-            xml_data=self.xml, root_dir='root_dir',
-            profiles=[], allow_existing=True
+            xml_state=self.state, root_dir='root_dir',
+            allow_existing=True
         )
         mock_root_init.assert_called_once_with(
             'root_dir', True
@@ -158,7 +162,7 @@ class TestSystem(object):
     @patch('kiwi.system.Repository.new')
     @patch('kiwi.system.Uri')
     @patch('kiwi.system.PackageManager.new')
-    @patch('kiwi.system.XMLState.package_manager')
+    @patch('kiwi.xml_state.XMLState.package_manager')
     def test_setup_repositories(
         self, mock_package_manager, mock_manager, mock_uri, mock_repo
     ):

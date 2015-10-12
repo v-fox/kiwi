@@ -12,12 +12,13 @@ class TestCli(object):
     def setup(self):
         self.help_global_args = {
             'help': False,
+            '--type': None,
             'system': True,
             '-h': False,
             '--logfile': None,
             '--version': False,
             '--debug': False,
-            '--profile': None,
+            '--profile': [],
             '--help': False
         }
         self.command_args = {
@@ -27,7 +28,6 @@ class TestCli(object):
             '--help': False,
             '--root': 'directory',
             '--set-repo': None,
-            '--type': None,
             '-h': False,
             'help': False,
             'prepare': True,
