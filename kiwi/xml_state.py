@@ -330,11 +330,7 @@ class XMLState(object):
         """
         # lookup all preferences sections for selected profiles
         image_type_sections = []
-        preferences_sections = self.__profiled(
-            self.xml_data.get_preferences()
-        )
-
-        for preferences in preferences_sections:
+        for preferences in self.preferences_sections():
             image_type_sections += preferences.get_type()
 
         # lookup if build type matches provided type
