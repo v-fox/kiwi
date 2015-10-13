@@ -176,7 +176,7 @@ class Profile(object):
         if systemdisk:
             self.dot_profile['kiwi_lvmgroup'] = systemdisk.get_name()
             if self.xml_state.get_volume_management():
-                self.dot_profile['kiwi_lvm'] = True
+                self.dot_profile['kiwi_lvm'] = 'true'
             for volume in self.xml_state.get_volumes():
                 if volume.name == 'LV@root':
                     if not volume.fullsize:
@@ -324,9 +324,7 @@ class Profile(object):
         """
         if section_content:
             content = section_content[0]
-            if content == 'true':
-                return True
-            elif content == 'false':
+            if content == 'false':
                 return False
             else:
                 return content
