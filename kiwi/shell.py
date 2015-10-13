@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+from command import Command
+from tempfile import NamedTemporaryFile
 
 
 class Shell(object):
@@ -42,5 +44,11 @@ class Shell(object):
             quote given input file which has to be of the form
             key=value to be able to become sourced by the shell
         """
-        # TODO: use baseQuoteFile from KIWIConfig.sh
-        pass
+        temp_copy = NamedTemporaryFile()
+        Command.run(['cp', filename, temp_copy.name])
+        Command.run([
+            'bash', '-c',
+            'source config/functions.sh; baseQuoteFile ' + temp_copy.name
+        ])
+        with open(temp_copy.name) as quoted:
+            return quoted.read().splitlines()
