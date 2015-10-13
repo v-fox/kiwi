@@ -1,6 +1,7 @@
 # Schema formats
 schema/KIWISchema.xsd
 schema/xsi.xsd
+schema/kiwi_revision
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

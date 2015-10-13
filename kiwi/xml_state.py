@@ -21,6 +21,7 @@ from collections import namedtuple
 
 # project
 import xml_parse
+from defaults import Defaults
 
 from exceptions import(
     KiwiProfileNotFound,
@@ -241,9 +242,7 @@ class XMLState(object):
         """
             get volumes section from systemdisk
         """
-        # default free space if no size is specified is set to 20 MB
-        default_freespace = 20
-
+        defaults = Defaults()
         volume_type_list = []
         if self.get_system_disk():
             volumes = self.get_system_disk().get_volume()
@@ -308,7 +307,9 @@ class XMLState(object):
                             self.__to_mega_byte(freespace)
                         )
                     else:
-                        size = 'freespace:' + format(default_freespace)
+                        size = 'freespace:' + format(
+                            defaults.get('kiwi_freespace')
+                        )
 
                     if ':all' in size:
                         size = None

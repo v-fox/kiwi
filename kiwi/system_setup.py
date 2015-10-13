@@ -20,7 +20,6 @@ import os
 # project
 from command import Command
 from command_process import CommandProcess
-from profile import Profile
 from logger import log
 
 from exceptions import (
@@ -88,8 +87,7 @@ class SystemSetup(object):
         """
         Command.run(['rm', '-r', '-f', '/.kconfig', '/image'])
 
-    def import_shell_environment(self):
-        profile = Profile(self.xml_state)
+    def import_shell_environment(self, profile):
         profile_environment = profile.create()
         with open(self.root_dir + '/.profile', 'w') as profile:
             for line in profile_environment:

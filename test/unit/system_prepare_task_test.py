@@ -19,6 +19,8 @@ class TestSystemPrepareTask(object):
         ]
         self.manager = mock.Mock()
         self.system = mock.Mock()
+        self.profile = mock.Mock()
+        self.defaults = mock.Mock()
         self.system.setup_repositories = mock.Mock(
             return_value=self.manager
         )
@@ -27,6 +29,12 @@ class TestSystemPrepareTask(object):
         )
         kiwi.system_prepare_task.SystemSetup = mock.Mock(
             return_value=mock.Mock()
+        )
+        kiwi.system_prepare_task.Profile = mock.Mock(
+            return_value=self.profile
+        )
+        kiwi.system_prepare_task.Defaults = mock.Mock(
+            return_value=self.defaults
         )
         kiwi.system_prepare_task.Help = mock.Mock(
             return_value=mock.Mock()
@@ -52,8 +60,10 @@ class TestSystemPrepareTask(object):
         self.task.system.install_system.assert_called_once_with(
             self.manager
         )
+        self.task.setup.import_shell_environment.assert_called_once_with(
+            self.profile
+        )
         self.task.setup.import_description.assert_called_once_with()
-        self.task.setup.import_shell_environment.assert_called_once_with()
         self.task.setup.import_overlay_files.assert_called_once_with()
         self.task.setup.call_config_script.assert_called_once_with()
         self.task.system.pinch_system.assert_called_once_with(self.manager)

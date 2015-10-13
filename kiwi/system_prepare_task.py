@@ -53,7 +53,8 @@ from help import Help
 from xml_description import XMLDescription
 from system import System
 from system_setup import SystemSetup
-
+from defaults import Defaults
+from profile import Profile
 from logger import log
 
 
@@ -98,13 +99,19 @@ class SystemPrepareTask(CliTask):
                 manager
             )
 
+            profile = Profile(self.state)
+
+            defaults = Defaults()
+            defaults.to_profile(profile)
+
             self.setup = SystemSetup(
                 self.state,
                 self.command_args['--description'],
                 self.command_args['--root']
             )
+            self.setup.import_shell_environment(profile)
+
             self.setup.import_description()
-            self.setup.import_shell_environment()
             self.setup.import_overlay_files()
             self.setup.call_config_script()
 
