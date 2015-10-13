@@ -139,3 +139,7 @@ class KiwiProfileNotFound(KiwiError):
 
 class KiwiTypeNotFound(KiwiError):
     pass
+
+
+class KiwiInvalidVolumeName(KiwiError):
+    pass

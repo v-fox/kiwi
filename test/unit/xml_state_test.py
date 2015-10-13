@@ -8,6 +8,7 @@ import nose_helper
 from kiwi.xml_state import XMLState
 from kiwi.xml_description import XMLDescription
 from kiwi.exceptions import *
+from collections import namedtuple
 
 
 class TestXMLState(object):
@@ -132,17 +133,71 @@ class TestXMLState(object):
     def test_build_type_explicitly_selected(self):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
-        self.state = XMLState(xml_data, ['vmxFlavour'], 'vmx')
-        assert self.state.build_type_name() == 'vmx'
+        state = XMLState(xml_data, ['vmxFlavour'], 'vmx')
+        assert state.build_type_name() == 'vmx'
 
     @raises(KiwiTypeNotFound)
     def test_build_type_not_found(self):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
-        self.state = XMLState(xml_data, ['vmxFlavour'], 'foo')
+        XMLState(xml_data, ['vmxFlavour'], 'foo')
 
     @raises(KiwiProfileNotFound)
     def test_profile_not_found(self):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
-        self.state = XMLState(xml_data, ['foo'])
+        XMLState(xml_data, ['foo'])
+
+    def test_volumes(self):
+        description = XMLDescription('../data/example_lvm_default_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data)
+        volume_type = namedtuple(
+            'volume_type', [
+                'name',
+                'size',
+                'realsize',
+                'realpath',
+                'mountpoint',
+                'fullsize'
+            ]
+        )
+        assert state.volumes() == [
+            volume_type(
+                name='LVusr_lib', size='size:1024',
+                realsize=0, realpath='usr/lib',
+                mountpoint=None, fullsize=False
+            ),
+            volume_type(
+                name='LV@root', size='freespace:500',
+                realsize=0, realpath=None,
+                mountpoint=None, fullsize=False
+            ),
+            volume_type(
+                name='etc-volume', size='freespace:20',
+                realsize=0, realpath='etc',
+                mountpoint='LVetc', fullsize=False
+            ),
+            volume_type(
+                name='bin-volume', size=None,
+                realsize=0, realpath='/usr/bin',
+                mountpoint='LVusr_bin', fullsize=True
+            )
+        ]
+
+    @raises(KiwiInvalidVolumeName)
+    def test_volumes_invalid_name(self):
+        description = XMLDescription('../data/example_lvm_invalid_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['invalid_volume_a'])
+        state.volumes()
+
+    @raises(KiwiInvalidVolumeName)
+    def test_volumes_invalid_mountpoint(self):
+        description = XMLDescription('../data/example_lvm_invalid_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, ['invalid_volume_b'])
+        state.volumes()
+
+    def test_empty_volumes(self):
+        assert self.state.volumes() == []

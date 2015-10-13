@@ -8,6 +8,10 @@
             openSUSE 13.2 JeOS, is a small text based image
         </specification>
     </description>
+    <profiles>
+        <profile name="invalid_volume_a" description="invalid volume"/>
+        <profile name="invalid_volume_b" description="invalid volume"/>
+    </profiles>
     <preferences>
         <version>1.13.2</version>
         <packagemanager>zypper</packagemanager>
@@ -19,26 +23,21 @@
         <rpm-check-signatures>false</rpm-check-signatures>
         <bootsplash-theme>openSUSE</bootsplash-theme>
         <bootloader-theme>openSUSE</bootloader-theme>
-        <type image="oem" filesystem="ext3" boot="oemboot/suse-13.2" installiso="true" bootloader="grub2" kernelcmdline="splash" firmware="efi">
+    </preferences>
+    <preferences profiles="invalid_volume_a">
+        <type image="vmx" filesystem="ext3" boot="vmxboot/suse-13.2">
             <systemdisk>
-                <volume name="usr/lib" size="1G"/>
-                <volume name="@root" freespace="500M"/>
-                <volume name="etc-volume" mountpoint="etc"/>
-                <volume name="bin-volume" size="all" mountpoint="/usr/bin"/>
+                <volume name="foo_foo" size="1G"/>
             </systemdisk>
-            <oemconfig>
-                <oem-systemsize>2048</oem-systemsize>
-                <oem-swap>true</oem-swap>
-            </oemconfig>
-            <machine memory="512" guestOS="suse" HWversion="4">
-                <vmdisk id="0" controller="ide"/>
-                <vmnic driver="e1000" interface="0" mode="bridged"/>
-            </machine>
         </type>
     </preferences>
-    <users group="root">
-        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
-    </users>
+    <preferences profiles="invalid_volume_b">
+        <type image="vmx" filesystem="ext3" boot="vmxboot/suse-13.2">
+            <systemdisk>
+                <volume name="foo" mountpoint="usr_lib/foo" size="1G"/>
+            </systemdisk>
+        </type>
+    </preferences>
     <repository type="yast2">
         <source path="obs://13.2/repo/oss"/>
     </repository>

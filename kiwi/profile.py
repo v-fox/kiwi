@@ -35,6 +35,7 @@ class Profile(object):
         self.__packages_marked_for_deletion_to_profile()
         self.__type_to_profile()
         self.__preferences_to_profile()
+        self.__systemdisk_to_profile()
         # TODO
 
     def __drivers_to_profile(self):
@@ -95,8 +96,30 @@ class Profile(object):
         # kiwi_LVM_LVRoot
         # kiwi_allFreeVolume_X
         # kiwi_LVM_X
-        # TODO
-        pass
+        systemdisk = self.xml_state.system_disk()
+        if not systemdisk:
+            return
+        self.dot_profile['kiwi_lvmgroup'] = systemdisk.get_name()
+        if self.xml_state.volume_management():
+            self.dot_profile['kiwi_lvm'] = True
+        for volume in self.xml_state.volumes():
+            if volume.name == 'LV@root':
+                if not volume.fullsize:
+                    self.dot_profile['kiwi_LVM_LVRoot'] = volume.size
+            elif volume.fullsize:
+                if volume.mountpoint:
+                    self.dot_profile['kiwi_allFreeVolume_' + volume.name] = \
+                        'size:all:' + volume.mountpoint
+                else:
+                    self.dot_profile['kiwi_allFreeVolume_' + volume.name] = \
+                        'size:all'
+            else:
+                if volume.mountpoint:
+                    self.dot_profile['kiwi_LVM_' + volume.name] = \
+                        volume.size + ':' + volume.mountpoint
+                else:
+                    self.dot_profile['kiwi_LVM_' + volume.name] = \
+                        volume.size
 
     def __preferences_to_profile(self):
         # kiwi_iversion

@@ -16,13 +16,16 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+import re
+from collections import namedtuple
 
 # project
 import xml_parse
 
 from exceptions import(
     KiwiProfileNotFound,
-    KiwiTypeNotFound
+    KiwiTypeNotFound,
+    KiwiInvalidVolumeName
 )
 
 
@@ -239,6 +242,95 @@ class XMLState(object):
             if systemdisk:
                 return systemdisk
 
+    def volumes(self):
+        """
+            get volumes section from systemdisk
+        """
+        # default free space if no size is specified is set to 20 MB
+        default_freespace = 20
+
+        volume_type_list = []
+        if self.system_disk():
+            volumes = self.system_disk().get_volume()
+            if volumes:
+                volume_type = namedtuple(
+                    'volume_type', [
+                        'name',
+                        'size',
+                        'realsize',
+                        'realpath',
+                        'mountpoint',
+                        'fullsize'
+                    ]
+                )
+                for volume in volumes:
+                    name = volume.get_name()
+                    mountpoint = volume.get_mountpoint()
+                    size = volume.get_size()
+                    freespace = volume.get_freespace()
+                    path = None
+                    fullsize = False
+                    realpath = None
+                    if mountpoint:
+                        realpath = mountpoint
+                    elif '@root' not in name:
+                        realpath = name
+
+                    if not mountpoint:
+                        # if no mountpoint is specified the name attribute is
+                        # both, the path information as well as the name of
+                        # the volume. However turning a path value into a
+                        # variable requires to introduce a directory separator
+                        # different from '/'. In kiwi the '_' is used and that
+                        # forbids to use this letter as part of name if no
+                        # mountpoint is specified:
+                        if '_' in name:
+                            raise KiwiInvalidVolumeName(
+                                'mountpoint attribute required for volume %s' %
+                                name
+                            )
+                        name = 'LV' + self.__to_volume_name(name)
+                    else:
+                        # if a mountpoint path is specified the value is turned
+                        # into a path variable and name stays untouched. However
+                        # the mountpoint path currently is not allowed to
+                        # contain the directory separator '_'. In order to fix
+                        # this limitation the way the kiwi initrd code handles
+                        # the volume information needs to change first
+                        if '_' in mountpoint:
+                            raise KiwiInvalidVolumeName(
+                                'mountpoint %s must not contain "_"' %
+                                mountpoint
+                            )
+                        mountpoint = 'LV' + self.__to_volume_name(mountpoint)
+
+                    if size:
+                        size = 'size:' + format(
+                            self.__to_mega_byte(size)
+                        )
+                    elif freespace:
+                        size = 'freespace:' + format(
+                            self.__to_mega_byte(freespace)
+                        )
+                    else:
+                        size = 'freespace:' + format(default_freespace)
+
+                    if ':all' in size:
+                        size = None
+                        fullsize = True
+
+                    volume_type_list.append(
+                        volume_type(
+                            name=name,
+                            size=size,
+                            fullsize=fullsize,
+                            realsize=0,
+                            mountpoint=mountpoint,
+                            realpath=realpath
+                        )
+                    )
+        return volume_type_list
+
     def volume_management(self):
         """
             provide information if a volume management system is
@@ -368,3 +460,24 @@ class XMLState(object):
             else:
                 result.append(section)
         return result
+
+    def __to_volume_name(self, name):
+        """
+            build a valid volume name
+        """
+        name = name.strip()
+        name = re.sub(r'^\/+', r'', name)
+        name = name.replace('/', '_')
+        return name
+
+    def __to_mega_byte(self, size):
+        value = re.search('(\d+)([MG]*)', format(size))
+        if value:
+            number = value.group(1)
+            unit = value.group(2)
+            if unit == 'G':
+                return int(number) * 1024
+            else:
+                return int(number)
+        else:
+            return size
