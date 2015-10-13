@@ -306,9 +306,13 @@ class Profile(object):
         # kiwi_iname
         self.dot_profile['kiwi_iname'] = \
             self.xml_state.xml_data.get_name()
+        
         self.dot_profile['kiwi_displayname'] = \
             self.xml_state.xml_data.get_displayname()
-
+        if not self.dot_profile['kiwi_displayname']:
+            self.dot_profile['kiwi_displayname'] = \
+                self.dot_profile['kiwi_iname']
+         
         if self.xml_state.get_build_type_name() == 'cpio':
             self.dot_profile['kiwi_cpio_name'] = self.dot_profile['kiwi_iname']
 
