@@ -101,3 +101,7 @@ class TestProfile(object):
         )
         profile.create()
         assert profile.dot_profile['kiwi_cpio_name'] == 'LimeJeOS-openSUSE-13.2'
+
+    def test_add(self):
+        self.profile.add('foo', 'bar')
+        assert self.profile.dot_profile['foo'] == 'bar'

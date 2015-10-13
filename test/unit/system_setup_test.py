@@ -13,7 +13,7 @@ from kiwi.exceptions import *
 
 class TestSystemSetup(object):
     def setup(self):
-        self.xml_state = mock.Mock()
+        self.xml_state = mock.MagicMock()
         self.setup = SystemSetup(
             self.xml_state, 'description_dir', 'root_dir'
         )

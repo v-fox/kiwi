@@ -32,7 +32,6 @@ class Profile(object):
         self.xml_state = xml_state
         self.dot_profile = {}
 
-    def create(self):
         self.__image_names_to_profile()
         self.__profile_names_to_profile()
         self.__packages_marked_for_deletion_to_profile()
@@ -44,6 +43,10 @@ class Profile(object):
         self.__oemconfig_to_profile()
         self.__drivers_to_profile()
 
+    def add(self, key, value):
+        self.dot_profile[key] = value
+
+    def create(self):
         sorted_profile = collections.OrderedDict(
             sorted(self.dot_profile.items())
         )
