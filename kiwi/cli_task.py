@@ -84,15 +84,17 @@ class CliTask(object):
         )
         self.xml_data = description.load()
         self.config_file = config_file.replace('//', '/')
-        self.state = XMLState(
+        self.xml_state = XMLState(
             self.xml_data,
             self.global_args['--profile'],
             self.global_args['--type']
         )
 
         log.info('--> loaded %s', self.config_file)
-        if self.state.profiles:
-            log.info('--> Using profiles: %s', ','.join(self.state.profiles))
+        if self.xml_state.profiles:
+            log.info('--> Using profiles: %s', ','.join(
+                self.xml_state.profiles)
+            )
 
     def quadruple_token(self, option):
         tokens = option.split(',', 3)

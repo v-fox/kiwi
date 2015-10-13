@@ -74,7 +74,7 @@ class SystemPrepareTask(CliTask):
         if self.command_args['--set-repo']:
             (repo_source, repo_type, repo_alias, repo_prio) = \
                 self.quadruple_token(self.command_args['--set-repo'])
-            self.state.set_repository(
+            self.xml_state.set_repository(
                 repo_source, repo_type, repo_alias, repo_prio
             )
 
@@ -82,14 +82,14 @@ class SystemPrepareTask(CliTask):
             for add_repo in self.command_args['--add-repo']:
                 (repo_source, repo_type, repo_alias, repo_prio) = \
                     self.quadruple_token(add_repo)
-                self.state.add_repository(
+                self.xml_state.add_repository(
                     repo_source, repo_type, repo_alias, repo_prio
                 )
 
         if self.command_args['prepare']:
             log.info('Preparing system')
             self.system = System(
-                self.state,
+                self.xml_state,
                 self.command_args['--root'],
                 self.command_args['--allow-existing-root']
             )
@@ -99,13 +99,13 @@ class SystemPrepareTask(CliTask):
                 manager
             )
 
-            profile = Profile(self.state)
+            profile = Profile(self.xml_state)
 
             defaults = Defaults()
             defaults.to_profile(profile)
 
             self.setup = SystemSetup(
-                self.state,
+                self.xml_state,
                 self.command_args['--description'],
                 self.command_args['--root']
             )

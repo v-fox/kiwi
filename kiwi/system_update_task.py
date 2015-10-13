@@ -71,7 +71,7 @@ class SystemUpdateTask(CliTask):
         if self.command_args['update']:
             log.info('Updating system')
             self.system = System(
-                self.state,
+                self.xml_state,
                 self.command_args['--root'],
                 allow_existing=True
             )
