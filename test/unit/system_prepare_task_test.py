@@ -53,6 +53,7 @@ class TestSystemPrepareTask(object):
             self.manager
         )
         self.task.setup.import_description.assert_called_once_with()
+        self.task.setup.import_shell_environment.assert_called_once_with()
         self.task.setup.import_overlay_files.assert_called_once_with()
         self.task.setup.call_config_script.assert_called_once_with()
         self.task.system.pinch_system.assert_called_once_with(self.manager)

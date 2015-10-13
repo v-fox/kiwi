@@ -53,7 +53,6 @@ from help import Help
 from xml_description import XMLDescription
 from system import System
 from system_setup import SystemSetup
-from profile import Profile
 
 from logger import log
 
@@ -70,12 +69,6 @@ class SystemPrepareTask(CliTask):
         self.load_xml_description(
             self.command_args['--description']
         )
-
-        # FIXME: test code only
-        # profile = Profile(self.state)
-        # profile.write()
-        # print profile.dot_profile
-        # return
 
         if self.command_args['--set-repo']:
             (repo_source, repo_type, repo_alias, repo_prio) = \
@@ -111,6 +104,7 @@ class SystemPrepareTask(CliTask):
                 self.command_args['--root']
             )
             self.setup.import_description()
+            self.setup.import_shell_environment()
             self.setup.import_overlay_files()
             self.setup.call_config_script()
 

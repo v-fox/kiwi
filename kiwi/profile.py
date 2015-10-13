@@ -15,6 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import collections
+from tempfile import NamedTemporaryFile
+
 # project
 from shell import Shell
 
@@ -29,19 +32,27 @@ class Profile(object):
         self.xml_state = xml_state
         self.dot_profile = {}
 
-    def write(self):
+    def create(self):
         self.__image_names_to_profile()
         self.__profile_names_to_profile()
         self.__packages_marked_for_deletion_to_profile()
         self.__type_to_profile()
         self.__preferences_to_profile()
         self.__systemdisk_to_profile()
-        # TODO
+        self.__strip_to_profile()
+        self.__machine_to_profile()
+        self.__oemconfig_to_profile()
+        self.__drivers_to_profile()
 
-    def __drivers_to_profile(self):
-        # kiwi_drivers
-        # TODO
-        pass
+        sorted_profile = collections.OrderedDict(
+            sorted(self.dot_profile.items())
+        )
+        temp_profile = NamedTemporaryFile()
+        with open(temp_profile.name, 'w') as profile:
+            for key, value in sorted_profile.iteritems():
+                if value:
+                    profile.write(format(key) + '=' + format(value) + '\n')
+        return Shell.quote_key_value_file(temp_profile.name)
 
     def __oemconfig_to_profile(self):
         # kiwi_oemataraid_scan
@@ -69,26 +80,91 @@ class Profile(object):
         # kiwi_oemrecoveryID
         # kiwi_oemrecoveryPartSize
         # kiwi_oemrecoveryInPlace
-
-        # NOTE:
+        # TODO:
         # + kiwi_oemataraid_scan requires to be added if set to false
         # + kiwi_oemmultipath_scan requires to be added if set to false
         # Reason is they are matched against 'false' in suse-dump. This should
-        # be fixed in the kiwi linuxrc code to allow this code to stay simple
-        # TODO
-        pass
+        # be fixed in the kiwi linuxrc code to allow this code
+        # to stay simple
+        oemconfig_section = self.xml_state.get_build_type_oemconfig_section()
+        if oemconfig_section:
+            oemconfig = oemconfig_section[0]
+            self.dot_profile['kiwi_oemataraid_scan'] = \
+                self.__text(oemconfig.get_oem_ataraid_scan())
+            self.dot_profile['kiwi_oemvmcp_parmfile'] = \
+                self.__text(oemconfig.get_oem_vmcp_parmfile())
+            self.dot_profile['kiwi_oemmultipath_scan'] = \
+                self.__text(oemconfig.get_oem_multipath_scan())
+            self.dot_profile['kiwi_oemswapMB'] = \
+                self.__text(oemconfig.get_oem_swapsize())
+            self.dot_profile['kiwi_oemrootMB'] = \
+                self.__text(oemconfig.get_oem_systemsize())
+            self.dot_profile['kiwi_oemswap'] = \
+                self.__text(oemconfig.get_oem_swap())
+            self.dot_profile['kiwi_oempartition_install'] = \
+                self.__text(oemconfig.get_oem_partition_install())
+            self.dot_profile['kiwi_oemdevicefilter'] = \
+                self.__text(oemconfig.get_oem_device_filter())
+            self.dot_profile['kiwi_oemtitle'] = \
+                self.__text(oemconfig.get_oem_boot_title())
+            self.dot_profile['kiwi_oemkboot'] = \
+                self.__text(oemconfig.get_oem_kiwi_initrd())
+            self.dot_profile['kiwi_oemreboot'] = \
+                self.__text(oemconfig.get_oem_reboot())
+            self.dot_profile['kiwi_oemrebootinteractive'] = \
+                self.__text(oemconfig.get_oem_reboot_interactive())
+            self.dot_profile['kiwi_oemshutdown'] = \
+                self.__text(oemconfig.get_oem_shutdown())
+            self.dot_profile['kiwi_oemshutdowninteractive'] = \
+                self.__text(oemconfig.get_oem_shutdown_interactive())
+            self.dot_profile['kiwi_oemsilentboot'] = \
+                self.__text(oemconfig.get_oem_silent_boot())
+            self.dot_profile['kiwi_oemsilentinstall'] = \
+                self.__text(oemconfig.get_oem_silent_install())
+            self.dot_profile['kiwi_oemsilentverify'] = \
+                self.__text(oemconfig.get_oem_silent_verify())
+            self.dot_profile['kiwi_oemskipverify'] = \
+                self.__text(oemconfig.get_oem_skip_verify())
+            self.dot_profile['kiwi_oembootwait'] = \
+                self.__text(oemconfig.get_oem_bootwait())
+            self.dot_profile['kiwi_oemunattended'] = \
+                self.__text(oemconfig.get_oem_unattended())
+            self.dot_profile['kiwi_oemunattended_id'] = \
+                self.__text(oemconfig.get_oem_unattended_id())
+            self.dot_profile['kiwi_oemrecovery'] = \
+                self.__text(oemconfig.get_oem_recovery())
+            self.dot_profile['kiwi_oemrecoveryID'] = \
+                self.__text(oemconfig.get_oem_recoveryID())
+            self.dot_profile['kiwi_oemrecoveryPartSize'] = \
+                self.__text(oemconfig.get_oem_recovery_part_size())
+            self.dot_profile['kiwi_oemrecoveryInPlace'] = \
+                self.__text(oemconfig.get_oem_inplace_recovery())
+
+    def __drivers_to_profile(self):
+        # kiwi_drivers
+        self.dot_profile['kiwi_drivers'] = ','.join(
+            self.xml_state.get_drivers_list()
+        )
 
     def __machine_to_profile(self):
         # kiwi_xendomain
-        # TODO
-        pass
+        machine_section = self.xml_state.get_build_type_machine_section()
+        if machine_section:
+            self.dot_profile['kiwi_xendomain'] = machine_section[0].get_domain()
 
     def __strip_to_profile(self):
         # kiwi_strip_delete
         # kiwi_strip_tools
         # kiwi_strip_libs
-        # TODO
-        pass
+        self.dot_profile['kiwi_strip_delete'] = ' '.join(
+            self.xml_state.get_strip_files_to_delete()
+        )
+        self.dot_profile['kiwi_strip_tools'] = ' '.join(
+            self.xml_state.get_strip_tools_to_keep()
+        )
+        self.dot_profile['kiwi_strip_libs'] = ' '.join(
+            self.xml_state.get_strip_libraries_to_keep()
+        )
 
     def __systemdisk_to_profile(self):
         # kiwi_lvmgroup
@@ -96,30 +172,29 @@ class Profile(object):
         # kiwi_LVM_LVRoot
         # kiwi_allFreeVolume_X
         # kiwi_LVM_X
-        systemdisk = self.xml_state.system_disk()
-        if not systemdisk:
-            return
-        self.dot_profile['kiwi_lvmgroup'] = systemdisk.get_name()
-        if self.xml_state.get_volume_management():
-            self.dot_profile['kiwi_lvm'] = True
-        for volume in self.xml_state.get_volumes():
-            if volume.name == 'LV@root':
-                if not volume.fullsize:
-                    self.dot_profile['kiwi_LVM_LVRoot'] = volume.size
-            elif volume.fullsize:
-                if volume.mountpoint:
-                    self.dot_profile['kiwi_allFreeVolume_' + volume.name] = \
-                        'size:all:' + volume.mountpoint
+        systemdisk = self.xml_state.get_system_disk()
+        if systemdisk:
+            self.dot_profile['kiwi_lvmgroup'] = systemdisk.get_name()
+            if self.xml_state.get_volume_management():
+                self.dot_profile['kiwi_lvm'] = True
+            for volume in self.xml_state.get_volumes():
+                if volume.name == 'LV@root':
+                    if not volume.fullsize:
+                        self.dot_profile['kiwi_LVM_LVRoot'] = volume.size
+                elif volume.fullsize:
+                    if volume.mountpoint:
+                        self.dot_profile['kiwi_allFreeVolume_' + volume.name] =\
+                            'size:all:' + volume.mountpoint
+                    else:
+                        self.dot_profile['kiwi_allFreeVolume_' + volume.name] =\
+                            'size:all'
                 else:
-                    self.dot_profile['kiwi_allFreeVolume_' + volume.name] = \
-                        'size:all'
-            else:
-                if volume.mountpoint:
-                    self.dot_profile['kiwi_LVM_' + volume.name] = \
-                        volume.size + ':' + volume.mountpoint
-                else:
-                    self.dot_profile['kiwi_LVM_' + volume.name] = \
-                        volume.size
+                    if volume.mountpoint:
+                        self.dot_profile['kiwi_LVM_' + volume.name] = \
+                            volume.size + ':' + volume.mountpoint
+                    else:
+                        self.dot_profile['kiwi_LVM_' + volume.name] = \
+                            volume.size
 
     def __preferences_to_profile(self):
         # kiwi_iversion
@@ -130,23 +205,31 @@ class Profile(object):
         # kiwi_language
         # kiwi_splash_theme
         # kiwi_loader_theme
-        for preferences in self.xml_state.get_build_type_preferences_sections():
-            self.dot_profile['kiwi_iversion'] = \
-                self.__text(preferences.get_version())
-            self.dot_profile['kiwi_showlicense'] = \
-                self.__text(preferences.get_showlicense())
-            self.dot_profile['kiwi_keytable'] = \
-                self.__text(preferences.get_keytable())
-            self.dot_profile['kiwi_timezone'] = \
-                self.__text(preferences.get_timezone())
-            self.dot_profile['kiwi_hwclock'] = \
-                self.__text(preferences.get_hwclock())
-            self.dot_profile['kiwi_language'] = \
-                self.__text(preferences.get_locale())
-            self.dot_profile['kiwi_splash_theme'] = \
-                self.__text(preferences.get_bootsplash_theme())
-            self.dot_profile['kiwi_loader_theme'] = \
-                self.__text(preferences.get_bootloader_theme())
+        for preferences in self.xml_state.get_preferences_sections():
+            if not 'kiwi_iversion' in self.dot_profile:
+                self.dot_profile['kiwi_iversion'] = \
+                    self.__text(preferences.get_version())
+            if not 'kiwi_showlicense' in self.dot_profile:
+                self.dot_profile['kiwi_showlicense'] = \
+                    self.__text(preferences.get_showlicense())
+            if not 'kiwi_keytable' in self.dot_profile:
+                self.dot_profile['kiwi_keytable'] = \
+                    self.__text(preferences.get_keytable())
+            if not 'kiwi_timezone' in self.dot_profile:
+                self.dot_profile['kiwi_timezone'] = \
+                    self.__text(preferences.get_timezone())
+            if not 'kiwi_hwclock' in self.dot_profile:
+                self.dot_profile['kiwi_hwclock'] = \
+                    self.__text(preferences.get_hwclock())
+            if not 'kiwi_language' in self.dot_profile:
+                self.dot_profile['kiwi_language'] = \
+                    self.__text(preferences.get_locale())
+            if not 'kiwi_splash_theme' in self.dot_profile:
+                self.dot_profile['kiwi_splash_theme'] = \
+                    self.__text(preferences.get_bootsplash_theme())
+            if not 'kiwi_loader_theme' in self.dot_profile:
+                self.dot_profile['kiwi_loader_theme'] = \
+                    self.__text(preferences.get_bootloader_theme())
 
     def __type_to_profile(self):
         # kiwi_type
@@ -236,4 +319,10 @@ class Profile(object):
             structure builder will return the text as a list
         """
         if section_content:
-            return section_content[0]
+            content = section_content[0]
+            if content == 'true':
+                return True
+            elif content == 'false':
+                return False
+            else:
+                return content

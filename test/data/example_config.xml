@@ -1,6 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <image schemaversion="6.1" name="LimeJeOS-openSUSE-13.2">
+    <drivers>
+        <file name="crypto/*"/>
+        <file name="drivers/acpi/*"/>
+    </drivers>
+    <strip type="delete">
+        <file name="del-a"/>
+        <file name="del-b"/>
+    </strip>
+    <strip type="tools">
+        <file name="tool-a"/>
+        <file name="tool-b"/>
+    </strip>
+    <strip type="libs">
+        <file name="lib-a"/>
+        <file name="lib-b"/>
+    </strip>
     <description type="system">
         <author>Marcus Schäfer</author>
         <contact>ms@novell.com</contact>

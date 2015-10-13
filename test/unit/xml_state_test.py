@@ -105,10 +105,6 @@ class TestXMLState(object):
     def test_get_volume_management(self):
         assert self.state.get_volume_management() == None
 
-    def test_get_build_type_preferences_sections(self):
-        preferences = self.state.get_build_type_preferences_sections()
-        assert preferences[1].get_version()[0] == '1.13.2'
-
     def test_get_volume_management_none(self):
         assert self.state.get_volume_management() == None
 
@@ -201,3 +197,28 @@ class TestXMLState(object):
 
     def test_get_empty_volumes(self):
         assert self.state.get_volumes() == []
+
+    def test_get_strip_files_to_delete(self):
+        assert self.state.get_strip_files_to_delete() == ['del-a', 'del-b']
+
+    def test_get_strip_tools_to_keep(self):
+        assert self.state.get_strip_tools_to_keep() == ['tool-a', 'tool-b']
+
+    def test_get_strip_libraries_to_keep(self):
+        assert self.state.get_strip_libraries_to_keep() == ['lib-a', 'lib-b']
+
+    def test_get_build_type_machine_section(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, None, 'vmx')
+        assert state.get_build_type_machine_section()[0].get_guestOS() == 'suse'
+
+    def test_get_drivers_list(self):
+        assert self.state.get_drivers_list() == ['crypto/*', 'drivers/acpi/*']
+
+    def test_get_build_type_oemconfig_section(self):
+        description = XMLDescription('../data/example_config.xml')
+        xml_data = description.load()
+        state = XMLState(xml_data, None, 'oem')
+        assert state.get_build_type_oemconfig_section()[0].get_oem_swap()[0] ==\
+            'true'

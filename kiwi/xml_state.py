@@ -56,22 +56,17 @@ class XMLState(object):
         """
         return self.build_type.get_image()
 
-    def get_build_type_preferences_sections(self):
+    def get_build_type_machine_section(self):
         """
-            find preferences sections which belongs to
-            the build type and profiles
+            get machine section from build type
         """
-        preferences_result_sections = []
-        for preferences in self.get_preferences_sections():
-            image_types = preferences.get_type()
-            if not image_types:
-                preferences_result_sections.append(preferences)
-            else:
-                for image_type in image_types:
-                    if image_type.get_image() == self.get_build_type_name():
-                        preferences_result_sections.append(preferences)
-                        break
-        return preferences_result_sections
+        return self.build_type.get_machine()
+
+    def get_build_type_oemconfig_section(self):
+        """
+            get oemconfig section from build type
+        """
+        return self.build_type.get_oemconfig()
 
     def get_package_manager(self):
         """
@@ -356,7 +351,58 @@ class XMLState(object):
             volume_management = 'lvm'
         return volume_management
 
+    def get_drivers_list(self):
+        """
+            provide list of drivers for configured profiles
+        """
+        drivers_sections = self.__profiled(
+            self.xml_data.get_drivers()
+        )
+        result = []
+        if drivers_sections:
+            for driver in drivers_sections:
+                for file_section in driver.get_file():
+                    result.append(file_section.get_name())
+        return result
+
+    def get_strip_list(self, section_type):
+        """
+            provide list of strip names of the given type for
+            configured profiles
+        """
+        strip_sections = self.__profiled(
+            self.xml_data.get_strip()
+        )
+        result = []
+        if strip_sections:
+            for strip in strip_sections:
+                if strip.get_type() == section_type:
+                    for file_section in strip.get_file():
+                        result.append(file_section.get_name())
+        return result
+
+    def get_strip_files_to_delete(self):
+        """
+            strip names for delete type
+        """
+        return self.get_strip_list('delete')
+
+    def get_strip_tools_to_keep(self):
+        """
+            strip names for tools type
+        """
+        return self.get_strip_list('tools')
+
+    def get_strip_libraries_to_keep(self):
+        """
+            strip names for libs type
+        """
+        return self.get_strip_list('libs')
+
     def get_repository_sections(self):
+        """
+            provide repository sections for configured profiles
+        """
         return self.__profiled(
             self.xml_data.get_repository()
         )

@@ -20,6 +20,7 @@ import os
 # project
 from command import Command
 from command_process import CommandProcess
+from profile import Profile
 from logger import log
 
 from exceptions import (
@@ -88,8 +89,11 @@ class SystemSetup(object):
         Command.run(['rm', '-r', '-f', '/.kconfig', '/image'])
 
     def import_shell_environment(self):
-        # TODO: import_shell_environment
-        raise NotImplementedError
+        profile = Profile(self.xml_state)
+        profile_environment = profile.create()
+        with open(self.root_dir + '/.profile', 'w') as profile:
+            for line in profile_environment:
+                profile.write(line + '\n')
 
     def import_overlay_files(
         self, follow_links=False, preserve_owner_group=False
