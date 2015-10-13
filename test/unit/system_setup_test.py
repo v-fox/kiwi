@@ -55,7 +55,7 @@ class TestSystemSetup(object):
         mock_open.return_value = context_manager_mock
         file_mock = mock.Mock()
         enter_mock = mock.Mock()
-        exit_mock  = mock.Mock()
+        exit_mock = mock.Mock()
         enter_mock.return_value = file_mock
         setattr(context_manager_mock, '__enter__', enter_mock)
         setattr(context_manager_mock, '__exit__', exit_mock)
