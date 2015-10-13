@@ -79,8 +79,8 @@ class System(object):
             set up repositories for software installation and return a
             package manager for performing software installation tasks
         """
-        repository_sections = self.xml_state.repository_sections()
-        package_manager = self.xml_state.package_manager()
+        repository_sections = self.xml_state.get_repository_sections()
+        package_manager = self.xml_state.get_package_manager()
         repo = Repository.new(
             self.root_bind, package_manager
         )
@@ -119,15 +119,15 @@ class System(object):
             from the host, also known as bootstrapping
         """
         log.info('Installing bootstrap packages')
-        bootstrap_packages = self.xml_state.bootstrap_packages()
+        bootstrap_packages = self.xml_state.get_bootstrap_packages()
         bootstrap_packages.append(
-            self.xml_state.package_manager()
+            self.xml_state.get_package_manager()
         )
-        collection_type = self.xml_state.bootstrap_collection_type()
+        collection_type = self.xml_state.get_bootstrap_collection_type()
         log.info('--> collection type: %s', collection_type)
-        bootstrap_collections = self.xml_state.bootstrap_collections()
-        bootstrap_products = self.xml_state.bootstrap_products()
-        bootstrap_archives = self.xml_state.bootstrap_archives()
+        bootstrap_collections = self.xml_state.get_bootstrap_collections()
+        bootstrap_products = self.xml_state.get_bootstrap_products()
+        bootstrap_archives = self.xml_state.get_bootstrap_archives()
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
@@ -170,14 +170,14 @@ class System(object):
         """
         log.info(
             'Installing system (chroot) for build type: %s',
-            self.xml_state.build_type_name()
+            self.xml_state.get_build_type_name()
         )
-        collection_type = self.xml_state.system_collection_type()
+        collection_type = self.xml_state.get_system_collection_type()
         log.info('--> collection type: %s', collection_type)
-        system_packages = self.xml_state.system_packages()
-        system_collections = self.xml_state.system_collections()
-        system_products = self.xml_state.system_products()
-        system_archives = self.xml_state.system_archives()
+        system_packages = self.xml_state.get_system_packages()
+        system_collections = self.xml_state.get_system_collections()
+        system_products = self.xml_state.get_system_products()
+        system_archives = self.xml_state.get_system_archives()
         # process package installations
         if collection_type == 'onlyRequired':
             manager.process_only_required()
@@ -214,7 +214,8 @@ class System(object):
         """
             delete packages marked for deletion in the XML description
         """
-        to_become_deleted_packages = self.xml_state.to_become_deleted_packages()
+        to_become_deleted_packages = \
+            self.xml_state.get_to_become_deleted_packages()
         if to_become_deleted_packages:
             log.info('Pinch system')
             try:

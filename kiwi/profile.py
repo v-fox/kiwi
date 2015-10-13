@@ -100,9 +100,9 @@ class Profile(object):
         if not systemdisk:
             return
         self.dot_profile['kiwi_lvmgroup'] = systemdisk.get_name()
-        if self.xml_state.volume_management():
+        if self.xml_state.get_volume_management():
             self.dot_profile['kiwi_lvm'] = True
-        for volume in self.xml_state.volumes():
+        for volume in self.xml_state.get_volumes():
             if volume.name == 'LV@root':
                 if not volume.fullsize:
                     self.dot_profile['kiwi_LVM_LVRoot'] = volume.size
@@ -130,7 +130,7 @@ class Profile(object):
         # kiwi_language
         # kiwi_splash_theme
         # kiwi_loader_theme
-        for preferences in self.xml_state.build_type_preferences_sections():
+        for preferences in self.xml_state.get_build_type_preferences_sections():
             self.dot_profile['kiwi_iversion'] = \
                 self.__text(preferences.get_version())
             self.dot_profile['kiwi_showlicense'] = \
@@ -214,7 +214,7 @@ class Profile(object):
     def __packages_marked_for_deletion_to_profile(self):
         # kiwi_delete
         self.dot_profile['kiwi_delete'] = ' '.join(
-            self.xml_state.to_become_deleted_packages()
+            self.xml_state.get_to_become_deleted_packages()
         )
 
     def __image_names_to_profile(self):
@@ -226,7 +226,7 @@ class Profile(object):
         self.dot_profile['kiwi_displayname'] = \
             self.xml_state.xml_data.get_displayname()
 
-        if self.xml_state.build_type_name() == 'cpio':
+        if self.xml_state.get_build_type_name() == 'cpio':
             self.dot_profile['kiwi_cpio_name'] = self.dot_profile['kiwi_iname']
 
     def __text(self, section_content):

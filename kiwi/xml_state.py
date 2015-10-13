@@ -42,7 +42,7 @@ class XMLState(object):
             build_type
         )
 
-    def preferences_sections(self):
+    def get_preferences_sections(self):
         """
             get all preferences sections for selected profiles
         """
@@ -50,39 +50,39 @@ class XMLState(object):
             self.xml_data.get_preferences()
         )
 
-    def build_type_name(self):
+    def get_build_type_name(self):
         """
             get default build type name
         """
         return self.build_type.get_image()
 
-    def build_type_preferences_sections(self):
+    def get_build_type_preferences_sections(self):
         """
             find preferences sections which belongs to
             the build type and profiles
         """
         preferences_result_sections = []
-        for preferences in self.preferences_sections():
+        for preferences in self.get_preferences_sections():
             image_types = preferences.get_type()
             if not image_types:
                 preferences_result_sections.append(preferences)
             else:
                 for image_type in image_types:
-                    if image_type.get_image() == self.build_type_name():
+                    if image_type.get_image() == self.get_build_type_name():
                         preferences_result_sections.append(preferences)
                         break
         return preferences_result_sections
 
-    def package_manager(self):
+    def get_package_manager(self):
         """
             get configured package manager
         """
-        for preferences in self.preferences_sections():
+        for preferences in self.get_preferences_sections():
             package_manager = preferences.get_packagemanager()
             if package_manager:
                 return package_manager[0]
 
-    def packages_sections(self, section_types='image'):
+    def get_packages_sections(self, section_types='image'):
         """
             get list of packages sections matching given section type
         """
@@ -96,12 +96,12 @@ class XMLState(object):
                 result.append(packages)
         return result
 
-    def to_become_deleted_packages(self):
+    def get_to_become_deleted_packages(self):
         """
             get list of packages from the type = delete section
         """
         result = []
-        to_become_deleted_packages_sections = self.packages_sections(
+        to_become_deleted_packages_sections = self.get_packages_sections(
             ['delete']
         )
         for packages in to_become_deleted_packages_sections:
@@ -109,12 +109,12 @@ class XMLState(object):
                 result.append(package.get_name())
         return result
 
-    def bootstrap_packages(self):
+    def get_bootstrap_packages(self):
         """
             get list of bootstrap packages
         """
         result = []
-        bootstrap_packages_sections = self.packages_sections(
+        bootstrap_packages_sections = self.get_packages_sections(
             ['bootstrap']
         )
         for packages in bootstrap_packages_sections:
@@ -122,25 +122,25 @@ class XMLState(object):
                 result.append(package.get_name())
         return result
 
-    def system_packages(self):
+    def get_system_packages(self):
         """
             get list of system packages, take build_type into account
         """
         result = []
-        image_packages_sections = self.packages_sections(
-            ['image', self.build_type_name()]
+        image_packages_sections = self.get_packages_sections(
+            ['image', self.get_build_type_name()]
         )
         for packages in image_packages_sections:
             for package in packages.get_package():
                 result.append(package.get_name())
         return list(set(result))
 
-    def bootstrap_archives(self):
+    def get_bootstrap_archives(self):
         """
             get list of bootstrap archives
         """
         result = []
-        bootstrap_packages_sections = self.packages_sections(
+        bootstrap_packages_sections = self.get_packages_sections(
             ['bootstrap']
         )
         for packages in bootstrap_packages_sections:
@@ -148,27 +148,27 @@ class XMLState(object):
                 result.append(archive.get_name())
         return result
 
-    def system_archives(self):
+    def get_system_archives(self):
         """
             get list of system archives, take build_type into account
         """
         result = []
-        image_packages_sections = self.packages_sections(
-            ['image', self.build_type_name()]
+        image_packages_sections = self.get_packages_sections(
+            ['image', self.get_build_type_name()]
         )
         for packages in image_packages_sections:
             for archive in packages.get_archive():
                 result.append(archive.get_name())
         return result
 
-    def collection_type(self, section_type='image'):
+    def get_collection_type(self, section_type='image'):
         """
             get collection type specified in system packages sections
             if no collection type is specified only required packages
             are taken into account
         """
-        typed_packages_sections = self.packages_sections(
-            [section_type, self.build_type_name()]
+        typed_packages_sections = self.get_packages_sections(
+            [section_type, self.get_build_type_name()]
         )
         collection_type = 'onlyRequired'
         for packages in typed_packages_sections:
@@ -178,63 +178,63 @@ class XMLState(object):
                 break
         return collection_type
 
-    def bootstrap_collection_type(self):
-        return self.collection_type('bootstrap')
+    def get_bootstrap_collection_type(self):
+        return self.get_collection_type('bootstrap')
 
-    def system_collection_type(self):
-        return self.collection_type('image')
+    def get_system_collection_type(self):
+        return self.get_collection_type('image')
 
-    def collections(self, section_type='image'):
+    def get_collections(self, section_type='image'):
         """
             get list of collections matching given section and build type
         """
         result = []
-        typed_packages_sections = self.packages_sections(
-            [section_type, self.build_type_name()]
+        typed_packages_sections = self.get_packages_sections(
+            [section_type, self.get_build_type_name()]
         )
         for packages in typed_packages_sections:
             for collection in packages.get_namedCollection():
                 result.append(collection.get_name())
         return list(set(result))
 
-    def bootstrap_collections(self):
+    def get_bootstrap_collections(self):
         """
             collections defined in bootstrap section
         """
-        return self.collections('bootstrap')
+        return self.get_collections('bootstrap')
 
-    def system_collections(self):
+    def get_system_collections(self):
         """
             collections defined in image sections
         """
-        return self.collections('image')
+        return self.get_collections('image')
 
-    def products(self, section_type='image'):
+    def get_products(self, section_type='image'):
         """
             get list of products matching section and build type
         """
         result = []
-        typed_packages_sections = self.packages_sections(
-            [section_type, self.build_type_name()]
+        typed_packages_sections = self.get_packages_sections(
+            [section_type, self.get_build_type_name()]
         )
         for packages in typed_packages_sections:
             for product in packages.get_product():
                 result.append(product.get_name())
         return list(set(result))
 
-    def bootstrap_products(self):
+    def get_bootstrap_products(self):
         """
             get list of products in bootstrap section
         """
-        return self.products('bootstrap')
+        return self.get_products('bootstrap')
 
-    def system_products(self):
+    def get_system_products(self):
         """
             get list of products in system sections
         """
-        return self.products('image')
+        return self.get_products('image')
 
-    def system_disk(self):
+    def get_system_disk(self):
         """
             get system disk section
         """
@@ -242,7 +242,7 @@ class XMLState(object):
             if systemdisk:
                 return systemdisk
 
-    def volumes(self):
+    def get_volumes(self):
         """
             get volumes section from systemdisk
         """
@@ -250,8 +250,8 @@ class XMLState(object):
         default_freespace = 20
 
         volume_type_list = []
-        if self.system_disk():
-            volumes = self.system_disk().get_volume()
+        if self.get_system_disk():
+            volumes = self.get_system_disk().get_volume()
             if volumes:
                 volume_type = namedtuple(
                     'volume_type', [
@@ -331,14 +331,14 @@ class XMLState(object):
                     )
         return volume_type_list
 
-    def volume_management(self):
+    def get_volume_management(self):
         """
             provide information if a volume management system is
             selected and if so return the name
         """
         volume_filesystems = ['btrfs', 'zfs']
         selected_filesystem = self.build_type.get_filesystem()
-        selected_system_disk = self.system_disk()
+        selected_system_disk = self.get_system_disk()
         volume_management = None
         if not selected_system_disk:
             # no systemdisk section exists, no volume management requested
@@ -356,7 +356,7 @@ class XMLState(object):
             volume_management = 'lvm'
         return volume_management
 
-    def repository_sections(self):
+    def get_repository_sections(self):
         return self.__profiled(
             self.xml_data.get_repository()
         )
@@ -365,7 +365,7 @@ class XMLState(object):
         """
             overwrite repository data for the first repo in the list
         """
-        repository = self.repository_sections()[0]
+        repository = self.get_repository_sections()[0]
         if repo_alias:
             repository.set_alias(repo_alias)
         if repo_type:
@@ -422,7 +422,7 @@ class XMLState(object):
         """
         # lookup all preferences sections for selected profiles
         image_type_sections = []
-        for preferences in self.preferences_sections():
+        for preferences in self.get_preferences_sections():
             image_type_sections += preferences.get_type()
 
         # lookup if build type matches provided type

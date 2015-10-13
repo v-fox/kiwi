@@ -162,7 +162,7 @@ class TestSystem(object):
     @patch('kiwi.system.Repository.new')
     @patch('kiwi.system.Uri')
     @patch('kiwi.system.PackageManager.new')
-    @patch('kiwi.xml_state.XMLState.package_manager')
+    @patch('kiwi.xml_state.XMLState.get_package_manager')
     def test_setup_repositories(
         self, mock_package_manager, mock_manager, mock_uri, mock_repo
     ):
@@ -199,7 +199,7 @@ class TestSystem(object):
             'uri-alias', 'uri', 'yast2', 42
         )
 
-    @patch('kiwi.xml_state.XMLState.bootstrap_collection_type')
+    @patch('kiwi.xml_state.XMLState.get_bootstrap_collection_type')
     @patch('kiwi.system.ArchiveTar')
     def test_install_bootstrap(self, mock_tar, mock_collection_type):
         tar = mock.Mock()
@@ -228,7 +228,7 @@ class TestSystem(object):
         mock_tar.assert_called_once_with('../data/bootstrap.tgz')
         tar.extract.assert_called_once_with('root_dir')
 
-    @patch('kiwi.xml_state.XMLState.system_collection_type')
+    @patch('kiwi.xml_state.XMLState.get_system_collection_type')
     @patch('kiwi.system.ArchiveTar')
     def test_install_system(self, mock_tar, mock_collection_type):
         tar = mock.Mock()
