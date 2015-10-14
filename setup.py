@@ -13,7 +13,8 @@ config = {
     'author_email': 'ms@suse.com',
     'version': __VERSION__,
     'install_requires': [
-        'docopt==0.6.2'
+        'docopt==0.6.2',
+        'lxml'
     ],
     'packages': ['kiwi'],
     'entry_points': {
