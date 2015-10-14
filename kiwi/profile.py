@@ -54,7 +54,9 @@ class Profile(object):
         with open(temp_profile.name, 'w') as profile:
             for key, value in sorted_profile.iteritems():
                 if value:
-                    profile.write(format(key) + '=' + format(value) + '\n')
+                    profile.write(
+                        format(key) + '=' + self.__format(value) + '\n'
+                    )
         return Shell.quote_key_value_file(temp_profile.name)
 
     def __oemconfig_to_profile(self):
@@ -331,3 +333,13 @@ class Profile(object):
                 return False
             else:
                 return content
+
+    def __format(self, value):
+        """
+            helper method to format bool profile values in the way
+            the boot code expects them
+        """
+        if value == True:
+            return 'true'
+        else:
+            return format(value)

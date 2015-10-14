@@ -23,7 +23,7 @@ class TestProfile(object):
         )
 
     def test_create(self):
-        self.profile.create()
+        result = self.profile.create()
         assert self.profile.dot_profile == {
             'kiwi_allFreeVolume_bin-volume': 'size:all:LVusr_bin',
             'kiwi_allFreeVolume_LVusr_bin': 'size:all',
@@ -40,7 +40,7 @@ class TestProfile(object):
             'kiwi_firmware': 'efi',
             'kiwi_fsmountoptions': None,
             'kiwi_hwclock': 'utc',
-            'kiwi_hybrid': None,
+            'kiwi_hybrid': True,
             'kiwi_hybridpersistent_filesystem': None,
             'kiwi_hybridpersistent': None,
             'kiwi_iname': 'LimeJeOS-openSUSE-13.2',
@@ -93,6 +93,30 @@ class TestProfile(object):
             'kiwi_wwid_wait_timeout': None,
             'kiwi_xendomain': None
         }
+        assert result == [
+            "kiwi_LVM_LVRoot='freespace:500'",
+            "kiwi_LVM_LVusr_lib='size:1024'",
+            'kiwi_LVM_etc-volume=freespace:20:LVetc',
+            "kiwi_allFreeVolume_LVusr_bin='size:all'",
+            'kiwi_allFreeVolume_bin-volume=size:all:LVusr_bin',
+            "kiwi_bootloader='grub2'",
+            "kiwi_cmdline='splash'",
+            "kiwi_displayname='LimeJeOS-openSUSE-13.2'",
+            "kiwi_firmware='efi'",
+            "kiwi_hwclock='utc'",
+            "kiwi_hybrid='true'",
+            "kiwi_iname='LimeJeOS-openSUSE-13.2'",
+            "kiwi_iversion='1.13.2'",
+            "kiwi_keytable='us.map.gz'",
+            "kiwi_language='en_US'",
+            "kiwi_loader_theme='openSUSE'",
+            "kiwi_lvm='true'",
+            "kiwi_oemrootMB='2048'",
+            "kiwi_oemswap='true'",
+            "kiwi_splash_theme='openSUSE'",
+            "kiwi_timezone='Europe/Berlin'",
+            "kiwi_type='oem'"
+        ]
 
     def test_create_cpio(self):
         description = XMLDescription('../data/example_dot_profile_config.xml')
