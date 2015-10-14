@@ -100,10 +100,6 @@ class TestSystemSetup(object):
         )
 
     @raises(NotImplementedError)
-    def test_import_autoyast_profile(self):
-        self.setup.import_autoyast_profile()
-
-    @raises(NotImplementedError)
     def test_setup_hardware_clock(self):
         self.setup.setup_hardware_clock()
 

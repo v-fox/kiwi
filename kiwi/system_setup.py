@@ -119,10 +119,6 @@ class SystemSetup(object):
                 ]
             )
 
-    def import_autoyast_profile(self):
-        # TODO: import autoyast profile and setup the firstboot launcher
-        raise NotImplementedError
-
     def setup_hardware_clock(self):
         # TODO: setup hwclock from XML data
         raise NotImplementedError
