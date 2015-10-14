@@ -339,7 +339,7 @@ class Profile(object):
             helper method to format bool profile values in the way
             the boot code expects them
         """
-        if value == True:
+        if value is True:
             return 'true'
         else:
             return format(value)
