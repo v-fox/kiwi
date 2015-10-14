@@ -1,3 +1,7 @@
+branches:
+  only:
+    - horizon
+
 language: python
 
 sudo: false
