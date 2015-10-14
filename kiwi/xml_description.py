@@ -21,6 +21,7 @@ import os
 
 # project
 from command import Command
+from defaults import Defaults
 import xml_parse
 
 from exceptions import (
@@ -38,20 +39,15 @@ class XMLDescription(object):
         - Schema Validation based on RelaxNG schema
         - Loading XML data into internal data structures
     """
-    SCHEMA = "schema/KIWISchema.rng"
-    STYLE_SHEET = "xsl/master.xsl"
-
-    def __init__(self, description, schema=SCHEMA, stylesheet=STYLE_SHEET):
+    def __init__(self, description):
         self.description_xslt_processed = NamedTemporaryFile()
         self.description = description
-        self.stylesheet = stylesheet
-        self.schema = schema
 
     def load(self):
         self.__xsltproc()
         try:
             relaxng = etree.RelaxNG(
-                etree.parse(self.schema)
+                etree.parse(Defaults.get_schema_file())
             )
         except Exception as e:
             raise KiwiSchemaImportError(
@@ -88,7 +84,7 @@ class XMLDescription(object):
         Command.run(
             [
                 'xsltproc', '-o', self.description_xslt_processed.name,
-                self.stylesheet,
+                Defaults.get_xsl_stylesheet_file(),
                 self.description
             ]
         )

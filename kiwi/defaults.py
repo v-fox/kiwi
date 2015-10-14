@@ -39,6 +39,18 @@ class Defaults(object):
             'kiwi_revision'
         ]
 
+    @classmethod
+    def get_schema_file(self):
+        return 'schema/KIWISchema.rng'
+
+    @classmethod
+    def get_common_functions_file(self):
+        return 'config/functions.sh'
+
+    @classmethod
+    def get_xsl_stylesheet_file(self):
+        return 'xsl/master.xsl'
+
     def get(self, key):
         if key in self.defaults:
             return self.defaults[key]

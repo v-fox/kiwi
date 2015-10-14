@@ -21,6 +21,7 @@ import os
 from command import Command
 from command_process import CommandProcess
 from logger import log
+from defaults import Defaults
 
 from exceptions import (
     KiwiScriptFailed
@@ -70,7 +71,7 @@ class SystemSetup(object):
             need_script_helper_functions = True
 
         if need_script_helper_functions:
-            script_functions = self.__get_script_helper_functions()
+            script_functions = Defaults.get_common_functions_file()
             script_functions_target = self.root_dir + '/.kconfig'
             log.info(
                 '--> Importing script helper methods to %s',
@@ -167,6 +168,3 @@ class SystemSetup(object):
                     '%s failed: %s' % (name, format(result.stderr))
                 )
             log.debug(result.stderr)
-
-    def __get_script_helper_functions(self):
-        return 'config/functions.sh'

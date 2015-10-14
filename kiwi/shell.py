@@ -17,6 +17,7 @@
 #
 from command import Command
 from tempfile import NamedTemporaryFile
+from defaults import Defaults
 
 
 class Shell(object):
@@ -48,7 +49,8 @@ class Shell(object):
         Command.run(['cp', filename, temp_copy.name])
         Command.run([
             'bash', '-c',
-            'source config/functions.sh; baseQuoteFile ' + temp_copy.name
+            'source ' + Defaults.get_common_functions_file() +
+            '; baseQuoteFile ' + temp_copy.name
         ])
         with open(temp_copy.name) as quoted:
             return quoted.read().splitlines()
