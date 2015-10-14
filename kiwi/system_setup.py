@@ -89,10 +89,13 @@ class SystemSetup(object):
         Command.run(['rm', '-r', '-f', '/.kconfig', '/image'])
 
     def import_shell_environment(self, profile):
+        profile_file = self.root_dir + '/.profile'
+        log.info('Creating environment: %s', profile_file)
         profile_environment = profile.create()
-        with open(self.root_dir + '/.profile', 'w') as profile:
+        with open(profile_file, 'w') as profile:
             for line in profile_environment:
                 profile.write(line + '\n')
+                log.info('--> %s', line)
 
     def import_overlay_files(
         self, follow_links=False, preserve_owner_group=False
@@ -147,7 +150,9 @@ class SystemSetup(object):
     def import_image_identifier(self):
         image_id = self.xml_state.xml_data.get_id()
         if image_id and os.path.exists(self.root_dir + '/etc'):
-            with open(self.root_dir + '/etc/ImageID', 'w') as identifier:
+            image_id_file = self.root_dir + '/etc/ImageID'
+            log.info('Creating identifier: %s as %s', image_id, image_id_file)
+            with open(image_id_file, 'w') as identifier:
                 identifier.write('%s\n' % image_id)
 
     def call_config_script(self):
