@@ -127,9 +127,26 @@ class TestSystemSetup(object):
     def test_setup_users(self):
         self.setup.setup_users()
 
-    @raises(NotImplementedError)
-    def test_import_image_identifier(self):
+    @patch('__builtin__.open')
+    @patch('os.path.exists')
+    def test_import_image_identifier(self, mock_os_path, mock_open):
+        self.xml_state.xml_data.get_id = mock.Mock(
+            return_value='42'
+        )
+        mock_os_path.return_value = True
+        context_manager_mock = mock.Mock()
+        mock_open.return_value = context_manager_mock
+        file_mock = mock.Mock()
+        enter_mock = mock.Mock()
+        exit_mock = mock.Mock()
+        enter_mock.return_value = file_mock
+        setattr(context_manager_mock, '__enter__', enter_mock)
+        setattr(context_manager_mock, '__exit__', exit_mock)
+
         self.setup.import_image_identifier()
+
+        mock_open.assert_called_once_with('root_dir/etc/ImageID', 'w')
+        file_mock.write.assert_called_once_with('42\n')
 
     @patch('kiwi.command.Command.call')
     @patch('kiwi.command_process.CommandProcess.poll_and_watch')

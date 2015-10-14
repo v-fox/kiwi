@@ -145,8 +145,10 @@ class SystemSetup(object):
         raise NotImplementedError
 
     def import_image_identifier(self):
-        # TODO: create etc/imageID containing the image ID from XML
-        raise NotImplementedError
+        image_id = self.xml_state.xml_data.get_id()
+        if image_id and os.path.exists(self.root_dir + '/etc'):
+            with open(self.root_dir + '/etc/ImageID', 'w') as identifier:
+                identifier.write('%s\n' % image_id)
 
     def call_config_script(self):
         self.__call_script('config.sh')
