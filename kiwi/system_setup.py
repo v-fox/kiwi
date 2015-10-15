@@ -23,6 +23,7 @@ from command_process import CommandProcess
 from logger import log
 from defaults import Defaults
 from users import Users
+from shell import Shell
 
 from exceptions import (
     KiwiScriptFailed
@@ -40,6 +41,7 @@ class SystemSetup(object):
         self.xml_state = xml_state
         self.description_dir = description_dir
         self.root_dir = root_dir
+        self.__preferences_lookup()
 
     def import_description(self):
         """
@@ -129,20 +131,49 @@ class SystemSetup(object):
             )
 
     def setup_hardware_clock(self):
-        # TODO: setup hwclock from XML data
-        raise NotImplementedError
+        if 'hwclock' in self.preferences:
+            log.info(
+                'Setting up hardware clock: %s', self.preferences['hwclock']
+            )
+            Command.run([
+                'chroot', self.root_dir,
+                'hwclock', '--adjust', '--' + self.preferences['hwclock']
+            ])
 
     def setup_keyboard_map(self):
-        # TODO: setup keyboard map from XML data
-        raise NotImplementedError
+        if 'keytable' in self.preferences:
+            log.info(
+                'Setting up keytable: %s', self.preferences['keytable']
+            )
+            Shell.run_common_function(
+                'baseUpdateSysConfig', [
+                    self.root_dir + '/etc/sysconfig/keyboard', 'KEYTABLE',
+                    '"' + self.preferences['keytable'] + '"'
+                ]
+            )
 
     def setup_locale(self):
-        # TODO: setup locale from XML data
-        raise NotImplementedError
+        if 'locale' in self.preferences:
+            log.info(
+                'Setting up locale: %s', self.preferences['locale']
+            )
+            Shell.run_common_function(
+                'baseUpdateSysConfig', [
+                    self.root_dir + '/etc/sysconfig/language', 'RC_LANG',
+                    self.preferences['locale'].split(',')[0] + '.UTF-8'
+                ]
+            )
 
     def setup_timezone(self):
-        # TODO: setup timezone from XML data
-        raise NotImplementedError
+        if 'timezone' in self.preferences:
+            log.info(
+                'Setting up timezone: %s', self.preferences['timezone']
+            )
+            zoneinfo = '/usr/share/zoneinfo/' + self.preferences['timezone']
+            Command.run([
+                'chroot', self.root_dir,
+                'ln', '-s', '-f', zoneinfo, '/etc/localtime'
+            ])
 
     def setup_groups(self):
         """
@@ -269,3 +300,19 @@ class SystemSetup(object):
             ['openssl', 'passwd', '-1', '-salt', 'xyz', password]
         )
         return openssl.output
+
+    def __preferences_lookup(self):
+        self.preferences = {}
+        for preferences in self.xml_state.get_preferences_sections():
+            timezone_section = preferences.get_timezone()
+            locale_section = preferences.get_locale()
+            hwclock_section = preferences.get_hwclock()
+            keytable_section = preferences.get_keytable()
+            if timezone_section:
+                self.preferences['timezone'] = timezone_section[0]
+            if locale_section:
+                self.preferences['locale'] = locale_section[0]
+            if hwclock_section:
+                self.preferences['hwclock'] = hwclock_section[0]
+            if keytable_section:
+                self.preferences['keytable'] = keytable_section[0]

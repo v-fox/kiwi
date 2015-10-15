@@ -117,6 +117,10 @@ class SystemPrepareTask(CliTask):
             self.setup.import_image_identifier()
             self.setup.setup_groups()
             self.setup.setup_users()
+            self.setup.setup_hardware_clock()
+            self.setup.setup_keyboard_map()
+            self.setup.setup_locale()
+            self.setup.setup_timezone()
 
             self.system.pinch_system(
                 manager

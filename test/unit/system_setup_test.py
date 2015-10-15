@@ -112,21 +112,44 @@ class TestSystemSetup(object):
             ]
         )
 
-    @raises(NotImplementedError)
-    def test_setup_hardware_clock(self):
+    @patch('kiwi.system_setup.Command.run')
+    def test_setup_hardware_clock(self, mock_command):
+        self.setup.preferences['hwclock'] = 'clock'
         self.setup.setup_hardware_clock()
+        mock_command.assert_called_once_with(
+            [
+                'chroot', 'root_dir', 'hwclock', '--adjust', '--clock'
+            ]
+        )
 
-    @raises(NotImplementedError)
-    def test_setup_keyboard_map(self):
+    @patch('kiwi.system_setup.Shell.run_common_function')
+    def test_setup_keyboard_map(self, mock_shell):
+        self.setup.preferences['keytable'] = 'keytable'
         self.setup.setup_keyboard_map()
+        mock_shell.assert_called_once_with(
+            'baseUpdateSysConfig', [
+                'root_dir/etc/sysconfig/keyboard', 'KEYTABLE', '"keytable"'
+            ]
+        )
 
-    @raises(NotImplementedError)
-    def test_setup_locale(self):
+    @patch('kiwi.system_setup.Shell.run_common_function')
+    def test_setup_locale(self, mock_shell):
+        self.setup.preferences['locale'] = 'locale1,locale2'
         self.setup.setup_locale()
+        mock_shell.assert_called_once_with(
+            'baseUpdateSysConfig', [
+                'root_dir/etc/sysconfig/language', 'RC_LANG', 'locale1.UTF-8'
+            ]
+        )
 
-    @raises(NotImplementedError)
-    def test_setup_timezone(self):
+    @patch('kiwi.system_setup.Command.run')
+    def test_setup_timezone(self, mock_command):
+        self.setup.preferences['timezone'] = 'timezone'
         self.setup.setup_timezone()
+        mock_command.assert_called_once_with([
+            'chroot', 'root_dir', 'ln', '-s', '-f',
+            '/usr/share/zoneinfo/timezone', '/etc/localtime'
+        ])
 
     @patch('kiwi.system_setup.Users')
     def test_setup_groups(self, mock_users):

@@ -20,3 +20,10 @@ class TestShell(object):
             "name='bob'",
             "strange='$a_foo'"
         ]
+
+    @patch('kiwi.shell.Command.run')
+    def test_run_common_function(self, mock_command):
+        Shell.run_common_function('foo', ['"param1"', '"param2"'])
+        mock_command.assert_called_once_with(
+            ['bash', '-c', 'source config/functions.sh; foo "param1" "param2"']
+        )

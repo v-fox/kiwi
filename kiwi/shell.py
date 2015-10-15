@@ -47,10 +47,14 @@ class Shell(object):
         """
         temp_copy = NamedTemporaryFile()
         Command.run(['cp', filename, temp_copy.name])
+        Shell.run_common_function('baseQuoteFile', [temp_copy.name])
+        with open(temp_copy.name) as quoted:
+            return quoted.read().splitlines()
+
+    @classmethod
+    def run_common_function(self, name, parameters):
         Command.run([
             'bash', '-c',
             'source ' + Defaults.get_common_functions_file() +
-            '; baseQuoteFile ' + temp_copy.name
+            '; ' + name + ' ' + ' '.join(parameters)
         ])
-        with open(temp_copy.name) as quoted:
-            return quoted.read().splitlines()
