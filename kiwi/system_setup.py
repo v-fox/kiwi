@@ -90,6 +90,10 @@ class SystemSetup(object):
         Command.run(['rm', '-r', '-f', '/.kconfig', '/image'])
 
     def import_shell_environment(self, profile):
+        """
+            create profile environment to let scripts consume
+            information from the XML description.
+        """
         profile_file = self.root_dir + '/.profile'
         log.info('Creating environment: %s', profile_file)
         profile_environment = profile.create()
@@ -101,6 +105,10 @@ class SystemSetup(object):
     def import_overlay_files(
         self, follow_links=False, preserve_owner_group=False
     ):
+        """
+            copy overlay files from the image description to
+            the image root tree
+        """
         overlay_directory = self.description_dir + '/root/'
         if os.path.exists(overlay_directory):
             log.info('Copying user defined files to image tree')
@@ -137,6 +145,9 @@ class SystemSetup(object):
         raise NotImplementedError
 
     def setup_groups(self):
+        """
+            add groups for configured users
+        """
         users_sections = self.xml_state.get_users_sections()
         if users_sections:
             for users in users_sections:
@@ -152,6 +163,9 @@ class SystemSetup(object):
                     system_users.group_add(group_name, options)
 
     def setup_users(self):
+        """
+            add/modify configured users
+        """
         users_sections = self.xml_state.get_users_sections()
         if users_sections:
             for users in users_sections:
@@ -219,6 +233,9 @@ class SystemSetup(object):
                                 )
 
     def import_image_identifier(self):
+        """
+            create an /etc/ImageID identifier file
+        """
         image_id = self.xml_state.xml_data.get_id()
         if image_id and os.path.exists(self.root_dir + '/etc'):
             image_id_file = self.root_dir + '/etc/ImageID'
