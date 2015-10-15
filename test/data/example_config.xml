@@ -83,8 +83,8 @@
             </machine>
         </type>
     </preferences>
-    <users group="root">
-        <user password="$1$wYJUgpM5$RXMMeASDc035eX.NbYWFl0" home="/root" name="root"/>
+    <users group="root" id="42">
+        <user pwdformat="plain" password="mypwd" shell="/bin/bash" id="815" realname="Bob" home="/root" name="root"/>
     </users>
     <repository type="yast2" priority="42">
         <source path="iso:///image/CDs/dvd.iso"/>

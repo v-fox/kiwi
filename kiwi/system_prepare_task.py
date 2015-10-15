@@ -115,6 +115,8 @@ class SystemPrepareTask(CliTask):
             self.setup.import_overlay_files()
             self.setup.call_config_script()
             self.setup.import_image_identifier()
+            self.setup.setup_groups()
+            self.setup.setup_users()
 
             self.system.pinch_system(
                 manager

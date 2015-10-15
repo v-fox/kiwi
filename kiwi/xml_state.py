@@ -51,6 +51,11 @@ class XMLState(object):
             self.xml_data.get_preferences()
         )
 
+    def get_users_sections(self):
+        return self.__profiled(
+            self.xml_data.get_users()
+        )
+
     def get_build_type_name(self):
         """
             get default build type name

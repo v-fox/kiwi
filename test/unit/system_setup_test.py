@@ -7,7 +7,8 @@ import nose_helper
 from collections import namedtuple
 
 from kiwi.system_setup import SystemSetup
-
+from kiwi.xml_description import XMLDescription
+from kiwi.xml_state import XMLState
 from kiwi.exceptions import *
 
 
@@ -115,13 +116,90 @@ class TestSystemSetup(object):
     def test_setup_timezone(self):
         self.setup.setup_timezone()
 
-    @raises(NotImplementedError)
-    def test_setup_groups(self):
-        self.setup.setup_groups()
+    @patch('kiwi.system_setup.Users')
+    def test_setup_groups(self, mock_users):
+        description = XMLDescription('../data/example_config.xml')
+        setup = SystemSetup(
+            XMLState(description.load()), 'description_dir', 'root_dir'
+        )
+        users = mock.Mock()
+        users.group_exists = mock.Mock(
+            return_value=False
+        )
+        mock_users.return_value = users
 
-    @raises(NotImplementedError)
-    def test_setup_users(self):
-        self.setup.setup_users()
+        setup.setup_groups()
+
+        users.group_exists.assert_called_once_with('root')
+        users.group_add.assert_called_once_with('root', ['-g', 42])
+
+    @patch('kiwi.system_setup.Users')
+    def test_setup_users_add(self, mock_users):
+        description = XMLDescription('../data/example_config.xml')
+        setup = SystemSetup(
+            XMLState(description.load()), 'description_dir', 'root_dir'
+        )
+        users = mock.Mock()
+        users.user_exists = mock.Mock(
+            return_value=False
+        )
+        mock_users.return_value = users
+
+        setup.setup_users()
+
+        users.user_exists.assert_called_once_with('root')
+        users.user_add.assert_called_once_with(
+            'root', [
+                '-p', '$1$xyz$0zg4oDmGqd1YM1fvaHIRA/\n',
+                '-s', '/bin/bash', '-g', 42, '-u', 815, '-c', 'Bob',
+                '-m', '-d', '/root'
+            ]
+        )
+
+    @patch('kiwi.system_setup.Users')
+    def test_setup_users_modify(self, mock_users):
+        description = XMLDescription('../data/example_config.xml')
+        setup = SystemSetup(
+            XMLState(description.load()), 'description_dir', 'root_dir'
+        )
+        users = mock.Mock()
+        users.user_exists = mock.Mock(
+            return_value=True
+        )
+        mock_users.return_value = users
+
+        setup.setup_users()
+
+        users.user_exists.assert_called_once_with('root')
+        users.user_modify.assert_called_once_with(
+            'root', [
+                '-p', '$1$xyz$0zg4oDmGqd1YM1fvaHIRA/\n',
+                '-s', '/bin/bash', '-g', 42, '-u', 815, '-c', 'Bob'
+            ]
+        )
+
+    @patch('kiwi.system_setup.Users')
+    def test_setup_users_modify_group_name(self, mock_users):
+        description = XMLDescription('../data/example_config.xml')
+        setup = SystemSetup(
+            XMLState(description.load()), 'description_dir', 'root_dir'
+        )
+        # unset group id and expect use of group name now
+        setup.xml_state.xml_data.get_users()[0].set_id(None)
+        users = mock.Mock()
+        users.user_exists = mock.Mock(
+            return_value=True
+        )
+        mock_users.return_value = users
+
+        setup.setup_users()
+
+        users.user_modify.assert_called_once_with(
+            'root', [
+                '-p', '$1$xyz$0zg4oDmGqd1YM1fvaHIRA/\n',
+                '-s', '/bin/bash', '-g', 'root', '-u', 815, '-c', 'Bob'
+            ]
+        )
 
     @patch('__builtin__.open')
     @patch('os.path.exists')

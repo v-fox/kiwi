@@ -222,3 +222,7 @@ class TestXMLState(object):
         state = XMLState(xml_data, None, 'oem')
         assert state.get_build_type_oemconfig_section()[0].get_oem_swap()[0] ==\
             'true'
+
+    def test_get_users_sections(self):
+        assert self.state.get_users_sections()[0].get_user()[0].get_name() == \
+            'root'
