@@ -18,6 +18,18 @@ class TestSystemSetup(object):
         self.setup = SystemSetup(
             self.xml_state, 'description_dir', 'root_dir'
         )
+        description = XMLDescription('../data/example_config.xml')
+        self.setup_with_real_xml = SystemSetup(
+            XMLState(description.load()), 'description_dir', 'root_dir'
+        )
+        command_run = namedtuple(
+            'command', ['output', 'error', 'returncode']
+        )
+        self.run_result = command_run(
+            output='password-hash',
+            error='stderr',
+            returncode=0
+        )
 
     @patch('kiwi.command.Command.run')
     @patch('__builtin__.open')
@@ -118,85 +130,78 @@ class TestSystemSetup(object):
 
     @patch('kiwi.system_setup.Users')
     def test_setup_groups(self, mock_users):
-        description = XMLDescription('../data/example_config.xml')
-        setup = SystemSetup(
-            XMLState(description.load()), 'description_dir', 'root_dir'
-        )
         users = mock.Mock()
         users.group_exists = mock.Mock(
             return_value=False
         )
         mock_users.return_value = users
 
-        setup.setup_groups()
+        self.setup_with_real_xml.setup_groups()
 
         users.group_exists.assert_called_once_with('root')
         users.group_add.assert_called_once_with('root', ['-g', 42])
 
     @patch('kiwi.system_setup.Users')
-    def test_setup_users_add(self, mock_users):
-        description = XMLDescription('../data/example_config.xml')
-        setup = SystemSetup(
-            XMLState(description.load()), 'description_dir', 'root_dir'
-        )
+    @patch('kiwi.system_setup.Command.run')
+    def test_setup_users_add(self, mock_command, mock_users):
         users = mock.Mock()
         users.user_exists = mock.Mock(
             return_value=False
         )
         mock_users.return_value = users
+        mock_command.return_value = self.run_result
 
-        setup.setup_users()
+        self.setup_with_real_xml.setup_users()
 
         users.user_exists.assert_called_once_with('root')
         users.user_add.assert_called_once_with(
             'root', [
-                '-p', '$1$xyz$0zg4oDmGqd1YM1fvaHIRA/\n',
+                '-p', 'password-hash',
                 '-s', '/bin/bash', '-g', 42, '-u', 815, '-c', 'Bob',
                 '-m', '-d', '/root'
             ]
         )
+        mock_command.assert_called_once_with(
+            ['openssl', 'passwd', '-1', '-salt', 'xyz', 'mypwd']
+        )
 
     @patch('kiwi.system_setup.Users')
-    def test_setup_users_modify(self, mock_users):
-        description = XMLDescription('../data/example_config.xml')
-        setup = SystemSetup(
-            XMLState(description.load()), 'description_dir', 'root_dir'
-        )
+    @patch('kiwi.system_setup.Command.run')
+    def test_setup_users_modify(self, mock_command, mock_users):
         users = mock.Mock()
         users.user_exists = mock.Mock(
             return_value=True
         )
         mock_users.return_value = users
+        mock_command.return_value = self.run_result
 
-        setup.setup_users()
+        self.setup_with_real_xml.setup_users()
 
         users.user_exists.assert_called_once_with('root')
         users.user_modify.assert_called_once_with(
             'root', [
-                '-p', '$1$xyz$0zg4oDmGqd1YM1fvaHIRA/\n',
+                '-p', 'password-hash',
                 '-s', '/bin/bash', '-g', 42, '-u', 815, '-c', 'Bob'
             ]
         )
 
     @patch('kiwi.system_setup.Users')
-    def test_setup_users_modify_group_name(self, mock_users):
-        description = XMLDescription('../data/example_config.xml')
-        setup = SystemSetup(
-            XMLState(description.load()), 'description_dir', 'root_dir'
-        )
+    @patch('kiwi.system_setup.Command.run')
+    def test_setup_users_modify_group_name(self, mock_command, mock_users):
         # unset group id and expect use of group name now
-        setup.xml_state.xml_data.get_users()[0].set_id(None)
+        self.setup_with_real_xml.xml_state.xml_data.get_users()[0].set_id(None)
         users = mock.Mock()
         users.user_exists = mock.Mock(
             return_value=True
         )
         mock_users.return_value = users
+        mock_command.return_value = self.run_result
 
-        setup.setup_users()
+        self.setup_with_real_xml.setup_users()
 
         users.user_modify.assert_called_once_with(
             'root', [
-                '-p', '$1$xyz$0zg4oDmGqd1YM1fvaHIRA/\n',
+                '-p', 'password-hash',
                 '-s', '/bin/bash', '-g', 'root', '-u', 815, '-c', 'Bob'
             ]
         )
