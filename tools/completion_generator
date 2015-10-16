@@ -51,6 +51,9 @@ class AppHash:
                         result_keys = self.validate(key_list)
                         cur_path = self.merge(result_keys, self.result)
                     elif re.match('.*kiwi \[', line):
+                        line = line.replace('[', '')
+                        line = line.replace(']', '')
+                        line = line.replace('|', '')
                         key_list = line.split()
                         key_list.pop(0)
                         for global_opt in key_list:
@@ -61,6 +64,9 @@ class AppHash:
                     elif re.match('                \[', line):
                         opt_val = re.search('                \[(--.*)', line)
                         global_opt = opt_val.group(1)
+                        global_opt = global_opt.replace('[', '')
+                        global_opt = global_opt.replace(']', '')
+                        global_opt = global_opt.replace('|', '')
                         result_keys = self.validate(
                             ['kiwi', global_opt]
                         )
