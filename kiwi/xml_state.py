@@ -492,7 +492,8 @@ class XMLState(object):
                 return image_type
 
         # build type is first type section in XML sequence
-        return image_type_sections[0]
+        if image_type_sections:
+            return image_type_sections[0]
 
     def __profiled(self, xml_abstract):
         """

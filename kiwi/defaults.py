@@ -40,6 +40,14 @@ class Defaults(object):
         ]
 
     @classmethod
+    def get_image_description_path(self):
+        return '/usr/share/kiwi/image'
+
+    @classmethod
+    def get_boot_image_strip_file(self):
+        return 'config/strip.xml'
+
+    @classmethod
     def get_schema_file(self):
         return 'schema/KIWISchema.rng'
 
