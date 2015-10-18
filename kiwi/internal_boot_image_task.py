@@ -47,13 +47,57 @@ class BootImageTask(object):
         self.__load_boot_xml_description()
 
         # TODO: add/merge data from self.xml_state to self.boot_xml_state
+        # <image>displayname
+        # <repository>, overwrite
+        # <drivers>, add
 
-        # TODO: add strip default data
+        # <strip>, add
         strip_description = XMLDescription(
             Defaults.get_boot_image_strip_file()
         )
         strip_xml_state = XMLState(strip_description.load())
-        print strip_xml_state.get_strip_files_to_delete()
+        strip_xml_state.copy_strip_sections(
+            self.boot_xml_state
+        )
+
+        # <preferences><packagemanager>, add
+        # <preferences><locale>, add
+        # <preferences><showlicense>, add
+        # <preferences><bootloader-theme>, add
+        # <preferences><bootsplash-theme>, add
+        # <preferences><rpm-check-signatures>, add
+        # <packages><package>, add to bootstrap if marked bootinclude
+        # <packages><archive>, add to bootstrap if marked bootinclude
+        # <packages><package>, add to type=delete packs if marked as bootdelete
+        # <packages><package>, delete package from type=delete packs if
+        #  explicitly marked as bootinclude
+
+        type_attributes = [
+            'bootkernel',
+            'bootloader',
+            'bootprofile',
+            'boottimeout',
+            'devicepersistency',
+            'filesystem',
+            'firmware',
+            'fsmountoptions',
+            'hybrid',
+            'hybridpersistent',
+            'hybridpersistent_filesystem',
+            'installboot',
+            'installprovidefailsafe',
+            'kernelcmdline',
+            'ramonly',
+            'vga',
+            'wwid_wait_timeout'
+        ]
+        self.xml_state.copy_build_type_attributes(
+            type_attributes, self.boot_xml_state
+        )
+
+        #<type><systemdisk>, add
+        #<type><machine>, add
+        #<type><oemconfig>, add
 
         log.info('Preparing boot image')
         boot_root_directory = mkdtemp(prefix='boot-', dir=self.target_dir)

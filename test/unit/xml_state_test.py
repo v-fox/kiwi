@@ -226,3 +226,11 @@ class TestXMLState(object):
     def test_get_users_sections(self):
         assert self.state.get_users_sections()[0].get_user()[0].get_name() == \
             'root'
+
+    def test_copy_strip_sections(self):
+        # TODO
+        pass
+
+    def test_copy_build_type_attributes(self):
+        # TODO
+        pass

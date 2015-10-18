@@ -440,6 +440,30 @@ class XMLState(object):
             )
         )
 
+    def copy_strip_sections(self, target_state):
+        strip_section_names = ['tools', 'libs', 'delete']
+        for strip_section_name in strip_section_names:
+            strip_section = xml_parse.strip(type_=strip_section_name)
+            strip_list = self.get_strip_list(strip_section_name)
+            if strip_list:
+                for file_name in strip_list:
+                    strip_section.add_file(
+                        xml_parse.file(name=file_name)
+                    )
+                target_state.xml_data.add_strip(strip_section)
+
+    def copy_build_type_attributes(self, attribute_names, target_state):
+        for attribute in attribute_names:
+            get_type_method = getattr(
+                self.build_type, 'get_' + attribute
+            )
+            attribute_value = get_type_method()
+            if attribute_value:
+                set_type_method = getattr(
+                    target_state.build_type, 'set_' + attribute
+                )
+                set_type_method(attribute_value)
+
     def __used_profiles(self, profiles=None):
         """
             return list of profiles to use. The method looks up the
