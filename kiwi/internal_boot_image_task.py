@@ -70,7 +70,7 @@ class BootImageTask(object):
         # <packages><archive>, add to bootstrap if marked bootinclude
         # <packages><package>, add to type=delete packs if marked as bootdelete
         # <packages><package>, delete package from type=delete packs if
-        #  explicitly marked as bootinclude
+        # explicitly marked as bootinclude
 
         type_attributes = [
             'bootkernel',
@@ -95,9 +95,9 @@ class BootImageTask(object):
             type_attributes, self.boot_xml_state
         )
 
-        #<type><systemdisk>, add
-        #<type><machine>, add
-        #<type><oemconfig>, add
+        # <type><systemdisk>, add
+        # <type><machine>, add
+        # <type><oemconfig>, add
 
         log.info('Preparing boot image')
         boot_root_directory = mkdtemp(prefix='boot-', dir=self.target_dir)
