@@ -18,13 +18,49 @@ class TestBootImageTask(object):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
 
+        self.manager = mock.Mock()
+        self.system = mock.Mock()
+        self.profile = mock.Mock()
+        self.defaults = mock.Mock()
+        self.system.setup_repositories = mock.Mock(
+            return_value=self.manager
+        )
+        kiwi.internal_boot_image_task.System = mock.Mock(
+            return_value=self.system
+        )
+        kiwi.internal_boot_image_task.SystemSetup = mock.Mock(
+            return_value=mock.Mock()
+        )
+        kiwi.internal_boot_image_task.Profile = mock.Mock(
+            return_value=self.profile
+        )
+
         self.task = BootImageTask(
             XMLState(xml_data), 'some-target-dir'
         )
 
-    def test_process(self):
+    @patch('os.mkdir')
+    def test_process(self, mock_mkdir):
         # TODO
+        mock_mkdir.return_value = 'boot-directory'
         self.task.process()
+        self.task.system.setup_repositories.assert_called_once_with()
+        self.task.system.install_bootstrap.assert_called_once_with(
+            self.manager
+        )
+        self.task.system.install_system.assert_called_once_with(
+            self.manager
+        )
+        self.task.setup.import_shell_environment.assert_called_once_with(
+            self.profile
+        )
+        self.task.setup.import_description.assert_called_once_with()
+        self.task.setup.import_overlay_files.assert_called_once_with(
+            follow_links=True
+        )
+        self.task.setup.call_config_script.assert_called_once_with()
+        self.task.system.pinch_system.assert_called_once_with(self.manager)
+        self.task.setup.call_image_script.assert_called_once_with()
 
     @raises(KiwiConfigFileNotFound)
     @patch('os.path.exists')

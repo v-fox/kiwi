@@ -16,10 +16,14 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 import os
+from tempfile import mkdtemp
 
 from defaults import Defaults
 from xml_description import XMLDescription
 from xml_state import XMLState
+from system import System
+from profile import Profile
+from system_setup import SystemSetup
 from logger import log
 
 from exceptions import(
@@ -51,7 +55,45 @@ class BootImageTask(object):
         strip_xml_state = XMLState(strip_description.load())
         print strip_xml_state.get_strip_files_to_delete()
 
-        # TODO: all the rest to build the boot image
+        log.info('Preparing boot image')
+        boot_root_directory = mkdtemp(prefix='boot-', dir=self.target_dir)
+        self.system = System(
+            xml_state=self.boot_xml_state,
+            root_dir=boot_root_directory,
+            allow_existing=True
+        )
+        manager = self.system.setup_repositories()
+        self.system.install_bootstrap(manager)
+        self.system.install_system(
+            manager
+        )
+
+        profile = Profile(self.boot_xml_state)
+
+        defaults = Defaults()
+        defaults.to_profile(profile)
+
+        self.setup = SystemSetup(
+            self.boot_xml_state,
+            self.__boot_description_directory(),
+            boot_root_directory
+        )
+        self.setup.import_shell_environment(profile)
+
+        self.setup.import_description()
+        self.setup.import_overlay_files(
+            follow_links=True
+        )
+        self.setup.call_config_script()
+
+        self.system.pinch_system(
+            manager
+        )
+
+        self.setup.call_image_script()
+
+        # TODO: create cpio image
+        # TODO: we need a kernel extract class
 
     def required(self):
         """
@@ -96,18 +138,20 @@ class BootImageTask(object):
         )
         log.info('--> loaded %s', self.boot_config_file)
         if self.boot_xml_state.build_type:
-            log.info('--> Selected build type: %s',
+            log.info(
+                '--> Selected build type: %s',
                 self.boot_xml_state.get_build_type_name()
             )
         if self.boot_xml_state.profiles:
-            log.info('--> Selected boot profiles: %s', ','.join(
-                self.boot_xml_state.profiles)
+            log.info(
+                '--> Selected boot profiles: %s',
+                ','.join(self.boot_xml_state.profiles)
             )
 
     def __boot_description_directory(self):
         boot_description = self.xml_state.build_type.get_boot()
         if boot_description:
-           if not boot_description[0] == '/':
-               boot_description = Defaults.get_image_description_path() + \
-                   '/' + boot_description
-           return boot_description
+            if not boot_description[0] == '/':
+                boot_description = Defaults.get_image_description_path() + \
+                    '/' + boot_description
+            return boot_description

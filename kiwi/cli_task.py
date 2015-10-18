@@ -92,12 +92,14 @@ class CliTask(object):
 
         log.info('--> loaded %s', self.config_file)
         if self.xml_state.build_type:
-            log.info('--> Selected build type: %s',
+            log.info(
+                '--> Selected build type: %s',
                 self.xml_state.get_build_type_name()
             )
         if self.xml_state.profiles:
-            log.info('--> Selected profiles: %s', ','.join(
-                self.xml_state.profiles)
+            log.info(
+                '--> Selected profiles: %s',
+                ','.join(self.xml_state.profiles)
             )
 
     def quadruple_token(self, option):

@@ -48,14 +48,15 @@ class RootInit(object):
         root = mkdtemp()
         try:
             Command.run(['mkdir', '-p', root])
-            for path in [
+            base_system_paths = [
                 '/dev/pts',
                 '/proc',
                 '/etc/sysconfig',
                 '/var/cache',
                 '/run',
                 '/sys'
-            ]:
+            ]
+            for path in base_system_paths:
                 Command.run(['mkdir', '-p', root + path])
                 Command.run(['chown', 'root:root', root + path])
 
@@ -103,8 +104,8 @@ class RootInit(object):
             Command.run(['ln', '-s', '/run', root + '/var/run'])
 
             self.__setup_config_templates(root)
-
-            Command.run(['mv', root, self.root_dir])
+            Command.run(['rsync', '-a', root + '/', self.root_dir])
+            Command.run(['rm', '-r', root])
         except Exception as e:
             rmtree(root, ignore_errors=True)
             raise KiwiRootInitCreationError(
