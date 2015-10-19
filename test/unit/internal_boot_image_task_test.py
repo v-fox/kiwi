@@ -40,7 +40,9 @@ class TestBootImageTask(object):
         )
 
     @patch('os.mkdir')
-    def test_process(self, mock_mkdir):
+    @patch('kiwi.defaults.Defaults.get_image_description_path')
+    def test_process(self, mock_boot_path, mock_mkdir):
+        mock_boot_path.return_value = '../data'
         # TODO
         mock_mkdir.return_value = 'boot-directory'
         self.task.process()
