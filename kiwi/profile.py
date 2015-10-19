@@ -85,12 +85,6 @@ class Profile(object):
         # kiwi_oemrecoveryID
         # kiwi_oemrecoveryPartSize
         # kiwi_oemrecoveryInPlace
-        # TODO:
-        # + kiwi_oemataraid_scan requires to be added if set to false
-        # + kiwi_oemmultipath_scan requires to be added if set to false
-        # Reason is they are matched against 'false' in suse-dump. This should
-        # be fixed in the kiwi linuxrc code to allow this code
-        # to stay simple
         oemconfig_section = self.xml_state.get_build_type_oemconfig_section()
         if oemconfig_section:
             oemconfig = oemconfig_section[0]
