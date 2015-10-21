@@ -187,20 +187,21 @@ class System(object):
             system_collections,
             system_products
         )
-        process = CommandProcess(
-            command=manager.process_install_requests(), log_topic='system'
-        )
-        try:
-            process.poll_show_progress(
-                items_to_complete=all_install_items,
-                match_method=process.create_match_method(
-                    manager.match_package_installed
+        if all_install_items:
+            process = CommandProcess(
+                command=manager.process_install_requests(), log_topic='system'
+            )
+            try:
+                process.poll_show_progress(
+                    items_to_complete=all_install_items,
+                    match_method=process.create_match_method(
+                        manager.match_package_installed
+                    )
                 )
-            )
-        except Exception as e:
-            raise KiwiInstallPhaseFailed(
-                'System package installation failed: %s' % format(e)
-            )
+            except Exception as e:
+                raise KiwiInstallPhaseFailed(
+                    'System package installation failed: %s' % format(e)
+                )
         # process archive installations
         if system_archives:
             try:
