@@ -107,13 +107,14 @@ class TestXMLState(object):
         assert self.state.get_to_become_deleted_packages() == ['kernel-debug']
 
     def test_get_build_type_system_disk_section(self):
-        assert self.state.get_build_type_system_disk_section() == None
+        assert self.state.get_build_type_system_disk_section().get_name() == \
+            'mydisk'
 
     def test_get_volume_management(self):
-        assert self.state.get_volume_management() == None
+        assert self.state.get_volume_management() == 'lvm'
 
     def test_get_volume_management_none(self):
-        assert self.state.get_volume_management() == None
+        assert self.boot_state.get_volume_management() == None
 
     def test_get_volume_management_btrfs(self):
         description = XMLDescription('../data/example_btrfs_config.xml')
@@ -245,7 +246,8 @@ class TestXMLState(object):
 
     def test_copy_systemdisk_section(self):
         self.state.copy_systemdisk_section(self.boot_state)
-        assert self.boot_state.get_build_type_system_disk_section() == None
+        systemdisk = self.boot_state.get_build_type_system_disk_section()
+        assert systemdisk.get_name() == 'mydisk'
 
     def test_copy_strip_sections(self):
         self.state.copy_strip_sections(self.boot_state)
@@ -253,11 +255,13 @@ class TestXMLState(object):
 
     def test_copy_machine_section(self):
         self.state.copy_machine_section(self.boot_state)
-        assert self.boot_state.get_build_type_machine_section() == None
+        machine = self.boot_state.get_build_type_machine_section()
+        assert machine.get_memory() == 512
 
     def test_copy_oemconfig_section(self):
         self.state.copy_oemconfig_section(self.boot_state)
-        assert self.boot_state.get_build_type_oemconfig_section() == None
+        oemconfig = self.boot_state.get_build_type_oemconfig_section()
+        assert oemconfig.get_oem_systemsize()[0] == 2048
 
     def test_copy_repository_sections(self):
         self.state.copy_repository_sections(self.boot_state, True)

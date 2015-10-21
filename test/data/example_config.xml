@@ -34,7 +34,17 @@
         <locale>de_DE</locale>
     </preferences>
     <preferences>
-        <type image="iso" primary="true" boot="isoboot/example-boot" flags="overlay" hybrid="true" firmware="efi" kernelcmdline="splash"/>
+        <type image="iso" primary="true" boot="isoboot/example-boot" flags="overlay" hybrid="true" firmware="efi" kernelcmdline="splash">
+            <systemdisk name="mydisk"/>
+            <machine memory="512" domain="domU">
+                <vmdisk id="0" device="/dev/xvda" controller="ide"/>
+                <vmnic interface=""/>
+            </machine>
+            <oemconfig>
+                <oem-systemsize>2048</oem-systemsize>
+                <oem-swap>true</oem-swap>
+            </oemconfig>
+        </type>
         <version>1.13.2</version>
         <packagemanager>zypper</packagemanager>
         <locale>en_US</locale>

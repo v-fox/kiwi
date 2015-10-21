@@ -446,9 +446,9 @@ class XMLState(object):
         )
 
     def copy_displayname(self, target_state):
-        target_state.xml_data.set_displayname(
-            self.xml_data.get_displayname()
-        )
+        displayname = self.xml_data.get_displayname()
+        if displayname:
+            target_state.xml_data.set_displayname(displayname)
 
     def copy_drivers_sections(self, target_state):
         drivers_sections = self.__profiled(
@@ -459,9 +459,11 @@ class XMLState(object):
                 target_state.xml_data.add_drivers(drivers_section)
 
     def copy_systemdisk_section(self, target_state):
-        target_state.build_type.set_systemdisk(
-            self.get_build_type_system_disk_section()
-        )
+        systemdisk_section = self.get_build_type_system_disk_section()
+        if systemdisk_section:
+            target_state.build_type.set_systemdisk(
+                [systemdisk_section]
+            )
 
     def copy_strip_sections(self, target_state):
         strip_sections = self.__profiled(
@@ -472,14 +474,18 @@ class XMLState(object):
                 target_state.xml_data.add_strip(strip_section)
 
     def copy_machine_section(self, target_state):
-        target_state.build_type.set_machine(
-            self.get_build_type_machine_section()
-        )
+        machine_section = self.get_build_type_machine_section()
+        if machine_section:
+            target_state.build_type.set_machine(
+                [machine_section]
+            )
 
     def copy_oemconfig_section(self, target_state):
-        target_state.build_type.set_oemconfig(
-            self.get_build_type_oemconfig_section()
-        )
+        oemconfig_section = self.get_build_type_oemconfig_section()
+        if oemconfig_section:
+            target_state.build_type.set_oemconfig(
+                [oemconfig_section]
+            )
 
     def copy_repository_sections(self, target_state, wipe=False):
         repository_sections = self.__profiled(
