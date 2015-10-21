@@ -62,18 +62,6 @@ class XMLState(object):
         """
         return self.build_type.get_image()
 
-    def get_build_type_machine_section(self):
-        """
-            get machine section from build type
-        """
-        return self.build_type.get_machine()
-
-    def get_build_type_oemconfig_section(self):
-        """
-            get oemconfig section from build type
-        """
-        return self.build_type.get_oemconfig()
-
     def get_package_manager(self):
         """
             get configured package manager
@@ -235,13 +223,29 @@ class XMLState(object):
         """
         return self.get_products('image')
 
-    def get_system_disk(self):
+    def get_build_type_system_disk_section(self):
         """
             get system disk section
         """
-        for systemdisk in self.build_type.get_systemdisk():
-            if systemdisk:
-                return systemdisk
+        systemdisk_sections = self.build_type.get_systemdisk()
+        if systemdisk_sections:
+            return systemdisk_sections[0]
+
+    def get_build_type_machine_section(self):
+        """
+            get machine section from build type
+        """
+        machine_sections = self.build_type.get_machine()
+        if machine_sections:
+            return machine_sections[0]
+
+    def get_build_type_oemconfig_section(self):
+        """
+            get oemconfig section from build type
+        """
+        oemconfig_sections = self.build_type.get_oemconfig()
+        if oemconfig_sections:
+            return oemconfig_sections[0]
 
     def get_volumes(self):
         """
@@ -249,8 +253,9 @@ class XMLState(object):
         """
         defaults = Defaults()
         volume_type_list = []
-        if self.get_system_disk():
-            volumes = self.get_system_disk().get_volume()
+        systemdisk_section = self.get_build_type_system_disk_section()
+        if systemdisk_section:
+            volumes = systemdisk_section.get_volume()
             if volumes:
                 volume_type = namedtuple(
                     'volume_type', [
@@ -339,7 +344,7 @@ class XMLState(object):
         """
         volume_filesystems = ['btrfs', 'zfs']
         selected_filesystem = self.build_type.get_filesystem()
-        selected_system_disk = self.get_system_disk()
+        selected_system_disk = self.get_build_type_system_disk_section()
         volume_management = None
         if not selected_system_disk:
             # no systemdisk section exists, no volume management requested
@@ -440,17 +445,67 @@ class XMLState(object):
             )
         )
 
+    def copy_displayname(self, target_state):
+        target_state.xml_data.set_displayname(
+            self.xml_data.get_displayname()
+        )
+
+    def copy_drivers_sections(self, target_state):
+        drivers_sections = self.__profiled(
+            self.xml_data.get_drivers()
+        )
+        if drivers_sections:
+            for drivers_section in drivers_sections:
+                target_state.xml_data.add_drivers(drivers_section)
+
+    def copy_systemdisk_section(self, target_state):
+        target_state.build_type.set_systemdisk(
+            self.get_build_type_system_disk_section()
+        )
+
     def copy_strip_sections(self, target_state):
-        strip_section_names = ['tools', 'libs', 'delete']
-        for strip_section_name in strip_section_names:
-            strip_section = xml_parse.strip(type_=strip_section_name)
-            strip_list = self.get_strip_list(strip_section_name)
-            if strip_list:
-                for file_name in strip_list:
-                    strip_section.add_file(
-                        xml_parse.file(name=file_name)
-                    )
+        strip_sections = self.__profiled(
+            self.xml_data.get_strip()
+        )
+        if strip_sections:
+            for strip_section in strip_sections:
                 target_state.xml_data.add_strip(strip_section)
+
+    def copy_machine_section(self, target_state):
+        target_state.build_type.set_machine(
+            self.get_build_type_machine_section()
+        )
+
+    def copy_oemconfig_section(self, target_state):
+        target_state.build_type.set_oemconfig(
+            self.get_build_type_oemconfig_section()
+        )
+
+    def copy_repository_sections(self, target_state, wipe=False):
+        repository_sections = self.__profiled(
+            self.xml_data.get_repository()
+        )
+        if repository_sections:
+            if wipe:
+                target_state.xml_data.set_repository([])
+            for repository_section in repository_sections:
+                target_state.xml_data.add_repository(repository_section)
+
+    def copy_preferences_subsections(self, section_names, target_state):
+        target_preferences_sections = target_state.get_preferences_sections()
+        if target_preferences_sections:
+            target_preferences_section = target_preferences_sections[0]
+            for preferences_section in self.get_preferences_sections():
+                for section_name in section_names:
+                    get_section_method = getattr(
+                        preferences_section, 'get_' + section_name
+                    )
+                    section = get_section_method()
+                    if section:
+                        set_section_method = getattr(
+                            target_preferences_section, 'set_' + section_name
+                        )
+                        set_section_method(section)
 
     def copy_build_type_attributes(self, attribute_names, target_state):
         for attribute in attribute_names:

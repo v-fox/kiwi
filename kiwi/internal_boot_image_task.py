@@ -46,10 +46,22 @@ class BootImageTask(object):
         """
         self.__load_boot_xml_description()
 
-        # TODO: add/merge data from self.xml_state to self.boot_xml_state
+        # add/merge data from self.xml_state to self.boot_xml_state
         # <image>displayname
+        self.xml_state.copy_displayname(
+            self.boot_xml_state
+        )
+
         # <repository>, overwrite
+        self.xml_state.copy_repository_sections(
+            target_state=self.boot_xml_state,
+            wipe=True
+        )
+
         # <drivers>, add
+        self.xml_state.copy_drivers_sections(
+            self.boot_xml_state
+        )
 
         # <strip>, add
         strip_description = XMLDescription(
@@ -66,12 +78,26 @@ class BootImageTask(object):
         # <preferences><bootloader-theme>, add
         # <preferences><bootsplash-theme>, add
         # <preferences><rpm-check-signatures>, add
+        preferences_subsection_names = [
+            'bootloader_theme',
+            'bootsplash_theme',
+            'locale',
+            'packagemanager',
+            'rpm_check_signatures',
+            'showlicense'
+        ]
+        self.xml_state.copy_preferences_subsections(
+            preferences_subsection_names, self.boot_xml_state
+        )
+
+        # TODO
         # <packages><package>, add to bootstrap if marked bootinclude
         # <packages><archive>, add to bootstrap if marked bootinclude
         # <packages><package>, add to type=delete packs if marked as bootdelete
         # <packages><package>, delete package from type=delete packs if
         # explicitly marked as bootinclude
 
+        # <type>
         type_attributes = [
             'bootkernel',
             'bootloader',
@@ -96,8 +122,19 @@ class BootImageTask(object):
         )
 
         # <type><systemdisk>, add
+        self.xml_state.copy_systemdisk_section(
+            self.boot_xml_state
+        )
+
         # <type><machine>, add
+        self.xml_state.copy_machine_section(
+            self.boot_xml_state
+        )
+
         # <type><oemconfig>, add
+        self.xml_state.copy_oemconfig_section(
+            self.boot_xml_state
+        )
 
         log.info('Preparing boot image')
         boot_root_directory = mkdtemp(prefix='boot-', dir=self.target_dir)

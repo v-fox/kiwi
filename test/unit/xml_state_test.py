@@ -16,8 +16,15 @@ class TestXMLState(object):
         description = XMLDescription(
             '../data/example_config.xml'
         )
-        xml_data = description.load()
-        self.state = XMLState(xml_data)
+        self.state = XMLState(
+            description.load()
+        )
+        boot_description = XMLDescription(
+            '../data/isoboot/example-boot/config.xml'
+        )
+        self.boot_state = XMLState(
+            boot_description.load()
+        )
 
     def test_build_type_primary_selected(self):
         assert self.state.get_build_type_name() == 'iso'
@@ -99,8 +106,8 @@ class TestXMLState(object):
     def test_get_to_become_deleted_packages(self):
         assert self.state.get_to_become_deleted_packages() == ['kernel-debug']
 
-    def test_get_system_disk(self):
-        assert self.state.get_system_disk() == None
+    def test_get_build_type_system_disk_section(self):
+        assert self.state.get_build_type_system_disk_section() == None
 
     def test_get_volume_management(self):
         assert self.state.get_volume_management() == None
@@ -211,26 +218,61 @@ class TestXMLState(object):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
         state = XMLState(xml_data, None, 'vmx')
-        assert state.get_build_type_machine_section()[0].get_guestOS() == 'suse'
+        assert state.get_build_type_machine_section().get_guestOS() == 'suse'
 
     def test_get_drivers_list(self):
-        assert self.state.get_drivers_list() == ['crypto/*', 'drivers/acpi/*']
+        assert self.state.get_drivers_list() == \
+            ['crypto/*', 'drivers/acpi/*', 'bar']
 
     def test_get_build_type_oemconfig_section(self):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
         state = XMLState(xml_data, None, 'oem')
-        assert state.get_build_type_oemconfig_section()[0].get_oem_swap()[0] ==\
+        assert state.get_build_type_oemconfig_section().get_oem_swap()[0] ==\
             'true'
 
     def test_get_users_sections(self):
         assert self.state.get_users_sections()[0].get_user()[0].get_name() == \
             'root'
 
+    def test_copy_displayname(self):
+        self.state.copy_displayname(self.boot_state)
+        assert self.boot_state.xml_data.get_displayname() == 'Bob'
+
+    def test_copy_drivers_sections(self):
+        self.state.copy_drivers_sections(self.boot_state)
+        assert 'bar' in self.boot_state.get_drivers_list()
+
+    def test_copy_systemdisk_section(self):
+        self.state.copy_systemdisk_section(self.boot_state)
+        assert self.boot_state.get_build_type_system_disk_section() == None
+
     def test_copy_strip_sections(self):
-        # TODO
-        pass
+        self.state.copy_strip_sections(self.boot_state)
+        assert 'del-a' in self.boot_state.get_strip_files_to_delete()
+
+    def test_copy_machine_section(self):
+        self.state.copy_machine_section(self.boot_state)
+        assert self.boot_state.get_build_type_machine_section() == None
+
+    def test_copy_oemconfig_section(self):
+        self.state.copy_oemconfig_section(self.boot_state)
+        assert self.boot_state.get_build_type_oemconfig_section() == None
+
+    def test_copy_repository_sections(self):
+        self.state.copy_repository_sections(self.boot_state, True)
+        repository = self.boot_state.get_repository_sections()[0]
+        assert repository.get_source().get_path() == 'iso:///image/CDs/dvd.iso'
+
+    def test_copy_preferences_subsections(self):
+        self.state.copy_preferences_subsections(
+            ['bootsplash_theme'], self.boot_state
+        )
+        preferences = self.boot_state.get_preferences_sections()[0]
+        assert preferences.get_bootsplash_theme()[0] == 'openSUSE'
 
     def test_copy_build_type_attributes(self):
-        # TODO
-        pass
+        self.state.copy_build_type_attributes(
+            ['firmware'], self.boot_state
+        )
+        assert self.boot_state.build_type.get_firmware() == 'efi'

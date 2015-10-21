@@ -85,9 +85,8 @@ class Profile(object):
         # kiwi_oemrecoveryID
         # kiwi_oemrecoveryPartSize
         # kiwi_oemrecoveryInPlace
-        oemconfig_section = self.xml_state.get_build_type_oemconfig_section()
-        if oemconfig_section:
-            oemconfig = oemconfig_section[0]
+        oemconfig = self.xml_state.get_build_type_oemconfig_section()
+        if oemconfig:
             self.dot_profile['kiwi_oemataraid_scan'] = \
                 self.__text(oemconfig.get_oem_ataraid_scan())
             self.dot_profile['kiwi_oemvmcp_parmfile'] = \
@@ -147,9 +146,9 @@ class Profile(object):
 
     def __machine_to_profile(self):
         # kiwi_xendomain
-        machine_section = self.xml_state.get_build_type_machine_section()
-        if machine_section:
-            self.dot_profile['kiwi_xendomain'] = machine_section[0].get_domain()
+        machine = self.xml_state.get_build_type_machine_section()
+        if machine:
+            self.dot_profile['kiwi_xendomain'] = machine.get_domain()
 
     def __strip_to_profile(self):
         # kiwi_strip_delete
@@ -171,7 +170,7 @@ class Profile(object):
         # kiwi_LVM_LVRoot
         # kiwi_allFreeVolume_X
         # kiwi_LVM_X
-        systemdisk = self.xml_state.get_system_disk()
+        systemdisk = self.xml_state.get_build_type_system_disk_section()
         if systemdisk:
             self.dot_profile['kiwi_lvmgroup'] = systemdisk.get_name()
             if self.xml_state.get_volume_management():
