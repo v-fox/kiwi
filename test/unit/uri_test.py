@@ -60,6 +60,10 @@ class TestUri(object):
         uri = Uri('dir:///some/path', 'rpm-md')
         assert uri.translate() == '/some/path'
 
+    def test_translate_http_path(self):
+        uri = Uri('http://example.com/foo', 'rpm-md')
+        assert uri.translate() == 'http://example.com/foo'
+
     @patch('kiwi.command.Command.run')
     @patch('kiwi.uri.mkdtemp')
     def test_translate_iso_path(self, mock_mkdtemp, mock_command):

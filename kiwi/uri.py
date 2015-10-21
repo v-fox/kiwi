@@ -69,6 +69,8 @@ class Uri(object):
             return self.__local_directory(uri.path)
         elif uri.scheme == 'iso':
             return self.__iso_mount_path(uri.path)
+        elif uri.scheme == 'http':
+            return self.uri
         else:
             raise KiwiUriStyleUnknown(
                 'URI schema %s not supported' % self.uri
