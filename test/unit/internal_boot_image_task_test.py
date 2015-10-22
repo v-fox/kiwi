@@ -61,7 +61,9 @@ class TestBootImageTask(object):
             follow_links=True
         )
         self.task.setup.call_config_script.assert_called_once_with()
-        self.task.system.pinch_system.assert_called_once_with(self.manager)
+        self.task.system.pinch_system.assert_called_once_with(
+            manager=self.manager, force=True
+        )
         self.task.setup.call_image_script.assert_called_once_with()
 
     @raises(KiwiConfigFileNotFound)

@@ -73,7 +73,8 @@ class TestPackageManagerZypper(object):
         )
 
     @patch('kiwi.command.Command.call')
-    def test_process_delete_requests(self, mock_call):
+    @patch('kiwi.command.Command.run')
+    def test_process_delete_requests_all_installed(self, mock_run, mock_call):
         self.manager.request_package('vim')
         self.manager.process_delete_requests()
         chroot_zypper_args = self.manager.root_bind.move_to_root(
@@ -86,6 +87,30 @@ class TestPackageManagerZypper(object):
             [
                 'env'
             ]
+        )
+
+    @patch('kiwi.command.Command.call')
+    @patch('kiwi.command.Command.run')
+    def test_process_delete_requests_force(self, mock_run, mock_call):
+        self.manager.request_package('vim')
+        self.manager.process_delete_requests(True)
+        mock_call.assert_called_once_with(
+            [
+                'chroot', 'root-dir', 'rpm', '-e',
+                '--nodeps', '--allmatches', '--noscripts', 'vim'
+            ],
+            [
+                'env'
+            ]
+        )
+
+    @patch('kiwi.command.Command.run')
+    def test_process_delete_requests_all_missing(self, mock_run):
+        mock_run.side_effect = Exception
+        self.manager.request_package('vim')
+        self.manager.process_delete_requests()
+        mock_run.assert_called_once_with(
+            ['chroot', 'root-dir', 'rpm', '-q', 'vim']
         )
 
     @patch('kiwi.command.Command.call')

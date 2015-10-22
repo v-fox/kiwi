@@ -168,7 +168,7 @@ class BootImageTask(object):
         self.setup.call_config_script()
 
         self.system.pinch_system(
-            manager
+            manager=manager, force=True
         )
 
         self.setup.call_image_script()

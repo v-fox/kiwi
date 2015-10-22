@@ -65,16 +65,35 @@ class PackageManagerZypper(PackageManagerBase):
             self.command_env
         )
 
-    def process_delete_requests(self):
-        chroot_zypper_args = self.root_bind.move_to_root(
-            self.zypper_args
-        )
-        return Command.call(
-            ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
-                'remove', '-u', '--force-resolution'
-            ] + self.__delete_items(),
-            self.command_env
-        )
+    def process_delete_requests(self, force=False):
+        delete_items = []
+        for delete_item in self.__delete_items():
+            try:
+                Command.run(['chroot', self.root_dir, 'rpm', '-q', delete_item])
+                delete_items.append(delete_item)
+            except Exception:
+                # ignore packages which are not installed
+                pass
+        if not delete_items:
+            return
+        if force:
+            force_options = ['--nodeps', '--allmatches', '--noscripts']
+            return Command.call(
+                [
+                    'chroot', self.root_dir, 'rpm', '-e'
+                ] + force_options + delete_items,
+                self.command_env
+            )
+        else:
+            chroot_zypper_args = self.root_bind.move_to_root(
+                self.zypper_args
+            )
+            return Command.call(
+                ['chroot', self.root_dir, 'zypper'] + chroot_zypper_args + [
+                    'remove', '-u', '--force-resolution'
+                ] + delete_items,
+                self.command_env
+            )
 
     def update(self):
         chroot_zypper_args = self.root_bind.move_to_root(

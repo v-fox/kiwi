@@ -1,5 +1,3 @@
-all: xml_parser
-
 pep8:
 	tools/run-pep8
 

@@ -57,15 +57,15 @@ class CommandProcess(object):
 
     def poll_and_watch(self):
         log.info(self.log_topic)
-        log.info('--------------start--------------')
+        log.debug('--------------start--------------')
         while self.command.process.poll() is None:
             command_output = self.command.output.readline()
             if command_output:
-                log.info(command_output.rstrip('\n'))
+                log.debug(command_output.rstrip('\n'))
         result = namedtuple(
             'result', ['stderr', 'returncode']
         )
-        log.info('--------------stop--------------')
+        log.debug('--------------stop--------------')
         return result(
             stderr=self.command.error.read(),
             returncode=self.command.process.returncode

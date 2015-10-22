@@ -261,7 +261,7 @@ class TestSystem(object):
         self.manager.request_package.assert_any_call(
             'kernel-debug'
         )
-        self.manager.process_delete_requests.assert_called_once_with()
+        self.manager.process_delete_requests.assert_called_once_with(False)
 
     def test_install_packages(self):
         self.manager.process_install_requests = mock.Mock(

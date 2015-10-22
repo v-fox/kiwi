@@ -212,7 +212,7 @@ class System(object):
                     'System archive installation failed: %s' % format(e)
                 )
 
-    def pinch_system(self, manager):
+    def pinch_system(self, manager, force=False):
         """
             delete packages marked for deletion in the XML description
         """
@@ -221,7 +221,7 @@ class System(object):
         if to_become_deleted_packages:
             log.info('Pinch system')
             try:
-                self.delete_packages(manager, to_become_deleted_packages)
+                self.delete_packages(manager, to_become_deleted_packages, force)
             except Exception as e:
                 raise KiwiInstallPhaseFailed(
                     'System package deletion failed: %s' % format(e)
@@ -251,7 +251,7 @@ class System(object):
                 'Package installation failed: %s' % format(e)
             )
 
-    def delete_packages(self, manager, packages):
+    def delete_packages(self, manager, packages, force=False):
         """
             delete one or more packages using the package manager inside
             of the new root directory
@@ -261,7 +261,7 @@ class System(object):
             manager, packages
         )
         process = CommandProcess(
-            command=manager.process_delete_requests(), log_topic='system'
+            command=manager.process_delete_requests(force), log_topic='system'
         )
         try:
             process.poll_show_progress(
