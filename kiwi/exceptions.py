@@ -57,6 +57,10 @@ class KiwiRootInitCreationError(KiwiError):
     pass
 
 
+class KiwiRpmDatabaseReloadError(KiwiError):
+    pass
+
+
 class KiwiMountKernelFileSystemsError(KiwiError):
     pass
 

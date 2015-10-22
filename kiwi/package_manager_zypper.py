@@ -20,6 +20,9 @@ import re
 # project
 from command import Command
 from package_manager_base import PackageManagerBase
+from exceptions import (
+    KiwiRpmDatabaseReloadError
+)
 
 
 class PackageManagerZypper(PackageManagerBase):
@@ -100,6 +103,43 @@ class PackageManagerZypper(PackageManagerBase):
         return re.match(
             '.*Removing: ' + package_name + '.*', zypper_output
         )
+
+    def database_consistent(self):
+        try:
+            Command.run(['chroot', self.root_dir, 'rpmdb', '--initdb'])
+            return True
+        except Exception:
+            return False
+
+    def dump_reload_package_database(self, version=45):
+        db_load_for_version = {
+            45: 'db45_load',
+            48: 'db48_load'
+        }
+        if version not in db_load_for_version:
+            raise KiwiRpmDatabaseReloadError(
+                'Dump reload for rpm DB version: %s not supported' % version
+            )
+        if not self.database_consistent():
+            reload_db_files = [
+                '/var/lib/rpm/Name',
+                '/var/lib/rpm/Packages'
+            ]
+            for db_file in reload_db_files:
+                root_db_file = self.root_dir + db_file
+                root_db_file_backup = root_db_file + '.bak'
+                Command.run([
+                    'db_dump', '-f', root_db_file_backup, root_db_file
+                ])
+                Command.run(['rm', '-f', root_db_file])
+                Command.run([
+                    db_load_for_version[version],
+                    '-f', root_db_file_backup, root_db_file
+                ])
+                Command.run(['rm', '-f', root_db_file_backup])
+            Command.run([
+                'chroot', self.root_dir, 'rpm', '--rebuilddb'
+            ])
 
     def __install_items(self):
         items = self.package_requests + self.collection_requests \

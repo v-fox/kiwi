@@ -7,6 +7,7 @@ import re
 import nose_helper
 
 from kiwi.package_manager_zypper import PackageManagerZypper
+from kiwi.exceptions import *
 
 
 class TestPackageManagerZypper(object):
@@ -111,3 +112,71 @@ class TestPackageManagerZypper(object):
 
     def test_match_package_deleted(self):
         assert self.manager.match_package_deleted('foo', 'Removing: foo')
+
+    @patch('kiwi.command.Command.run')
+    def test_database_consistent(self, mock_command):
+        assert self.manager.database_consistent() == True
+
+    @patch('kiwi.command.Command.run')
+    def test_database_not_consistent(self, mock_command):
+        mock_command.side_effect = Exception
+        assert self.manager.database_consistent() == False
+
+    @patch('kiwi.command.Command.run')
+    @patch('kiwi.package_manager_zypper.PackageManagerZypper.database_consistent')
+    def test_reload_package_database(self, mock_consistent, mock_command):
+        mock_consistent.return_value = False
+        self.manager.dump_reload_package_database()
+        call = mock_command.call_args_list[0]
+        assert mock_command.call_args_list[0] == \
+            call([
+                'db_dump', '-f', 'root-dir/var/lib/rpm/Name.bak',
+                'root-dir/var/lib/rpm/Name'
+            ])
+        call = mock_command.call_args_list[1]
+        assert mock_command.call_args_list[1] == \
+            call([
+                'rm', '-f', 'root-dir/var/lib/rpm/Name'
+            ])
+        call = mock_command.call_args_list[2]
+        assert mock_command.call_args_list[2] == \
+            call([
+                'db45_load', '-f', 'root-dir/var/lib/rpm/Name.bak',
+                'root-dir/var/lib/rpm/Name'
+            ])
+        call = mock_command.call_args_list[3]
+        assert mock_command.call_args_list[3] == \
+            call([
+                'rm', '-f', 'root-dir/var/lib/rpm/Name.bak'
+            ])
+        call = mock_command.call_args_list[4]
+        assert mock_command.call_args_list[4] == \
+            call([
+                'db_dump', '-f', 'root-dir/var/lib/rpm/Packages.bak',
+                'root-dir/var/lib/rpm/Packages'
+            ])
+        call = mock_command.call_args_list[5]
+        assert mock_command.call_args_list[5] == \
+            call([
+                'rm', '-f', 'root-dir/var/lib/rpm/Packages'
+            ])
+        call = mock_command.call_args_list[6]
+        assert mock_command.call_args_list[6] == \
+            call([
+                'db45_load', '-f', 'root-dir/var/lib/rpm/Packages.bak',
+                'root-dir/var/lib/rpm/Packages'
+            ])
+        call = mock_command.call_args_list[7]
+        assert mock_command.call_args_list[7] == \
+            call([
+                'rm', '-f', 'root-dir/var/lib/rpm/Packages.bak'
+            ])
+        call = mock_command.call_args_list[8]
+        assert mock_command.call_args_list[8] == \
+            call([
+                'chroot', 'root-dir', 'rpm', '--rebuilddb'
+            ])
+
+    @raises(KiwiRpmDatabaseReloadError)
+    def test_reload_package_database_wrong_db_version(self):
+        self.manager.dump_reload_package_database(42)

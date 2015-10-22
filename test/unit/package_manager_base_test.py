@@ -54,6 +54,14 @@ class TestPackageManagerBase(object):
     def test_match_package_deleted(self):
         self.manager.match_package_deleted('package_name', 'log')
 
+    @raises(NotImplementedError)
+    def test_database_consistent(self):
+        self.manager.database_consistent()
+
+    @raises(NotImplementedError)
+    def test_dump_reload_package_database(self):
+        self.manager.dump_reload_package_database()
+
     def test_cleanup_requests(self):
         self.manager.cleanup_requests()
         assert self.manager.package_requests == []

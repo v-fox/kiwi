@@ -64,6 +64,12 @@ class PackageManagerBase(object):
     def match_package_deleted(self, package_list, log_line):
         raise NotImplementedError
 
+    def database_consistent(self):
+        raise NotImplementedError
+
+    def dump_reload_package_database(self):
+        raise NotImplementedError
+
     def cleanup_requests(self):
         del self.package_requests[:]
         del self.collection_requests[:]

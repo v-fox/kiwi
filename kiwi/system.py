@@ -152,6 +152,7 @@ class System(object):
             raise KiwiBootStrapPhaseFailed(
                 'Bootstrap package installation failed: %s' % format(e)
             )
+        manager.dump_reload_package_database()
         # process archive installations
         if bootstrap_archives:
             try:
