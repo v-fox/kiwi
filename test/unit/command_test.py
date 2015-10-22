@@ -42,17 +42,23 @@ class TestCommand(object):
 
     @patch('subprocess.Popen')
     @patch('io.open')
-    def test_call(self, mock_io_open, mock_popen):
+    @patch('select.select')
+    def test_call(self, mock_select, mock_io_open, mock_popen):
+        mock_select.return_value = [True, False, False]
         mock_process = mock.Mock()
         mock_io = mock.Mock()
         mock_io_open.return_value = mock_io
         mock_popen.return_value = mock_process
         command_call = namedtuple(
-            'command', ['output', 'error', 'process']
+            'command', [
+                'output', 'output_available',
+                'error', 'error_available',
+                'process'
+            ]
         )
-        call_result = command_call(
-            output=mock_io,
-            error=mock_io,
-            process=mock_process
-        )
-        assert Command.call(['command', 'args']) == call_result
+        call = Command.call(['command', 'args'])
+        assert call.output_available()
+        assert call.error_available()
+        assert call.output == mock_io
+        assert call.error == mock_io
+        assert call.process == mock_process

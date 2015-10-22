@@ -27,6 +27,12 @@ class FakeCommandCall(object):
         self.output = self.__readline()
         self.error = self.__read()
 
+    def output_available(self):
+        return True
+
+    def error_available(self):
+        return True
+
     class __poll(object):
         def __init__(self, returncode):
             self.toggle_return_value = False

@@ -37,9 +37,11 @@ class CommandProcess(object):
     def poll_show_progress(self, items_to_complete, match_method):
         self.__init_progress()
         while self.command.process.poll() is None:
-            command_output = self.command.output.readline()
-            if command_output:
-                log.debug('%s: %s', self.log_topic, command_output.rstrip('\n'))
+            if self.command.output_available():
+                command_output = self.command.output.readline()
+                log.debug(
+                    '%s: %s', self.log_topic, command_output.rstrip('\n')
+                )
                 self.__update_progress(
                     match_method, items_to_complete, command_output
                 )
@@ -49,9 +51,11 @@ class CommandProcess(object):
 
     def poll(self):
         while self.command.process.poll() is None:
-            command_output = self.command.output.readline()
-            if command_output:
-                log.debug('%s: %s', self.log_topic, command_output.rstrip('\n'))
+            if self.command.output_available():
+                command_output = self.command.output.readline()
+                log.debug(
+                    '%s: %s', self.log_topic, command_output.rstrip('\n')
+                )
         if self.command.process.returncode != 0:
             raise KiwiCommandError(self.command.error.read())
 
@@ -59,8 +63,8 @@ class CommandProcess(object):
         log.info(self.log_topic)
         log.debug('--------------start--------------')
         while self.command.process.poll() is None:
-            command_output = self.command.output.readline()
-            if command_output:
+            if self.command.output_available():
+                command_output = self.command.output.readline()
                 log.debug(command_output.rstrip('\n'))
         result = namedtuple(
             'result', ['stderr', 'returncode']

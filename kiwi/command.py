@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import select
 import os
 import subprocess
 import io
@@ -67,14 +68,14 @@ class Command(object):
             cmd = Command.call(...)
 
             while cmd.process.poll() is None:
-                line = cmd.output.readline()
-                if line:
-                    print line
+                if cmd.output_available():
+                    print cmd.output.readline()
 
             if cmd.process.returncode != 0:
                 print 'something failed: %s' % cmd.error.read()
         """
         from logger import log
+
         log.debug('EXEC: [%s]', ' '.join(command))
         process = subprocess.Popen(
             command,
@@ -88,11 +89,28 @@ class Command(object):
         error = io.open(
             process.stderr.fileno(), 'rb', closefd=False
         )
+
+        def output_available():
+            def __select():
+                return select.select([output], [], [], 0)[0]
+            return __select
+
+        def error_available():
+            def __select():
+                return select.select([error], [], [], 0)[0]
+            return __select
+
         command = namedtuple(
-            'command', ['output', 'error', 'process']
+            'command', [
+                'output', 'output_available',
+                'error', 'error_available',
+                'process'
+            ]
         )
         return command(
             output=output,
+            output_available=output_available(),
             error=error,
+            error_available=error_available(),
             process=process
         )
