@@ -262,7 +262,7 @@ class TestSystemSetup(object):
         mock_watch.return_value = mock_result
         self.setup.call_config_script()
         mock_command.assert_called_once_with(
-            ['chroot', 'root_dir', 'bash', '-x', '/image/config.sh']
+            ['chroot', 'root_dir', '/image/config.sh']
         )
 
     @patch('kiwi.command.Command.call')
@@ -277,7 +277,7 @@ class TestSystemSetup(object):
         mock_watch.return_value = mock_result
         self.setup.call_image_script()
         mock_command.assert_called_once_with(
-            ['chroot', 'root_dir', 'bash', '-x', '/image/images.sh']
+            ['chroot', 'root_dir', '/image/images.sh']
         )
 
     @raises(KiwiScriptFailed)
