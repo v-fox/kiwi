@@ -82,4 +82,3 @@ class TestBootImageTask(object):
     def test_create_initrd(self):
         # TODO
         self.task.create_initrd()
-       

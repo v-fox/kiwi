@@ -49,7 +49,7 @@ class Command(object):
             )
         except Exception as e:
             raise KiwiCommandError(
-               '%s: %s' % (type(e).__name__, format(e))
+                '%s: %s' % (type(e).__name__, format(e))
             )
         output, error = process.communicate()
         if process.returncode != 0 and raise_on_error:
@@ -93,7 +93,7 @@ class Command(object):
             )
         except Exception as e:
             raise KiwiCommandError(
-               '%s: %s' % (type(e).__name__, format(e))
+                '%s: %s' % (type(e).__name__, format(e))
             )
         output = io.open(
             process.stdout.fileno(), 'rb', closefd=False
