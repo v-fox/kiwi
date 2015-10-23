@@ -208,8 +208,8 @@ class BootImageTask(object):
             )
         if self.boot_xml_state.profiles:
             log.info(
-                '--> Selected boot profiles: %s',
-                ','.join(self.boot_xml_state.profiles)
+                '--> Selected boot profiles: image: %s, kernel: %s',
+                boot_image_profile, boot_kernel_profile
             )
 
     def __boot_description_directory(self):
