@@ -558,7 +558,9 @@ class XMLState(object):
                     for package in package_list:
                         if package.get_bootinclude():
                             target_bootstrap_packages_section.add_package(
-                                package
+                                xml_parse.package(
+                                    name=package.get_name()
+                                )
                             )
                             package_names_added.append(
                                 package.get_name()
@@ -596,7 +598,9 @@ class XMLState(object):
                     for archive in archive_list:
                         if archive.get_bootinclude():
                             target_bootstrap_packages_section.add_archive(
-                                archive
+                                xml_parse.archive(
+                                    name=archive.get_name()
+                                )
                             )
 
     def copy_bootdelete_packages(self, target_state):
@@ -619,7 +623,9 @@ class XMLState(object):
                     for package in package_list:
                         if package.get_bootdelete():
                             target_delete_packages_section.add_package(
-                                package
+                                xml_parse.package(
+                                    name=package.get_name()
+                                )
                             )
 
     def __used_profiles(self, profiles=None):
