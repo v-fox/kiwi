@@ -104,7 +104,9 @@ class TestXMLState(object):
         assert self.state.xml_data.get_repository()[1].get_priority() == 1
 
     def test_get_to_become_deleted_packages(self):
-        assert self.state.get_to_become_deleted_packages() == ['kernel-debug']
+        assert self.state.get_to_become_deleted_packages() == [
+            'kernel-debug'
+        ]
 
     def test_get_build_type_system_disk_section(self):
         assert self.state.get_build_type_system_disk_section().get_name() == \
@@ -280,3 +282,22 @@ class TestXMLState(object):
             ['firmware'], self.boot_state
         )
         assert self.boot_state.build_type.get_firmware() == 'efi'
+
+    def test_copy_bootincluded_packages(self):
+        self.state.copy_bootincluded_packages(self.boot_state)
+        bootstrap_packages = self.boot_state.get_bootstrap_packages()
+        assert 'plymouth-branding-openSUSE' in bootstrap_packages
+        assert 'grub2-branding-openSUSE' in bootstrap_packages
+        assert 'gfxboot-branding-openSUSE' in bootstrap_packages
+        to_delete_packages = self.boot_state.get_to_become_deleted_packages()
+        assert 'gfxboot-branding-openSUSE' not in to_delete_packages
+
+    def test_copy_bootincluded_archives(self):
+        self.state.copy_bootincluded_archives(self.boot_state)
+        bootstrap_archives = self.boot_state.get_bootstrap_archives()
+        assert 'image.tgz' in bootstrap_archives
+
+    def test_copy_bootdelete_packages(self):
+        self.state.copy_bootdelete_packages(self.boot_state)
+        to_delete_packages = self.boot_state.get_to_become_deleted_packages()
+        assert 'vim' in to_delete_packages

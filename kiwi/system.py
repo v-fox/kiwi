@@ -224,7 +224,7 @@ class System(object):
                 self.delete_packages(manager, to_become_deleted_packages, force)
             except Exception as e:
                 raise KiwiInstallPhaseFailed(
-                    'System package deletion failed: %s' % format(e)
+                    '%s: %s' % (type(e).__name__, format(e))
                 )
 
     def install_packages(self, manager, packages):
@@ -236,20 +236,21 @@ class System(object):
         all_install_items = self.__setup_requests(
             manager, packages
         )
-        process = CommandProcess(
-            command=manager.process_install_requests(), log_topic='system'
-        )
-        try:
-            process.poll_show_progress(
-                items_to_complete=all_install_items,
-                match_method=process.create_match_method(
-                    manager.match_package_installed
+        if all_install_items:
+            process = CommandProcess(
+                command=manager.process_install_requests(), log_topic='system'
+            )
+            try:
+                process.poll_show_progress(
+                    items_to_complete=all_install_items,
+                    match_method=process.create_match_method(
+                        manager.match_package_installed
+                    )
                 )
-            )
-        except Exception as e:
-            raise KiwiSystemInstallPackagesFailed(
-                'Package installation failed: %s' % format(e)
-            )
+            except Exception as e:
+                raise KiwiSystemInstallPackagesFailed(
+                    'Package installation failed: %s' % format(e)
+                )
 
     def delete_packages(self, manager, packages, force=False):
         """
@@ -260,20 +261,22 @@ class System(object):
         all_delete_items = self.__setup_requests(
             manager, packages
         )
-        process = CommandProcess(
-            command=manager.process_delete_requests(force), log_topic='system'
-        )
-        try:
-            process.poll_show_progress(
-                items_to_complete=all_delete_items,
-                match_method=process.create_match_method(
-                    manager.match_package_deleted
+        if all_delete_items:
+            process = CommandProcess(
+                command=manager.process_delete_requests(force),
+                log_topic='system'
+            )
+            try:
+                process.poll_show_progress(
+                    items_to_complete=all_delete_items,
+                    match_method=process.create_match_method(
+                        manager.match_package_deleted
+                    )
                 )
-            )
-        except Exception as e:
-            raise KiwiSystemDeletePackagesFailed(
-                'Package deletion failed: %s' % format(e)
-            )
+            except Exception as e:
+                raise KiwiSystemDeletePackagesFailed(
+                    'Package deletion failed: %s' % format(e)
+                )
 
     def update_system(self, manager):
         """

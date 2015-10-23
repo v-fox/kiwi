@@ -67,7 +67,7 @@ class SystemCreateTask(CliTask):
                 self.xml_state, self.command_args['--target-dir']
             )
             if boot_image_task.required():
-                boot_image_task.process()
+                boot_image_task.prepare()
 
             # TODO: all the rest :-)
 

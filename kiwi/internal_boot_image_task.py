@@ -39,31 +39,83 @@ class BootImageTask(object):
         self.xml_state = xml_state
         self.target_dir = target_dir
 
-    def process(self):
+    def prepare(self):
         """
             build the boot(initrd) image and store the result in
             the given target directory
         """
         self.__load_boot_xml_description()
+        self.__import_system_description_elements()
 
-        # add/merge data from self.xml_state to self.boot_xml_state
-        # <image>displayname
+        log.info('Preparing boot image')
+        self.boot_root_directory = mkdtemp(
+            prefix='boot-', dir=self.target_dir
+        )
+        self.system = System(
+            xml_state=self.boot_xml_state,
+            root_dir=self.boot_root_directory,
+            allow_existing=True
+        )
+        manager = self.system.setup_repositories()
+        self.system.install_bootstrap(
+            manager
+        )
+        self.system.install_system(
+            manager
+        )
+
+        profile = Profile(self.boot_xml_state)
+
+        defaults = Defaults()
+        defaults.to_profile(profile)
+
+        self.setup = SystemSetup(
+            self.boot_xml_state,
+            self.__boot_description_directory(),
+            self.boot_root_directory
+        )
+        self.setup.import_shell_environment(profile)
+        self.setup.import_description()
+        self.setup.import_overlay_files(
+            follow_links=True
+        )
+        self.setup.call_config_script()
+
+        self.system.pinch_system(
+            manager=manager, force=True
+        )
+
+        self.setup.call_image_script()
+
+    def required(self):
+        """
+            check if building a boot image is required according to
+            the selected system image type. if the type specifies a
+            boot attribute containing the path to a boot image
+            description, this indicates we need one
+        """
+        if self.__boot_description_directory():
+            return True
+
+    def extract_kernel(self):
+        # TODO: extract kernel files, needs an extract class
+        pass
+
+    def create_initrd(self):
+        # TODO: create cpio image from prepared tree
+        pass
+
+    def __import_system_description_elements(self):
         self.xml_state.copy_displayname(
             self.boot_xml_state
         )
-
-        # <repository>, overwrite
         self.xml_state.copy_repository_sections(
             target_state=self.boot_xml_state,
             wipe=True
         )
-
-        # <drivers>, add
         self.xml_state.copy_drivers_sections(
             self.boot_xml_state
         )
-
-        # <strip>, add
         strip_description = XMLDescription(
             Defaults.get_boot_image_strip_file()
         )
@@ -71,13 +123,6 @@ class BootImageTask(object):
         strip_xml_state.copy_strip_sections(
             self.boot_xml_state
         )
-
-        # <preferences><packagemanager>, add
-        # <preferences><locale>, add
-        # <preferences><showlicense>, add
-        # <preferences><bootloader-theme>, add
-        # <preferences><bootsplash-theme>, add
-        # <preferences><rpm-check-signatures>, add
         preferences_subsection_names = [
             'bootloader_theme',
             'bootsplash_theme',
@@ -89,15 +134,15 @@ class BootImageTask(object):
         self.xml_state.copy_preferences_subsections(
             preferences_subsection_names, self.boot_xml_state
         )
-
-        # TODO
-        # <packages><package>, add to bootstrap if marked bootinclude
-        # <packages><archive>, add to bootstrap if marked bootinclude
-        # <packages><package>, add to type=delete packs if marked as bootdelete
-        # <packages><package>, delete package from type=delete packs if
-        # explicitly marked as bootinclude
-
-        # <type>
+        self.xml_state.copy_bootincluded_packages(
+            self.boot_xml_state
+        )
+        self.xml_state.copy_bootincluded_archives(
+            self.boot_xml_state
+        )
+        self.xml_state.copy_bootdelete_packages(
+            self.boot_xml_state
+        )
         type_attributes = [
             'bootkernel',
             'bootloader',
@@ -120,77 +165,15 @@ class BootImageTask(object):
         self.xml_state.copy_build_type_attributes(
             type_attributes, self.boot_xml_state
         )
-
-        # <type><systemdisk>, add
         self.xml_state.copy_systemdisk_section(
             self.boot_xml_state
         )
-
-        # <type><machine>, add
         self.xml_state.copy_machine_section(
             self.boot_xml_state
         )
-
-        # <type><oemconfig>, add
         self.xml_state.copy_oemconfig_section(
             self.boot_xml_state
         )
-
-        log.info('Preparing boot image')
-        boot_root_directory = mkdtemp(prefix='boot-', dir=self.target_dir)
-        self.system = System(
-            xml_state=self.boot_xml_state,
-            root_dir=boot_root_directory,
-            allow_existing=True
-        )
-        manager = self.system.setup_repositories()
-        self.system.install_bootstrap(manager)
-        self.system.install_system(
-            manager
-        )
-
-        profile = Profile(self.boot_xml_state)
-
-        defaults = Defaults()
-        defaults.to_profile(profile)
-
-        self.setup = SystemSetup(
-            self.boot_xml_state,
-            self.__boot_description_directory(),
-            boot_root_directory
-        )
-        self.setup.import_shell_environment(profile)
-
-        self.setup.import_description()
-        self.setup.import_overlay_files(
-            follow_links=True
-        )
-        self.setup.call_config_script()
-
-        self.system.pinch_system(
-            manager=manager, force=True
-        )
-
-        self.setup.call_image_script()
-
-        # TODO: create cpio image
-        # TODO: we need a kernel extract class
-
-    def required(self):
-        """
-            check if building a boot image is required according to
-            the selected system image type. if the type specifies a
-            boot attribute containing the path to a boot image
-            description, this indicates we need one
-        """
-        if self.__boot_description_directory():
-            return True
-
-    def get_result(self):
-        """
-            return list of result files
-        """
-        pass
 
     def __load_boot_xml_description(self):
         log.info('Loading Boot XML description')

@@ -107,9 +107,9 @@
         <package name="grub2-branding-openSUSE" bootinclude="true"/>
         <package name="ifplugd"/>
         <package name="iputils"/>
-        <package name="vim"/>
+        <package name="vim" bootdelete="true"/>
         <package name="openssh"/>
-        <archive name="image.tgz"/>
+        <archive name="image.tgz" bootinclude="true"/>
     </packages>
     <packages type="iso">
         <package name="gfxboot-branding-openSUSE" bootinclude="true" bootdelete="true"/>

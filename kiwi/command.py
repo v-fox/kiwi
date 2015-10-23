@@ -30,22 +30,29 @@ class Command(object):
         Implements command invocation
     """
     @classmethod
-    def run(self, command, environment=os.environ):
+    def run(self, command, environment=os.environ, raise_on_error=True):
         """
             Execute a program and block the caller. The return value
             is a hash containing the stdout, stderr and return code
-            information
+            information. Unless raise_on_error is set to false an
+            exception is thrown if the command exits with an error
+            code not equal to zero
         """
         from logger import log
         log.debug('EXEC: [%s]', ' '.join(command))
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            env=environment
-        )
+        try:
+            process = subprocess.Popen(
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=environment
+            )
+        except Exception as e:
+            raise KiwiCommandError(
+               '%s: %s' % (type(e).__name__, format(e))
+            )
         output, error = process.communicate()
-        if process.returncode != 0:
+        if process.returncode != 0 and raise_on_error:
             log.debug('EXEC: Failed with %s', error)
             raise KiwiCommandError(error)
         command = namedtuple(
@@ -77,12 +84,17 @@ class Command(object):
         from logger import log
 
         log.debug('EXEC: [%s]', ' '.join(command))
-        process = subprocess.Popen(
-            command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            env=environment
-        )
+        try:
+            process = subprocess.Popen(
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=environment
+            )
+        except Exception as e:
+            raise KiwiCommandError(
+               '%s: %s' % (type(e).__name__, format(e))
+            )
         output = io.open(
             process.stdout.fileno(), 'rb', closefd=False
         )

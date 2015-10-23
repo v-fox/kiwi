@@ -183,5 +183,6 @@
         <package name="syslinux"/>
         <package name="python"/>
         <package name="python-base"/>
+        <package name="gfxboot-branding-openSUSE"/>
     </packages>
 </image>

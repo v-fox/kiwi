@@ -74,8 +74,6 @@ class PackageManagerZypper(PackageManagerBase):
             except Exception:
                 # ignore packages which are not installed
                 pass
-        if not delete_items:
-            return
         if force:
             force_options = ['--nodeps', '--allmatches', '--noscripts']
             return Command.call(

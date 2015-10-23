@@ -40,6 +40,14 @@ class TestCommand(object):
         mock_popen.return_value = mock_process
         assert Command.run(['command', 'args']) == run_result
 
+    @raises(KiwiCommandError)
+    def test_run_command_does_not_exist(self):
+        Command.run(['does-not-exist'])
+
+    @raises(KiwiCommandError)
+    def test_call_command_does_not_exist(self):
+        Command.call(['does-not-exist'])
+
     @patch('subprocess.Popen')
     @patch('io.open')
     @patch('select.select')

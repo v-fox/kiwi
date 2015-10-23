@@ -41,11 +41,11 @@ class TestBootImageTask(object):
 
     @patch('os.mkdir')
     @patch('kiwi.defaults.Defaults.get_image_description_path')
-    def test_process(self, mock_boot_path, mock_mkdir):
+    def test_prepare(self, mock_boot_path, mock_mkdir):
         mock_boot_path.return_value = '../data'
         # TODO
         mock_mkdir.return_value = 'boot-directory'
-        self.task.process()
+        self.task.prepare()
         self.task.system.setup_repositories.assert_called_once_with()
         self.task.system.install_bootstrap.assert_called_once_with(
             self.manager
@@ -68,12 +68,18 @@ class TestBootImageTask(object):
 
     @raises(KiwiConfigFileNotFound)
     @patch('os.path.exists')
-    def test_process_no_boot_description_found(self, mock_os_path):
+    def test_prepare_no_boot_description_found(self, mock_os_path):
         mock_os_path.return_value = False
-        self.task.process()
+        self.task.prepare()
 
     def test_required(self):
         assert self.task.required()
 
-    def test_get_result(self):
-        assert self.task.get_result() == None
+    def test_extract_kernel(self):
+        # TODO
+        self.task.extract_kernel()
+
+    def test_create_initrd(self):
+        # TODO
+        self.task.create_initrd()
+       

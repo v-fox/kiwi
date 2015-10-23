@@ -38,7 +38,7 @@ class TestSystemCreateTask(object):
         self.boot_task.required.return_value = True
         self.task.process()
         # TODO
-        self.boot_task.process.assert_called_once_with()
+        self.boot_task.prepare.assert_called_once_with()
 
     def test_process_system_create_help(self):
         self.__init_command_args()
