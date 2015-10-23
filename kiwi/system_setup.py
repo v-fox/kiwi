@@ -102,7 +102,7 @@ class SystemSetup(object):
         with open(profile_file, 'w') as profile:
             for line in profile_environment:
                 profile.write(line + '\n')
-                log.info('--> %s', line)
+                log.debug('--> %s', line)
 
     def import_overlay_files(
         self, follow_links=False, preserve_owner_group=False
