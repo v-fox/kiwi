@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ================
-  FILE          : KIWISchema.rnc
+  FILE          : kiwi.rnc
   ****************
   PROJECT       : openSUSE Build-Service
   COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH, Germany
@@ -14,13 +14,13 @@
   DESCRIPTION   : This is the RELAX NG Schema for KIWI
                 : configuration files. The schema is maintained
                 : in the relax compact syntax. Any changes should
-                : made in !! *** KIWISchema.rnc *** !!
+                : made in !! *** kiwi.rnc *** !!
                 : 
                 :
   STATUS        : Development
   ****************
 -->
-<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:db="http://docbook.org/ns/docbook" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar xmlns:db="http://docbook.org/ns/docbook" xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:rng="http://relaxng.org/ns/structure/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
   <db:info>
     <db:releaseinfo>$Id: kiwi.rnc 2957 2008-01-11 12:53:39Z thomas-schraitle $</db:releaseinfo>
     <db:releaseinfo>RNC Schema Version 6.2</db:releaseinfo>

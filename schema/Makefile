@@ -1,12 +1,12 @@
-all: KIWISchema.rng KIWISchema.xsd
+all: kiwi.rng kiwi.xsd
 
-KIWISchema.rng: KIWISchema.rnc
+kiwi.rng: kiwi.rnc
 	@echo "*** Converting KIWI RNC -> RNG..."
-	trang -I rnc -O rng KIWISchema.rnc KIWISchema.rng
+	trang -I rnc -O rng kiwi.rnc kiwi.rng
 
-KIWISchema.xsd: KIWISchema.rnc
+kiwi.xsd: kiwi.rnc
 	@echo "*** Converting KIWI RNC -> XSD..."
-	trang -I rnc -O xsd KIWISchema.rnc KIWISchema.xsd
+	trang -I rnc -O xsd kiwi.rnc kiwi.xsd
 
 clean:
 	rm -f *.xsd *.rng

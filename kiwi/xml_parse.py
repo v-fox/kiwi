@@ -2,20 +2,20 @@
 # -*- coding: utf-8 -*-
 
 #
-# Generated Tue Sep  8 17:57:04 2015 by generateDS.py version 2.17a.
+# Generated Mon Oct 26 16:47:45 2015 by generateDS.py version 2.17a.
 #
 # Command line options:
 #   ('--external-encoding', 'utf-8')
 #   ('-o', 'kiwi/xml_parse.py')
 #
 # Command line arguments:
-#   schema/KIWISchema.xsd
+#   schema/kiwi.xsd
 #
 # Command line:
-#   /usr/bin/generateDS.py --external-encoding="utf-8" -o "kiwi/xml_parse.py" schema/KIWISchema.xsd
+#   /usr/bin/generateDS.py --external-encoding="utf-8" -o "kiwi/xml_parse.py" schema/kiwi.xsd
 #
 # Current working directory (os.getcwd()):
-#   kiwi
+#   kiwi-horizon
 #
 
 import sys

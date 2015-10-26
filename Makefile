@@ -16,14 +16,14 @@ list_tests:
 %.py:
 	nosetests $@
 
-kiwi/xml_parse.py: schema/KIWISchema.xsd
+kiwi/xml_parse.py: schema/kiwi.xsd
 	# XML parser code is auto generated from schema using generateDS
 	# http://pythonhosted.org/generateDS
 	generateDS.py --external-encoding='utf-8' \
-		-o kiwi/xml_parse.py schema/KIWISchema.xsd
+		-o kiwi/xml_parse.py schema/kiwi.xsd
 
-schema/KIWISchema.xsd: schema/KIWISchema.rnc
-	trang -I rnc -O xsd schema/KIWISchema.rnc schema/KIWISchema.xsd
+schema/kiwi.xsd: schema/kiwi.rnc
+	trang -I rnc -O xsd schema/kiwi.rnc schema/kiwi.xsd
 
 clean:
 	find -name *.pyc | xargs rm -f

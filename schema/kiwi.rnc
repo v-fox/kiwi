@@ -1,5 +1,5 @@
 #================
-# FILE          : KIWISchema.rnc
+# FILE          : kiwi.rnc
 #****************
 # PROJECT       : openSUSE Build-Service
 # COPYRIGHT     : (c) 2006 SUSE LINUX Products GmbH, Germany
@@ -12,7 +12,7 @@
 # DESCRIPTION   : This is the RELAX NG Schema for KIWI
 #               : configuration files. The schema is maintained
 #               : in the relax compact syntax. Any changes should
-#               : made in !! *** KIWISchema.rnc *** !!
+#               : made in !! *** kiwi.rnc *** !!
 #               : 
 #               :
 # STATUS        : Development

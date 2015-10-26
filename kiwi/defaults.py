@@ -49,7 +49,7 @@ class Defaults(object):
 
     @classmethod
     def get_schema_file(self):
-        return 'schema/KIWISchema.rng'
+        return 'schema/kiwi.rng'
 
     @classmethod
     def get_common_functions_file(self):
@@ -68,5 +68,5 @@ class Defaults(object):
             profile.add(key, self.get(key))
 
     def __kiwi_revision(self):
-        with open('schema/kiwi_revision') as revision:
+        with open('schema/kiwi.revision') as revision:
             return revision.read().splitlines().pop()
