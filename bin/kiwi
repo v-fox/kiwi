@@ -6,6 +6,6 @@
 #
 pushd ../ &>/dev/null
 
-./.version > schema/kiwi_revision
+./.version > schema/kiwi.revision
 
 python -c "from kiwi.kiwi import main; main()" "$@"
