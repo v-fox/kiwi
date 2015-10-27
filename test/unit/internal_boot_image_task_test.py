@@ -84,6 +84,9 @@ class TestBootImageTask(object):
     @patch('kiwi.internal_boot_image_task.Kernel')
     def test_extract_kernel_files(self, mock_kernel):
         kernel = mock.Mock()
+        kernel.get_extracted = mock.Mock(
+            return_value={}
+        )
         kernel.get_kernel = mock.Mock(
             return_value=True
         )
@@ -102,6 +105,14 @@ class TestBootImageTask(object):
             self.task.boot_target_dir
         )
 
-    def test_create_initrd(self):
-        # TODO
+    @patch('kiwi.internal_boot_image_task.ArchiveCpio')
+    def test_create_initrd(self, mock_cpio):
+        cpio = mock.Mock()
+        mock_cpio.return_value = cpio
         self.task.create_initrd()
+        mock_cpio.assert_called_once_with(
+            self.task.boot_target_dir + '/initrd.cpio'
+        )
+        cpio.create.assert_called_once_with(
+            self.task.boot_root_directory
+        )

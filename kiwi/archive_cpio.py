@@ -19,16 +19,23 @@
 from command import Command
 
 
-class ArchiveTar(object):
+class ArchiveCpio(object):
     """
-        extraction/creation of tar archives
+        extraction/creation of cpio archives
     """
     def __init__(self, filename):
         self.filename = filename
 
     def create(self, source_dir):
-        # TODO
-        pass
+        cpio_command = [
+            'cd', source_dir, '&&',
+            'find', '.', '-path', './boot', '-prune', '-o', '-print', '|',
+            'cpio', '--quiet', '-o', '-H', 'newc', '>', self.filename
+        ]
+        Command.run(
+            ['bash', '-c', ' '.join(cpio_command)]
+        )
 
     def extract(self, destination):
-        Command.run(['tar', 'C', destination, '-x', '-v', '-f', self.filename])
+        # TODO
+        pass

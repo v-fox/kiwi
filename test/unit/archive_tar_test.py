@@ -18,3 +18,7 @@ class TestArchiveTar(object):
         mock_command.assert_called_once_with(
             ['tar', 'C', 'destination', '-x', '-v', '-f', 'foo.tgz']
         )
+
+    def test_create(self):
+        # TODO
+        self.archive.create('source-dir')

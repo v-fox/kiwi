@@ -69,6 +69,7 @@ class SystemCreateTask(CliTask):
             if boot_image_task.required():
                 boot_image_task.prepare()
                 boot_image_task.extract_kernel_files()
+                boot_image_task.create_initrd()
 
             # TODO: all the rest :-)
 

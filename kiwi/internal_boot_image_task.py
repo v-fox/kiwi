@@ -26,6 +26,7 @@ from profile import Profile
 from system_setup import SystemSetup
 from logger import log
 from kernel import Kernel
+from archive_cpio import ArchiveCpio
 
 from exceptions import(
     KiwiConfigFileNotFound,
@@ -111,15 +112,20 @@ class BootImageTask(object):
             extract all kernel related files which does not have to
             be part of the boot image(initrd)
         """
+        log.info('Extracting kernel files')
         kernel = Kernel(self.boot_root_directory)
         if kernel.get_kernel():
             kernel.extract_kernel(self.boot_target_dir)
         if kernel.get_xen_hypervisor():
             kernel.extract_xen_hypervisor(self.boot_target_dir)
+        log.info('--> extracted %s', ','.join(kernel.get_extracted().values()))
 
     def create_initrd(self):
-        # TODO: create cpio image from prepared tree
-        pass
+        log.info('Creating initrd cpio archive')
+        initrd_file_name = self.boot_target_dir + '/initrd.cpio'
+        cpio = ArchiveCpio(initrd_file_name)
+        cpio.create(self.boot_root_directory)
+        log.info('--> created %s', initrd_file_name)
 
     def __import_system_description_elements(self):
         self.xml_state.copy_displayname(

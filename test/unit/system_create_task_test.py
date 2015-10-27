@@ -40,6 +40,7 @@ class TestSystemCreateTask(object):
         # TODO
         self.boot_task.prepare.assert_called_once_with()
         self.boot_task.extract_kernel_files.assert_called_once_with()
+        self.boot_task.create_initrd.assert_called_once_with()
 
     def test_process_system_create_help(self):
         self.__init_command_args()
