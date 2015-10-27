@@ -41,7 +41,7 @@ class TestBootImageTask(object):
         self.task = BootImageTask(
             XMLState(xml_data), 'some-target-dir'
         )
-        self.task.boot_root_directory = 'boot-directory' 
+        self.task.boot_root_directory = 'boot-directory'
         self.task.boot_target_dir = 'boot-target-directory'
 
     @raises(KiwiTargetDirectoryNotFound)

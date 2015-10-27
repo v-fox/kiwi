@@ -47,7 +47,7 @@ class Kernel(object):
             kernel_file = self.root_dir + '/boot/' + kernel_name
             if os.path.exists(kernel_file):
                 version = Command.run(['kversion', kernel_file]).output
-                if not version:    
+                if not version:
                     version = 'no-version-found'
                 version = version.rstrip('\n')
                 kernel = namedtuple(
@@ -77,7 +77,7 @@ class Kernel(object):
             self.extracted['kernel'] = extract_target
 
     def extract_xen_hypervisor(self, target_dir):
-        xen= self.get_xen_hypervisor()
+        xen = self.get_xen_hypervisor()
         if xen:
             extract_target = target_dir + '/hypervisor-' + xen.name
             Command.run(['mv', xen.filename, extract_target])
