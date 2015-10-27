@@ -28,7 +28,8 @@ from logger import log
 from kernel import Kernel
 
 from exceptions import(
-    KiwiConfigFileNotFound
+    KiwiConfigFileNotFound,
+    KiwiTargetDirectoryNotFound
 )
 
 
@@ -39,6 +40,10 @@ class BootImageTask(object):
     def __init__(self, xml_state, target_dir):
         self.xml_state = xml_state
         self.target_dir = target_dir
+        if not os.path.exists(target_dir):
+            raise KiwiTargetDirectoryNotFound(
+                'target directory %s not found' % target_dir
+            )
         self.boot_root_directory = mkdtemp(
             prefix='boot-', dir=self.target_dir
         )

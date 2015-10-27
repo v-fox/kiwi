@@ -147,3 +147,7 @@ class KiwiTypeNotFound(KiwiError):
 
 class KiwiInvalidVolumeName(KiwiError):
     pass
+
+
+class KiwiTargetDirectoryNotFound(KiwiError):
+    pass

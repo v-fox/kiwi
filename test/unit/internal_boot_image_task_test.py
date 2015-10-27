@@ -15,7 +15,9 @@ from kiwi.exceptions import *
 
 class TestBootImageTask(object):
     @patch('os.mkdir')
-    def setup(self, mock_mkdir):
+    @patch('os.path.exists')
+    def setup(self, mock_os_path, mock_mkdir):
+        mock_os_path.return_value = True
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
 
@@ -41,6 +43,10 @@ class TestBootImageTask(object):
         )
         self.task.boot_root_directory = 'boot-directory' 
         self.task.boot_target_dir = 'boot-target-directory'
+
+    @raises(KiwiTargetDirectoryNotFound)
+    def test_boot_image_task_raises(self):
+        BootImageTask(None, 'target-dir-does-not-exist')
 
     @patch('kiwi.defaults.Defaults.get_image_description_path')
     def test_prepare(self, mock_boot_path):
