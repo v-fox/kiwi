@@ -14,7 +14,8 @@ from kiwi.exceptions import *
 
 
 class TestBootImageTask(object):
-    def setup(self):
+    @patch('os.mkdir')
+    def setup(self, mock_mkdir):
         description = XMLDescription('../data/example_config.xml')
         xml_data = description.load()
 
@@ -38,13 +39,12 @@ class TestBootImageTask(object):
         self.task = BootImageTask(
             XMLState(xml_data), 'some-target-dir'
         )
+        self.task.boot_root_directory = 'boot-directory' 
+        self.task.boot_target_dir = 'boot-target-directory'
 
-    @patch('os.mkdir')
     @patch('kiwi.defaults.Defaults.get_image_description_path')
-    def test_prepare(self, mock_boot_path, mock_mkdir):
+    def test_prepare(self, mock_boot_path):
         mock_boot_path.return_value = '../data'
-        # TODO
-        mock_mkdir.return_value = 'boot-directory'
         self.task.prepare()
         self.task.system.setup_repositories.assert_called_once_with()
         self.task.system.install_bootstrap.assert_called_once_with(
@@ -75,9 +75,26 @@ class TestBootImageTask(object):
     def test_required(self):
         assert self.task.required()
 
-    def test_extract_kernel(self):
-        # TODO
-        self.task.extract_kernel()
+    @patch('kiwi.internal_boot_image_task.Kernel')
+    def test_extract_kernel_files(self, mock_kernel):
+        kernel = mock.Mock()
+        kernel.get_kernel = mock.Mock(
+            return_value=True
+        )
+        kernel.get_xen_hypervisor = mock.Mock(
+            return_value=True
+        )
+        mock_kernel.return_value = kernel
+        self.task.extract_kernel_files()
+        mock_kernel.assert_called_once_with(self.task.boot_root_directory)
+        kernel.get_kernel.assert_called_once_with()
+        kernel.extract_kernel.assert_called_once_with(
+            self.task.boot_target_dir
+        )
+        kernel.get_xen_hypervisor.assert_called_once_with()
+        kernel.extract_xen_hypervisor.assert_called_once_with(
+            self.task.boot_target_dir
+        )
 
     def test_create_initrd(self):
         # TODO

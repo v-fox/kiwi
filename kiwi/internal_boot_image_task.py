@@ -25,6 +25,7 @@ from system import System
 from profile import Profile
 from system_setup import SystemSetup
 from logger import log
+from kernel import Kernel
 
 from exceptions import(
     KiwiConfigFileNotFound
@@ -38,6 +39,12 @@ class BootImageTask(object):
     def __init__(self, xml_state, target_dir):
         self.xml_state = xml_state
         self.target_dir = target_dir
+        self.boot_root_directory = mkdtemp(
+            prefix='boot-', dir=self.target_dir
+        )
+        self.boot_target_dir = mkdtemp(
+            prefix='boot-target-', dir=self.target_dir
+        )
 
     def prepare(self):
         """
@@ -48,9 +55,6 @@ class BootImageTask(object):
         self.__import_system_description_elements()
 
         log.info('Preparing boot image')
-        self.boot_root_directory = mkdtemp(
-            prefix='boot-', dir=self.target_dir
-        )
         self.system = System(
             xml_state=self.boot_xml_state,
             root_dir=self.boot_root_directory,
@@ -97,9 +101,16 @@ class BootImageTask(object):
         if self.__boot_description_directory():
             return True
 
-    def extract_kernel(self):
-        # TODO: extract kernel files, needs an extract class
-        pass
+    def extract_kernel_files(self):
+        """
+            extract all kernel related files which does not have to
+            be part of the boot image(initrd)
+        """
+        kernel = Kernel(self.boot_root_directory)
+        if kernel.get_kernel():
+            kernel.extract_kernel(self.boot_target_dir)
+        if kernel.get_xen_hypervisor():
+            kernel.extract_xen_hypervisor(self.boot_target_dir)
 
     def create_initrd(self):
         # TODO: create cpio image from prepared tree
