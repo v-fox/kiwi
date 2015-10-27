@@ -26,12 +26,14 @@ class FakeCommandCall(object):
         self.process = self.__poll(returncode)
         self.output = self.__readline()
         self.error = self.__read()
+        self.out_available = [False, True]
+        self.err_available = [False, True]
 
     def output_available(self):
-        return True
+        return self.out_available.pop()
 
     def error_available(self):
-        return True
+        return self.err_available.pop()
 
     class __poll(object):
         def __init__(self, returncode):

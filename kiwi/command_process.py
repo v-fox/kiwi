@@ -36,42 +36,66 @@ class CommandProcess(object):
 
     def poll_show_progress(self, items_to_complete, match_method):
         self.__init_progress()
+        command_error_output = ''
         while self.command.process.poll() is None:
-            if self.command.output_available():
+            while self.command.output_available():
                 command_output = self.command.output.readline()
+                if not command_output:
+                    break
                 log.debug(
                     '%s: %s', self.log_topic, command_output.rstrip('\n')
                 )
                 self.__update_progress(
                     match_method, items_to_complete, command_output
                 )
+            while self.command.error_available():
+                command_output = self.command.error.read()
+                if not command_output:
+                    break
+                command_error_output += command_output
         self.__stop_progress()
         if self.command.process.returncode != 0:
-            raise KiwiCommandError(self.command.error.read())
+            raise KiwiCommandError(command_error_output)
 
     def poll(self):
+        command_error_output = ''
         while self.command.process.poll() is None:
-            if self.command.output_available():
+            while self.command.output_available():
                 command_output = self.command.output.readline()
+                if not command_output:
+                    break
                 log.debug(
                     '%s: %s', self.log_topic, command_output.rstrip('\n')
                 )
+            while self.command.error_available():
+                command_output = self.command.error.read()
+                if not command_output:
+                    break
+                command_error_output += command_output
         if self.command.process.returncode != 0:
-            raise KiwiCommandError(self.command.error.read())
+            raise KiwiCommandError(command_error_output)
 
     def poll_and_watch(self):
         log.info(self.log_topic)
         log.debug('--------------start--------------')
+        command_error_output = ''
         while self.command.process.poll() is None:
-            if self.command.output_available():
+            while self.command.output_available():
                 command_output = self.command.output.readline()
+                if not command_output:
+                    break
                 log.debug(command_output.rstrip('\n'))
+            while self.command.error_available():
+                command_output = self.command.error.read()
+                if not command_output:
+                    break
+                command_error_output += command_output
         result = namedtuple(
             'result', ['stderr', 'returncode']
         )
         log.debug('--------------stop--------------')
         return result(
-            stderr=self.command.error.read(),
+            stderr=command_error_output,
             returncode=self.command.process.returncode
         )
 

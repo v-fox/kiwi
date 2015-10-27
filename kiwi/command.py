@@ -69,17 +69,26 @@ class Command(object):
         """
             Execute a program and return an io file handle pair back.
             stdout and stderr are both on different channels. The caller
-            must read from the output file handle in order to actually
+            must read from the output file handles in order to actually
             run the command. This can be done as follows:
 
             cmd = Command.call(...)
 
+            errors = ''
             while cmd.process.poll() is None:
-                if cmd.output_available():
-                    print cmd.output.readline()
+                while cmd.output_available():
+                    data = cmd.output.readline()
+                    if not data:
+                        break
+                    print data
+                while cmd.error_available():
+                    error = cmd.error.readline()
+                    if not error:
+                        break
+                    errors += error
 
             if cmd.process.returncode != 0:
-                print 'something failed: %s' % cmd.error.read()
+                print 'something failed: %s' % errors
         """
         from logger import log
 
@@ -95,21 +104,23 @@ class Command(object):
             raise KiwiCommandError(
                 '%s: %s' % (type(e).__name__, format(e))
             )
-        output = io.open(
-            process.stdout.fileno(), 'rb', closefd=False
-        )
-        error = io.open(
-            process.stderr.fileno(), 'rb', closefd=False
-        )
 
         def output_available():
             def __select():
-                return select.select([output], [], [], 0)[0]
+                readable, writable, exceptional = select.select(
+                    [process.stdout], [], [process.stdout], 1
+                )
+                if readable and not exceptional:
+                    return True
             return __select
 
         def error_available():
             def __select():
-                return select.select([error], [], [], 0)[0]
+                readable, writable, exceptional = select.select(
+                    [process.stderr], [], [process.stderr], 1
+                )
+                if readable and not exceptional:
+                    return True
             return __select
 
         command = namedtuple(
@@ -120,9 +131,9 @@ class Command(object):
             ]
         )
         return command(
-            output=output,
+            output=process.stdout,
             output_available=output_available(),
-            error=error,
+            error=process.stderr,
             error_available=error_available(),
             process=process
         )

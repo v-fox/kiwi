@@ -49,13 +49,10 @@ class TestCommand(object):
         Command.call(['does-not-exist'])
 
     @patch('subprocess.Popen')
-    @patch('io.open')
     @patch('select.select')
-    def test_call(self, mock_select, mock_io_open, mock_popen):
+    def test_call(self, mock_select, mock_popen):
         mock_select.return_value = [True, False, False]
         mock_process = mock.Mock()
-        mock_io = mock.Mock()
-        mock_io_open.return_value = mock_io
         mock_popen.return_value = mock_process
         command_call = namedtuple(
             'command', [
@@ -67,6 +64,6 @@ class TestCommand(object):
         call = Command.call(['command', 'args'])
         assert call.output_available()
         assert call.error_available()
-        assert call.output == mock_io
-        assert call.error == mock_io
+        assert call.output == mock_process.stdout
+        assert call.error == mock_process.stderr
         assert call.process == mock_process
