@@ -49,6 +49,7 @@ class Kernel(object):
                 version = Command.run(['kversion', kernel_file]).output
                 if not version:    
                     version = 'no-version-found'
+                version = version.rstrip('\n')
                 kernel = namedtuple(
                     'kernel', ['filename', 'version']
                 )
