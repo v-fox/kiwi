@@ -140,22 +140,22 @@ class Logger(logging.Logger):
         self.console_handlers = []
         # log INFO to stdout
         self.__add_stream_handler(
-            '%(levelname)s: %(message)s',
+            '[ %(levelname)-8s]: %(asctime)-8s - %(message)s',
             [InfoFilter(), LoggerSchedulerFilter()]
         )
         # log WARNING messages to stdout
         self.__add_stream_handler(
-            '$COLOR%(levelname)s: %(message)s',
+            '$COLOR[ %(levelname)-8s]: %(asctime)-8s - %(message)s',
             [WarningFilter()]
         )
         # log DEBUG messages to stdout
         self.__add_stream_handler(
-            '$LIGHTCOLOR%(levelname)s: %(message)s',
+            '$LIGHTCOLOR[ %(levelname)-8s]: %(asctime)-8s - %(message)s',
             [DebugFilter()]
         )
         # log ERROR messages to stderr
         self.__add_stream_handler(
-            '$COLOR%(levelname)s: %(message)s',
+            '$COLOR[ %(levelname)-8s]: %(asctime)-8s - %(message)s',
             [ErrorFilter()],
             sys.__stderr__
         )
@@ -211,7 +211,7 @@ class Logger(logging.Logger):
     ):
         handler = logging.StreamHandler(channel)
         handler.setFormatter(
-            ColorFormatter(message_format)
+            ColorFormatter(message_format, '%H:%M:%S')
         )
         for rule in message_filter:
             handler.addFilter(rule)
