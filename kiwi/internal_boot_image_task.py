@@ -46,10 +46,10 @@ class BootImageTask(object):
                 'target directory %s not found' % target_dir
             )
         self.boot_root_directory = mkdtemp(
-            prefix='boot-', dir=self.target_dir
+            prefix='boot.', dir=self.target_dir
         )
         self.boot_target_dir = mkdtemp(
-            prefix='boot-target-', dir=self.target_dir
+            prefix='boot-image.', dir=self.target_dir
         )
 
     def prepare(self):
