@@ -124,7 +124,10 @@ class BootImageTask(object):
         log.info('Creating initrd cpio archive')
         initrd_file_name = self.boot_target_dir + '/initrd.cpio'
         cpio = ArchiveCpio(initrd_file_name)
-        cpio.create(self.boot_root_directory)
+        cpio.create(
+            source_dir=self.boot_root_directory,
+            exclude=['/boot', '/var/cache']
+        )
         log.info('--> created %s', initrd_file_name)
 
     def __import_system_description_elements(self):

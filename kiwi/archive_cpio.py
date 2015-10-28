@@ -26,14 +26,26 @@ class ArchiveCpio(object):
     def __init__(self, filename):
         self.filename = filename
 
-    def create(self, source_dir):
+    def create(self, source_dir, exclude=None):
+        find_excludes = []
+        find_command = ['cd', source_dir, '&&', 'find', '.']
         cpio_command = [
-            'cd', source_dir, '&&',
-            'find', '.', '-path', './boot', '-prune', '-o', '-print', '|',
             'cpio', '--quiet', '-o', '-H', 'newc', '>', self.filename
         ]
+        if exclude:
+            for path in exclude:
+                if find_excludes:
+                    find_excludes.append('-or')
+                find_excludes.append('-path')
+                find_excludes.append('.' + path)
+                find_excludes.append('-prune')
+            find_excludes.append('-o')
+            find_excludes.append('-print')
+            find_command += find_excludes
+
+        command = find_command + ['|'] + cpio_command
         Command.run(
-            ['bash', '-c', ' '.join(cpio_command)]
+            ['bash', '-c', ' '.join(command)]
         )
 
     def extract(self, destination):

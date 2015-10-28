@@ -26,7 +26,7 @@ class ArchiveTar(object):
     def __init__(self, filename):
         self.filename = filename
 
-    def create(self, source_dir):
+    def create(self, source_dir, exclude=None):
         # TODO
         pass
 

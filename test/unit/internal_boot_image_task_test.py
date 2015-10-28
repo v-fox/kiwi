@@ -114,5 +114,6 @@ class TestBootImageTask(object):
             self.task.boot_target_dir + '/initrd.cpio'
         )
         cpio.create.assert_called_once_with(
-            self.task.boot_root_directory
+            source_dir=self.task.boot_root_directory,
+            exclude=['/boot', '/var/cache']
         )

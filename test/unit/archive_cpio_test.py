@@ -14,8 +14,9 @@ class TestArchiveCpio(object):
 
     @patch('kiwi.archive_cpio.Command.run')
     def test_create(self, mock_command):
-        self.archive.create('source-dir')
-        find_command = 'find . -path ./boot -prune -o -print'
+        self.archive.create('source-dir', ['/boot', '/var/cache'])
+        find_command = \
+            'find . -path ./boot -prune -or -path ./var/cache -prune -o -print'
         cpio_command = 'cpio --quiet -o -H newc'
         mock_command.assert_called_once_with(
             [
