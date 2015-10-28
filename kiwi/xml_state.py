@@ -587,7 +587,6 @@ class XMLState(object):
                                 name=package.get_name()
                             )
                         )
-                        print package.get_name()
                         package_names_added.append(
                             package.get_name()
                         )

@@ -110,12 +110,12 @@ class CommandProcess(object):
 
     def __init_progress(self):
         log.progress(
-            0, 100, 'INFO: Processing'
+            0, 100, '[ INFO    ]: Processing'
         )
 
     def __stop_progress(self):
         log.progress(
-            100, 100, 'INFO: Processing'
+            100, 100, '[ INFO    ]: Processing'
         )
         print
 
@@ -129,5 +129,5 @@ class CommandProcess(object):
                 if self.items_processed <= items_count:
                     log.progress(
                         self.items_processed, items_count,
-                        'INFO: Processing'
+                        '[ INFO    ]: Processing'
                     )
