@@ -128,6 +128,8 @@ class BootImageTask(object):
             source_dir=self.boot_root_directory,
             exclude=['/boot', '/var/cache']
         )
+        # TODO
+        # we need a compressor class to perform the compression
         log.info('--> created %s', initrd_file_name)
 
     def __import_system_description_elements(self):
