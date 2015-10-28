@@ -27,6 +27,7 @@ from system_setup import SystemSetup
 from logger import log
 from kernel import Kernel
 from archive_cpio import ArchiveCpio
+from command import Command
 
 from exceptions import(
     KiwiConfigFileNotFound,
@@ -48,7 +49,7 @@ class BootImageTask(object):
         self.boot_root_directory = mkdtemp(
             prefix='boot.', dir=self.target_dir
         )
-        self.boot_target_dir = mkdtemp(
+        self.boot_target_directory = mkdtemp(
             prefix='boot-image.', dir=self.target_dir
         )
 
@@ -57,45 +58,46 @@ class BootImageTask(object):
             build the boot(initrd) image and store the result in
             the given target directory
         """
-        self.__load_boot_xml_description()
-        self.__import_system_description_elements()
+        if self.required():
+            self.__load_boot_xml_description()
+            self.__import_system_description_elements()
 
-        log.info('Preparing boot image')
-        self.system = System(
-            xml_state=self.boot_xml_state,
-            root_dir=self.boot_root_directory,
-            allow_existing=True
-        )
-        manager = self.system.setup_repositories()
-        self.system.install_bootstrap(
-            manager
-        )
-        self.system.install_system(
-            manager
-        )
+            log.info('Preparing boot image')
+            self.system = System(
+                xml_state=self.boot_xml_state,
+                root_dir=self.boot_root_directory,
+                allow_existing=True
+            )
+            manager = self.system.setup_repositories()
+            self.system.install_bootstrap(
+                manager
+            )
+            self.system.install_system(
+                manager
+            )
 
-        profile = Profile(self.boot_xml_state)
+            profile = Profile(self.boot_xml_state)
 
-        defaults = Defaults()
-        defaults.to_profile(profile)
+            defaults = Defaults()
+            defaults.to_profile(profile)
 
-        self.setup = SystemSetup(
-            self.boot_xml_state,
-            self.__boot_description_directory(),
-            self.boot_root_directory
-        )
-        self.setup.import_shell_environment(profile)
-        self.setup.import_description()
-        self.setup.import_overlay_files(
-            follow_links=True
-        )
-        self.setup.call_config_script()
+            self.setup = SystemSetup(
+                self.boot_xml_state,
+                self.__boot_description_directory(),
+                self.boot_root_directory
+            )
+            self.setup.import_shell_environment(profile)
+            self.setup.import_description()
+            self.setup.import_overlay_files(
+                follow_links=True
+            )
+            self.setup.call_config_script()
 
-        self.system.pinch_system(
-            manager=manager, force=True
-        )
+            self.system.pinch_system(
+                manager=manager, force=True
+            )
 
-        self.setup.call_image_script()
+            self.setup.call_image_script()
 
     def required(self):
         """
@@ -106,31 +108,44 @@ class BootImageTask(object):
         """
         if self.__boot_description_directory():
             return True
+        else:
+            Command.run(
+                [
+                    'rm', '-r', '-f',
+                    self.boot_root_directory,
+                    self.boot_target_directory
+                ]
+            )
+            return False
 
     def extract_kernel_files(self):
         """
             extract all kernel related files which does not have to
             be part of the boot image(initrd)
         """
-        log.info('Extracting kernel files')
-        kernel = Kernel(self.boot_root_directory)
-        if kernel.get_kernel():
-            kernel.extract_kernel(self.boot_target_dir)
-        if kernel.get_xen_hypervisor():
-            kernel.extract_xen_hypervisor(self.boot_target_dir)
-        log.info('--> extracted %s', ','.join(kernel.get_extracted().values()))
+        if self.required():
+            log.info('Extracting kernel files')
+            kernel = Kernel(self.boot_root_directory)
+            if kernel.get_kernel():
+                kernel.extract_kernel(self.boot_target_directory)
+            if kernel.get_xen_hypervisor():
+                kernel.extract_xen_hypervisor(self.boot_target_directory)
+            log.info(
+                '--> extracted %s', ','.join(kernel.get_extracted().values())
+            )
 
     def create_initrd(self):
-        log.info('Creating initrd cpio archive')
-        initrd_file_name = self.boot_target_dir + '/initrd.cpio'
-        cpio = ArchiveCpio(initrd_file_name)
-        cpio.create(
-            source_dir=self.boot_root_directory,
-            exclude=['/boot', '/var/cache']
-        )
-        # TODO
-        # we need a compressor class to perform the compression
-        log.info('--> created %s', initrd_file_name)
+        if self.required():
+            log.info('Creating initrd cpio archive')
+            initrd_file_name = self.boot_target_directory + '/initrd.cpio'
+            cpio = ArchiveCpio(initrd_file_name)
+            cpio.create(
+                source_dir=self.boot_root_directory,
+                exclude=['/boot', '/var/cache']
+            )
+            # TODO
+            # we need a compressor class to perform the compression
+            log.info('--> created %s', initrd_file_name)
 
     def __import_system_description_elements(self):
         self.xml_state.copy_displayname(

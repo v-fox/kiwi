@@ -49,6 +49,10 @@ class KiwiDataStructureError(KiwiError):
     pass
 
 
+class KiwiRequestedTypeError(KiwiError):
+    pass
+
+
 class KiwiRootDirExists(KiwiError):
     pass
 

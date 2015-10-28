@@ -40,6 +40,24 @@ class Defaults(object):
         ]
 
     @classmethod
+    def get_filesystem_image_types(self):
+        return [
+            'ext2', 'ext3', 'ext4', 'btrfs', 'squashfs', 'xfs'
+        ]
+
+    @classmethod
+    def get_disk_image_types(self):
+        return ['oem', 'vmx']
+
+    @classmethod
+    def get_live_image_types(self):
+        return ['iso']
+
+    @classmethod
+    def get_network_image_types(self):
+        return ['pxe']
+
+    @classmethod
     def get_image_description_path(self):
         return '/usr/share/kiwi/image'
 

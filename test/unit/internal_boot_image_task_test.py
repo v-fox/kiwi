@@ -19,7 +19,9 @@ class TestBootImageTask(object):
     def setup(self, mock_os_path, mock_mkdir):
         mock_os_path.return_value = True
         description = XMLDescription('../data/example_config.xml')
-        xml_data = description.load()
+        self.xml_state = XMLState(
+            description.load()
+        )
 
         self.manager = mock.Mock()
         self.system = mock.Mock()
@@ -39,10 +41,10 @@ class TestBootImageTask(object):
         )
 
         self.task = BootImageTask(
-            XMLState(xml_data), 'some-target-dir'
+            self.xml_state, 'some-target-dir'
         )
         self.task.boot_root_directory = 'boot-directory'
-        self.task.boot_target_dir = 'boot-target-directory'
+        self.task.boot_target_directory = 'boot-target-directory'
 
     @raises(KiwiTargetDirectoryNotFound)
     def test_boot_image_task_raises(self):
@@ -78,8 +80,16 @@ class TestBootImageTask(object):
         mock_os_path.return_value = False
         self.task.prepare()
 
-    def test_required(self):
+    def test_required_true(self):
         assert self.task.required()
+
+    @patch('kiwi.internal_boot_image_task.Command.run')
+    def test_required_false(self, mock_run):
+        self.xml_state.build_type.set_boot(None)
+        assert self.task.required() == False
+        mock_run.assert_called_once_with(
+            ['rm', '-r', '-f', 'boot-directory', 'boot-target-directory']
+        )
 
     @patch('kiwi.internal_boot_image_task.Kernel')
     def test_extract_kernel_files(self, mock_kernel):
@@ -98,11 +108,11 @@ class TestBootImageTask(object):
         mock_kernel.assert_called_once_with(self.task.boot_root_directory)
         kernel.get_kernel.assert_called_once_with()
         kernel.extract_kernel.assert_called_once_with(
-            self.task.boot_target_dir
+            self.task.boot_target_directory
         )
         kernel.get_xen_hypervisor.assert_called_once_with()
         kernel.extract_xen_hypervisor.assert_called_once_with(
-            self.task.boot_target_dir
+            self.task.boot_target_directory
         )
 
     @patch('kiwi.internal_boot_image_task.ArchiveCpio')
@@ -111,7 +121,7 @@ class TestBootImageTask(object):
         mock_cpio.return_value = cpio
         self.task.create_initrd()
         mock_cpio.assert_called_once_with(
-            self.task.boot_target_dir + '/initrd.cpio'
+            self.task.boot_target_directory + '/initrd.cpio'
         )
         cpio.create.assert_called_once_with(
             source_dir=self.task.boot_root_directory,

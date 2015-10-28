@@ -48,6 +48,10 @@ from profile import Profile
 from internal_boot_image_task import BootImageTask
 from logger import log
 
+from exceptions import (
+    KiwiRequestedTypeError
+)
+
 
 class SystemCreateTask(CliTask):
     """
@@ -71,7 +75,28 @@ class SystemCreateTask(CliTask):
                 boot_image_task.extract_kernel_files()
                 boot_image_task.create_initrd()
 
-            # TODO: all the rest :-)
+            requested_image_type = self.xml_state.get_build_type_name()
+            if requested_image_type in Defaults.get_filesystem_image_types():
+                # TODO: pass task to a filesystem builder
+                pass
+            elif requested_image_type in Defaults.get_disk_image_types():
+                install_image = self.xml_state.build_type.get_installiso()
+                if not install_image:
+                    install_image = self.xml_state.build_type.get_installstick()
+                if not install_image:
+                    install_image = self.xml_state.build_type.get_installpxe()
+                # TODO: pass task to a disk builder
+            elif requested_image_type in Defaults.get_live_image_types():
+                # TODO: pass task to an iso builder
+                pass
+            elif requested_image_type in Defaults.get_network_image_types():
+                # TODO: pass task to a net builder
+                pass
+            else:
+                raise KiwiRequestedTypeError(
+                    'requested image type %s not supported' %
+                    requested_image_type
+                )
 
     def __help(self):
         if self.command_args['help']:
