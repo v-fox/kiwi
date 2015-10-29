@@ -62,12 +62,13 @@ class Compress(object):
             Command.run([zipper, '-d', self.source_filename])
             self.uncompressed_filename = self.source_filename
         else:
-            temp_file = NamedTemporaryFile()
+            self.temp_file = NamedTemporaryFile()
             bash_command = [
-                zipper, '-c', '-d', self.source_filename, '>', temp_file.name
+                zipper, '-c', '-d', self.source_filename,
+                '>', self.temp_file.name
             ]
             Command.run(['bash', '-c', ' '.join(bash_command)])
-            self.uncompressed_filename = temp_file.name
+            self.uncompressed_filename = self.temp_file.name
 
     def get_format(self):
         for zipper in self.supported_zipper:
