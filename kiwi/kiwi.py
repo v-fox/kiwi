@@ -35,6 +35,9 @@ def main():
         # known exception, log information and exit
         logger.log.error('%s: %s', type(e).__name__, format(e))
         sys.exit(1)
+    except KeyboardInterrupt:
+        logger.log.error('kiwi aborted by keyboard interrupt')
+        sys.exit(1)
     except docopt.DocoptExit:
         # exception caught by docopt, results in usage message
         raise
