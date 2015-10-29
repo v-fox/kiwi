@@ -150,13 +150,15 @@ class BootImageTask(object):
                 source_dir=self.boot_root_directory,
                 exclude=['/boot', '/var/cache']
             )
+            log.info(
+                '--> xz compressing archive'
+            )
             compress = Compress(initrd_file_name)
             compress.xz()
             self.initrd_filename = compress.compressed_filename
             log.info(
                 '--> created %s', self.initrd_filename
             )
-            # TODO: we need an md5 sum creator
 
     def __import_system_description_elements(self):
         self.xml_state.copy_displayname(

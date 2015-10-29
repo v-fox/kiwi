@@ -77,7 +77,7 @@ class SystemCreateTask(CliTask):
 
             requested_image_type = self.xml_state.get_build_type_name()
             if requested_image_type in Defaults.get_filesystem_image_types():
-                # TODO: pass task to a filesystem builder
+                # TODO: pass task to a filesystem builder + MD5 sum
                 pass
             elif requested_image_type in Defaults.get_disk_image_types():
                 install_image = self.xml_state.build_type.get_installiso()
