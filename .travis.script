@@ -1,5 +1,3 @@
 #!/bin/bash
 
-./.version > schema/kiwi.revision
-
 make pep8 test
