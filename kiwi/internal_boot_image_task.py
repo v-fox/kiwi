@@ -28,6 +28,7 @@ from logger import log
 from kernel import Kernel
 from archive_cpio import ArchiveCpio
 from command import Command
+from compress import Compress
 
 from exceptions import(
     KiwiConfigFileNotFound,
@@ -52,6 +53,9 @@ class BootImageTask(object):
         self.boot_target_directory = mkdtemp(
             prefix='boot-image.', dir=self.target_dir
         )
+        self.initrd_filename = None
+        self.kernel_filename = None
+        self.xen_hypervisor_filename = None
 
     def prepare(self):
         """
@@ -128,10 +132,13 @@ class BootImageTask(object):
             kernel = Kernel(self.boot_root_directory)
             if kernel.get_kernel():
                 kernel.extract_kernel(self.boot_target_directory)
+                self.kernel_filename = kernel.extracted['kernel']
             if kernel.get_xen_hypervisor():
                 kernel.extract_xen_hypervisor(self.boot_target_directory)
+                self.xen_hypervisor_filename = \
+                    kernel.extracted['xen_hypervisor']
             log.info(
-                '--> extracted %s', ','.join(kernel.get_extracted().values())
+                '--> extracted %s', ','.join(kernel.extracted.values())
             )
 
     def create_initrd(self):
@@ -143,9 +150,13 @@ class BootImageTask(object):
                 source_dir=self.boot_root_directory,
                 exclude=['/boot', '/var/cache']
             )
-            # TODO
-            # we need a compressor class to perform the compression
-            log.info('--> created %s', initrd_file_name)
+            compress = Compress(initrd_file_name)
+            compress.xz()
+            self.initrd_filename = compress.compressed_filename
+            log.info(
+                '--> created %s', self.initrd_filename
+            )
+            # TODO: we need an md5 sum creator
 
     def __import_system_description_elements(self):
         self.xml_state.copy_displayname(

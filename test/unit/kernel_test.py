@@ -15,9 +15,6 @@ class TestKernel(object):
     def setup(self):
         self.kernel = Kernel('root-dir')
 
-    def test_get_extracted(self):
-        assert self.kernel.get_extracted() == {}
-
     @patch('os.path.exists')
     @patch('kiwi.command.Command.run')
     def test_get_kernel(self, mock_run, mock_os):
@@ -81,4 +78,5 @@ class TestKernel(object):
         mock_run.assert_called_once_with(
             ['mv', 'some/xen.gz', 'target-dir/hypervisor-xen.gz']
         )
-        self.kernel.extracted['hypervisor'] == 'target-dir/hypervisor-xen.gz'
+        self.kernel.extracted['xen_hypervisor'] == \
+            'target-dir/hypervisor-xen.gz'

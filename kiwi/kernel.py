@@ -39,9 +39,6 @@ class Kernel(object):
         ]
         self.extracted = {}
 
-    def get_extracted(self):
-        return self.extracted
-
     def get_kernel(self):
         for kernel_name in self.kernel_names:
             kernel_file = self.root_dir + '/boot/' + kernel_name
@@ -81,4 +78,4 @@ class Kernel(object):
         if xen:
             extract_target = target_dir + '/hypervisor-' + xen.name
             Command.run(['mv', xen.filename, extract_target])
-            self.extracted['hypervisor'] = extract_target
+            self.extracted['xen_hypervisor'] = extract_target
