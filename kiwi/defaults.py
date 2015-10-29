@@ -40,6 +40,14 @@ class Defaults(object):
         ]
 
     @classmethod
+    def get_archive_image_types(self):
+        return ['tbz']
+
+    @classmethod
+    def get_container_image_types(self):
+        return ['docker', 'aci']
+
+    @classmethod
     def get_filesystem_image_types(self):
         return [
             'ext2', 'ext3', 'ext4', 'btrfs', 'squashfs', 'xfs'

@@ -15,9 +15,16 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
+
 # project
 from command import Command
 from tempfile import NamedTemporaryFile
+
+from exceptions import (
+    KiwiFileNotFound,
+    KiwiCompressionFormatUnknown
+)
 
 
 class Compress(object):
@@ -25,7 +32,14 @@ class Compress(object):
         File compression / decompression
     """
     def __init__(self, source_filename):
+        if not os.path.exists(source_filename):
+            raise KiwiFileNotFound(
+                'compression source file %s not found' % source_filename
+            )
         self.source_filename = source_filename
+        self.supported_zipper = [
+            'xz', 'gzip'
+        ]
         self.compressed_filename = None
         self.uncompressed_filename = None
 
@@ -33,30 +47,32 @@ class Compress(object):
         Command.run(['xz', self.source_filename])
         self.compressed_filename = self.source_filename + '.xz'
 
-    def un_xz(self, temporary=False):
-        if not temporary:
-            Command.run(['xz', '-d', self.source_filename])
-            self.uncompressed_filename = self.source_filename
-        else:
-            temp_file = NamedTemporaryFile()
-            bash_command = [
-                'xz', '-c', '-d', self.source_filename, '>', temp_file.name
-            ]
-            Command.run(['bash', '-c', ' '.join(bash_command)])
-            self.uncompressed_filename = temp_file.name
-
-    def un_gzip(self, temporary=False):
-        if not temporary:
-            Command.run(['gzip', '-d', self.source_filename])
-            self.uncompressed_filename = self.source_filename
-        else:
-            temp_file = NamedTemporaryFile()
-            bash_command = [
-                'gzip', '-c', '-d', self.source_filename, '>', temp_file.name
-            ]
-            Command.run(['bash', '-c', ' '.join(bash_command)])
-            self.uncompressed_filename = temp_file.name
-
     def gzip(self):
         Command.run(['gzip', '-9', self.source_filename])
         self.compressed_filename = self.source_filename + '.gz'
+
+    def uncompress(self, temporary=False):
+        zipper = self.get_format()
+        if not zipper:
+            raise KiwiCompressionFormatUnknown(
+                'could not detect compression format for %s' %
+                self.source_filename
+            )
+        if not temporary:
+            Command.run([zipper, '-d', self.source_filename])
+            self.uncompressed_filename = self.source_filename
+        else:
+            temp_file = NamedTemporaryFile()
+            bash_command = [
+                zipper, '-c', '-d', self.source_filename, '>', temp_file.name
+            ]
+            Command.run(['bash', '-c', ' '.join(bash_command)])
+            self.uncompressed_filename = temp_file.name
+
+    def get_format(self):
+        for zipper in self.supported_zipper:
+            try:
+                Command.run([zipper, '-l', self.source_filename])
+                return zipper
+            except Exception:
+                pass

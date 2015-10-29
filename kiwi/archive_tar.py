@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
+import os
+
 # project
 from command import Command
 
@@ -27,8 +29,19 @@ class ArchiveTar(object):
         self.filename = filename
 
     def create(self, source_dir, exclude=None):
-        # TODO
-        pass
+        archive_items = []
+        for item in os.listdir(source_dir):
+            if not exclude:
+                archive_items.append(item)
+            elif item not in exclude:
+                archive_items.append(item)
+        Command.run(
+            [
+                'tar', '-C', source_dir, '-c', '-f', self.filename
+            ] + archive_items
+        )
 
-    def extract(self, destination):
-        Command.run(['tar', 'C', destination, '-x', '-v', '-f', self.filename])
+    def extract(self, dest_dir):
+        Command.run(
+            ['tar', '-C', dest_dir, '-x', '-v', '-f', self.filename]
+        )

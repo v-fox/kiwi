@@ -92,6 +92,12 @@ class SystemCreateTask(CliTask):
             elif requested_image_type in Defaults.get_network_image_types():
                 # TODO: pass task to a net builder
                 pass
+            elif requested_image_type in Defaults.get_archive_image_types():
+                # TODO: pass task to an archive builder
+                pass
+            elif requested_image_type in Defaults.get_container_image_types():
+                # TODO: pass task to a container builder
+                pass
             else:
                 raise KiwiRequestedTypeError(
                     'requested image type %s not supported' %

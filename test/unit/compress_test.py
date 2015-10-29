@@ -6,11 +6,18 @@ import mock
 import nose_helper
 
 from kiwi.compress import Compress
+from kiwi.exceptions import *
 
 
 class TestCompress(object):
-    def setup(self):
+    @patch('os.path.exists')
+    def setup(self, mock_exists):
+        mock_exists.return_value = True
         self.compress = Compress('some-file')
+
+    @raises(KiwiFileNotFound)
+    def test_source_file_not_found(self):
+        Compress('some-file')
 
     @patch('kiwi.command.Command.run')
     def test_xz(self, mock_command):
@@ -29,8 +36,10 @@ class TestCompress(object):
         assert self.compress.compressed_filename == 'some-file.gz'
 
     @patch('kiwi.command.Command.run')
-    def test_unxz(self, mock_command):
-        self.compress.un_xz()
+    @patch('kiwi.compress.Compress.get_format')
+    def test_uncompress(self, mock_format, mock_command):
+        mock_format.return_value = 'xz'
+        self.compress.uncompress()
         mock_command.assert_called_once_with(
             ['xz', '-d', 'some-file']
         )
@@ -38,32 +47,26 @@ class TestCompress(object):
 
     @patch('kiwi.command.Command.run')
     @patch('kiwi.compress.NamedTemporaryFile')
-    def test_unxz_temporary(self, mock_temp, mock_command):
+    @patch('kiwi.compress.Compress.get_format')
+    def test_uncompress_temporary(self, mock_format, mock_temp, mock_command):
         tempfile = mock.Mock()
         tempfile.name = 'tempfile'
         mock_temp.return_value = tempfile
-        self.compress.un_xz(temporary=True)
+        mock_format.return_value = 'xz'
+        self.compress.uncompress(temporary=True)
         mock_command.assert_called_once_with(
             ['bash', '-c', 'xz -c -d some-file > tempfile']
         )
         assert self.compress.uncompressed_filename == 'tempfile'
 
-    @patch('kiwi.command.Command.run')
-    def test_ungzip(self, mock_command):
-        self.compress.un_gzip()
-        mock_command.assert_called_once_with(
-            ['gzip', '-d', 'some-file']
-        )
-        assert self.compress.uncompressed_filename == 'some-file'
+    @raises(KiwiCompressionFormatUnknown)
+    @patch('kiwi.compress.Compress.get_format')
+    def test_uncompress_unknown_format(self, mock_format):
+        mock_format.return_value = None
+        self.compress.uncompress()
 
-    @patch('kiwi.command.Command.run')
-    @patch('kiwi.compress.NamedTemporaryFile')
-    def test_ungzip_temporary(self, mock_temp, mock_command):
-        tempfile = mock.Mock()
-        tempfile.name = 'tempfile'
-        mock_temp.return_value = tempfile
-        self.compress.un_gzip(temporary=True)
-        mock_command.assert_called_once_with(
-            ['bash', '-c', 'gzip -c -d some-file > tempfile']
-        )
-        assert self.compress.uncompressed_filename == 'tempfile'
+    def test_get_format(self):
+        xz = Compress('../data/xz_data.xz')
+        assert xz.get_format() == 'xz'
+        gzip = Compress('../data/gz_data.gz')
+        assert gzip.get_format() == 'gzip'

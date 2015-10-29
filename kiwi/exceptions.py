@@ -155,3 +155,11 @@ class KiwiInvalidVolumeName(KiwiError):
 
 class KiwiTargetDirectoryNotFound(KiwiError):
     pass
+
+
+class KiwiFileNotFound(KiwiError):
+    pass
+
+
+class KiwiCompressionFormatUnknown(KiwiError):
+    pass

@@ -43,11 +43,17 @@ class ArchiveCpio(object):
             find_excludes.append('-print')
             find_command += find_excludes
 
-        command = find_command + ['|'] + cpio_command
+        bash_command = find_command + ['|'] + cpio_command
         Command.run(
-            ['bash', '-c', ' '.join(command)]
+            ['bash', '-c', ' '.join(bash_command)]
         )
 
-    def extract(self, destination):
-        # TODO
-        pass
+    def extract(self, dest_dir):
+        bash_command = [
+            'cd', dest_dir, '&&',
+            'cat', self.filename, '|',
+            'cpio', '-i', '--make-directories'
+        ]
+        Command.run(
+            ['bash', '-c', ' '.join(bash_command)]
+        )

@@ -25,6 +25,11 @@ class TestArchiveCpio(object):
             ]
         )
 
-    def test_extract(self):
-        # TODO
-        self.archive.extract('destination')
+    @patch('kiwi.archive_cpio.Command.run')
+    def test_extract(self, mock_command):
+        self.archive.extract('dest-dir')
+        bash_command = \
+            'cd dest-dir && cat foo.cpio | cpio -i --make-directories'
+        mock_command.assert_called_once_with(
+            ['bash', '-c', bash_command]
+        )

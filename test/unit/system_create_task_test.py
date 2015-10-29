@@ -78,6 +78,30 @@ class TestSystemCreateTask(object):
         self.boot_task.create_initrd.assert_called_once_with()
         # TODO
 
+    @patch('kiwi.xml_state.XMLState.get_build_type_name')
+    def test_process_system_create_archive(self, mock_type):
+        mock_type.return_value = 'tbz'
+        self.__init_command_args()
+        self.task.command_args['create'] = True
+        self.boot_task.required.return_value = True
+        self.task.process()
+        self.boot_task.prepare.assert_called_once_with()
+        self.boot_task.extract_kernel_files.assert_called_once_with()
+        self.boot_task.create_initrd.assert_called_once_with()
+        # TODO
+
+    @patch('kiwi.xml_state.XMLState.get_build_type_name')
+    def test_process_system_create_container(self, mock_type):
+        mock_type.return_value = 'docker'
+        self.__init_command_args()
+        self.task.command_args['create'] = True
+        self.boot_task.required.return_value = True
+        self.task.process()
+        self.boot_task.prepare.assert_called_once_with()
+        self.boot_task.extract_kernel_files.assert_called_once_with()
+        self.boot_task.create_initrd.assert_called_once_with()
+        # TODO
+
     @raises(KiwiRequestedTypeError)
     @patch('kiwi.xml_state.XMLState.get_build_type_name')
     def test_process_system_create_raise(self, mock_type):
