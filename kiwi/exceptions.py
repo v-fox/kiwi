@@ -163,3 +163,7 @@ class KiwiFileNotFound(KiwiError):
 
 class KiwiCompressionFormatUnknown(KiwiError):
     pass
+
+
+class KiwiLoopSetupError(KiwiError):
+    pass
