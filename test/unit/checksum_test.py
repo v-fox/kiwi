@@ -14,7 +14,7 @@ class TestChecksum(object):
     def setup(self, mock_exists):
         mock_exists.return_value = True
         self.checksum = Checksum('some-file')
-        
+
     @raises(KiwiFileNotFound)
     def test_checksum_file_not_found(self):
         Checksum('some-file')
