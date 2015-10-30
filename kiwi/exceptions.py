@@ -29,15 +29,27 @@ class KiwiError(Exception):
         return format(self.message)
 
 
+class KiwiBootStrapPhaseFailed(KiwiError):
+    pass
+
+
 class KiwiCommandError(KiwiError):
     pass
 
 
-class KiwiSchemaImportError(KiwiError):
+class KiwiCommandNotLoaded(KiwiError):
     pass
 
 
-class KiwiValidationError(KiwiError):
+class KiwiCompressionFormatUnknown(KiwiError):
+    pass
+
+
+class KiwiConfigFileNotFound(KiwiError):
+    pass
+
+
+class KiwiDataStructureError(KiwiError):
     pass
 
 
@@ -45,7 +57,47 @@ class KiwiDescriptionInvalid(KiwiError):
     pass
 
 
-class KiwiDataStructureError(KiwiError):
+class KiwiFileNotFound(KiwiError):
+    pass
+
+
+class KiwiHelpNoCommandGiven(KiwiError):
+    pass
+
+
+class KiwiInstallPhaseFailed(KiwiError):
+    pass
+
+
+class KiwiInvalidVolumeName(KiwiError):
+    pass
+
+
+class KiwiLoadCommandUndefined(KiwiError):
+    pass
+
+
+class KiwiLogFileSetupFailed(KiwiError):
+    pass
+
+
+class KiwiLoopSetupError(KiwiError):
+    pass
+
+
+class KiwiMountKernelFileSystemsError(KiwiError):
+    pass
+
+
+class KiwiMountSharedDirectoryError(KiwiError):
+    pass
+
+
+class KiwiProfileNotFound(KiwiError):
+    pass
+
+
+class KiwiRepoTypeUnknown(KiwiError):
     pass
 
 
@@ -65,15 +117,43 @@ class KiwiRpmDatabaseReloadError(KiwiError):
     pass
 
 
-class KiwiMountKernelFileSystemsError(KiwiError):
+class KiwiSchemaImportError(KiwiError):
     pass
 
 
-class KiwiMountSharedDirectoryError(KiwiError):
+class KiwiScriptFailed(KiwiError):
     pass
 
 
 class KiwiSetupIntermediateConfigError(KiwiError):
+    pass
+
+
+class KiwiSystemDeletePackagesFailed(KiwiError):
+    pass
+
+
+class KiwiSystemInstallPackagesFailed(KiwiError):
+    pass
+
+
+class KiwiSystemUpdateFailed(KiwiError):
+    pass
+
+
+class KiwiTargetDirectoryNotFound(KiwiError):
+    pass
+
+
+class KiwiTypeNotFound(KiwiError):
+    pass
+
+
+class KiwiUnknownCommand(KiwiError):
+    pass
+
+
+class KiwiUnknownServiceName(KiwiError):
     pass
 
 
@@ -85,85 +165,5 @@ class KiwiUriTypeUnknown(KiwiError):
     pass
 
 
-class KiwiRepoTypeUnknown(KiwiError):
-    pass
-
-
-class KiwiUnknownServiceName(KiwiError):
-    pass
-
-
-class KiwiCommandNotLoaded(KiwiError):
-    pass
-
-
-class KiwiLoadCommandUndefined(KiwiError):
-    pass
-
-
-class KiwiUnknownCommand(KiwiError):
-    pass
-
-
-class KiwiHelpNoCommandGiven(KiwiError):
-    pass
-
-
-class KiwiBootStrapPhaseFailed(KiwiError):
-    pass
-
-
-class KiwiSystemUpdateFailed(KiwiError):
-    pass
-
-
-class KiwiSystemInstallPackagesFailed(KiwiError):
-    pass
-
-
-class KiwiInstallPhaseFailed(KiwiError):
-    pass
-
-
-class KiwiSystemDeletePackagesFailed(KiwiError):
-    pass
-
-
-class KiwiConfigFileNotFound(KiwiError):
-    pass
-
-
-class KiwiLogFileSetupFailed(KiwiError):
-    pass
-
-
-class KiwiScriptFailed(KiwiError):
-    pass
-
-
-class KiwiProfileNotFound(KiwiError):
-    pass
-
-
-class KiwiTypeNotFound(KiwiError):
-    pass
-
-
-class KiwiInvalidVolumeName(KiwiError):
-    pass
-
-
-class KiwiTargetDirectoryNotFound(KiwiError):
-    pass
-
-
-class KiwiFileNotFound(KiwiError):
-    pass
-
-
-class KiwiCompressionFormatUnknown(KiwiError):
-    pass
-
-
-class KiwiLoopSetupError(KiwiError):
+class KiwiValidationError(KiwiError):
     pass
