@@ -304,7 +304,9 @@ class System(object):
             )
             tar.extract(self.root_bind.root_dir)
 
-    def __setup_requests(self, manager, packages, collections=[], products=[]):
+    def __setup_requests(
+        self, manager, packages, collections=None, products=None
+    ):
         if packages:
             for package in packages:
                 log.info('--> package: %s', package)

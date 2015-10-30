@@ -33,8 +33,10 @@ class RepositoryZypper(RepositoryBase):
     """
         Implements repo handling for zypper package manager
     """
-    def post_init(self, custom_args=[]):
+    def post_init(self, custom_args=None):
         self.custom_args = custom_args
+        if not custom_args:
+            self.custom_args = []
 
         manager_base = self.root_dir + self.shared_location
         self.shared_zypper_dir = {

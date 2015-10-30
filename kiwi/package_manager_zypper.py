@@ -29,10 +29,12 @@ class PackageManagerZypper(PackageManagerBase):
     """
         Implements install tasks for the zypper package manager
     """
-    def post_init(self, custom_args=[]):
+    def post_init(self, custom_args=None):
         self.custom_args = custom_args
-        runtime_config = self.repository.runtime_config()
+        if not custom_args:
+            self.custom_args = []
 
+        runtime_config = self.repository.runtime_config()
         self.zypper_args = runtime_config['zypper_args']
         self.command_env = runtime_config['command_env']
 

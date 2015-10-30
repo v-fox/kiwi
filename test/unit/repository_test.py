@@ -17,4 +17,4 @@ class TestRepository(object):
     def test_repository_zypper_new(self, mock_manager):
         root_bind = mock.Mock()
         Repository.new(root_bind, 'zypper')
-        mock_manager.assert_called_once_with(root_bind, [])
+        mock_manager.assert_called_once_with(root_bind, None)

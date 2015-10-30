@@ -21,7 +21,7 @@ class PackageManagerBase(object):
     """
         Implements base class for package manager install tasks
     """
-    def __init__(self, repository, custom_args=[]):
+    def __init__(self, repository, custom_args=None):
         self.repository = repository
         self.root_dir = repository.root_dir
         self.root_bind = repository.root_bind
@@ -31,7 +31,7 @@ class PackageManagerBase(object):
 
         self.post_init(custom_args)
 
-    def post_init(self, custom_args=[]):
+    def post_init(self, custom_args=None):
         pass
 
     def request_package(self, name):
