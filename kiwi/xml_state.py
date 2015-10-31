@@ -283,6 +283,25 @@ class XMLState(object):
         if oemconfig_sections:
             return oemconfig_sections[0]
 
+    def get_build_type_size(self):
+        """
+            get size value from build type in mega bytes
+            if no unit is set the value is treated as mega bytes
+        """
+        size_section = self.build_type.get_size()
+        if size_section:
+            unit = size_section[0].get_unit()
+            additive = size_section[0].get_additive()
+            value = int(size_section[0].get_valueOf_())
+            if unit == 'G':
+                value *= 1024
+            size_type = namedtuple(
+                'size_type', ['mbytes', 'additive']
+            )
+            return size_type(
+                mbytes=value, additive=additive
+            )
+
     def get_volumes(self):
         """
             get volumes section from systemdisk

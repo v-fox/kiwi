@@ -35,6 +35,7 @@
     </preferences>
     <preferences>
         <type image="iso" primary="true" boot="isoboot/example-boot" flags="overlay" hybrid="true" firmware="efi" kernelcmdline="splash">
+            <size unit="G" additive="true">1</size>
             <systemdisk name="mydisk"/>
             <machine memory="512" domain="domU">
                 <vmdisk id="0" device="/dev/xvda" controller="ide"/>

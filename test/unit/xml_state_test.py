@@ -301,3 +301,8 @@ class TestXMLState(object):
         self.state.copy_bootdelete_packages(self.boot_state)
         to_delete_packages = self.boot_state.get_to_become_deleted_packages()
         assert 'vim' in to_delete_packages
+
+    def test_build_type_size(self):
+        result = self.state.get_build_type_size()
+        assert result.mbytes == 1024
+        assert result.additive
