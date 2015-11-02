@@ -46,6 +46,7 @@ from system_setup import SystemSetup
 from defaults import Defaults
 from profile import Profile
 from internal_boot_image_task import BootImageTask
+from filesystem import FileSystem
 from logger import log
 
 from exceptions import (
@@ -77,8 +78,12 @@ class SystemCreateTask(CliTask):
 
             requested_image_type = self.xml_state.get_build_type_name()
             if requested_image_type in Defaults.get_filesystem_image_types():
-                # TODO: pass task to a filesystem builder + MD5 sum
-                pass
+                filesystem = FileSystem(
+                    self.xml_state,
+                    self.command_args['--target-dir'],
+                    self.command_args['--root']
+                )
+                filesystem.create()
             elif requested_image_type in Defaults.get_disk_image_types():
                 install_image = self.xml_state.build_type.get_installiso()
                 if not install_image:

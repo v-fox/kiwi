@@ -61,6 +61,10 @@ class KiwiFileNotFound(KiwiError):
     pass
 
 
+class KiwiFileSystemSetupError(KiwiError):
+    pass
+
+
 class KiwiHelpNoCommandGiven(KiwiError):
     pass
 

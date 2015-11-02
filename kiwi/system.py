@@ -325,7 +325,7 @@ class System(object):
             manager.product_requests
 
     def __del__(self):
-        log.info('Cleaning up Prepare instance')
+        log.info('Cleaning up %s instance', type(self).__name__)
         try:
             self.root_bind.cleanup()
         except:

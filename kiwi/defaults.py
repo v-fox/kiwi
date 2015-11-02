@@ -40,6 +40,10 @@ class Defaults(object):
         ]
 
     @classmethod
+    def get_default_inode_size(self):
+        return 256
+
+    @classmethod
     def get_archive_image_types(self):
         return ['tbz']
 
