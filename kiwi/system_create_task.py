@@ -47,6 +47,7 @@ from defaults import Defaults
 from profile import Profile
 from internal_boot_image_task import BootImageTask
 from filesystem import FileSystem
+from result import Result
 from logger import log
 
 from exceptions import (
@@ -68,6 +69,7 @@ class SystemCreateTask(CliTask):
         )
 
         if self.command_args['create']:
+            result = Result()
             boot_image_task = BootImageTask(
                 self.xml_state, self.command_args['--target-dir']
             )
@@ -75,6 +77,15 @@ class SystemCreateTask(CliTask):
                 boot_image_task.prepare()
                 boot_image_task.extract_kernel_files()
                 boot_image_task.create_initrd()
+                result.add(
+                    'kernel', boot_image_task.kernel_filename
+                )
+                result.add(
+                    'initrd', boot_image_task.initrd_filename
+                )
+                result.add(
+                    'xen_hypervisor', boot_image_task.xen_hypervisor_filename
+                )
 
             requested_image_type = self.xml_state.get_build_type_name()
             if requested_image_type in Defaults.get_filesystem_image_types():
@@ -84,6 +95,9 @@ class SystemCreateTask(CliTask):
                     self.command_args['--root']
                 )
                 filesystem.create()
+                result.add(
+                    'filesystem_image', filesystem.filename
+                )
             elif requested_image_type in Defaults.get_disk_image_types():
                 install_image = self.xml_state.build_type.get_installiso()
                 if not install_image:
@@ -108,6 +122,8 @@ class SystemCreateTask(CliTask):
                     'requested image type %s not supported' %
                     requested_image_type
                 )
+
+            result.print_results()
 
     def __help(self):
         if self.command_args['help']:

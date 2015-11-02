@@ -28,6 +28,10 @@ class TestSystemCreateTask(object):
         kiwi.system_create_task.FileSystem = mock.Mock(
             return_value=self.filesystem
         )
+        self.result = mock.MagicMock()
+        kiwi.system_create_task.Result = mock.Mock(
+            return_value=self.result
+        )
         self.task = SystemCreateTask()
 
     def __init_command_args(self):
@@ -45,6 +49,7 @@ class TestSystemCreateTask(object):
         self.boot_task.required.return_value = False
         self.task.process()
         self.filesystem.create.assert_called_once_with()
+        self.result.print_results.assert_called_once_with()
 
     @patch('kiwi.xml_state.XMLState.get_build_type_name')
     def test_process_system_create_disk(self, mock_type):

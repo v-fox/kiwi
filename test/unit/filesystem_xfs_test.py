@@ -23,7 +23,7 @@ class TestFileSystemXfs(object):
         self.xfs.create_on_device('/dev/foo')
         call = mock_command.call_args_list[0]
         assert mock_command.call_args_list[0] == \
-            call(['mkfs.xfs', '/dev/foo'])
+            call(['mkfs.xfs', '-f', '/dev/foo'])
         call = mock_command.call_args_list[1]
         assert mock_command.call_args_list[1] == \
             call(['mount', '/dev/foo', 'some-mount-point'])

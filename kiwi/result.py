@@ -16,14 +16,24 @@
 # along with kiwi.  If not, see <http://www.gnu.org/licenses/>
 #
 # project
-from command import Command
-from filesystem_base import FileSystemBase
+from logger import log
 
+class Result(object):
+    """
+        Collect image building results
+    """
+    def __init__(self):
+        self.result_files = {}
 
-class FileSystemXfs(FileSystemBase):
-    """
-        Implements creation of xfs filesystem
-    """
-    def create_on_device(self, device):
-        Command.run(['mkfs.xfs', '-f'] + self.custom_args + [device])
-        Command.run(['mount', device, self.setup_mountpoint()])
+    def add(self, key, value):
+        self.result_files[key] = value
+
+    def get_results(self):
+        return self.result_files
+
+    def print_results(self):
+        if self.result_files:
+            log.info('Created following result images')
+            for key, value in self.result_files.iteritems():
+                if value:
+                    log.info('--> %s: %s', key, value)
