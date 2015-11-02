@@ -18,6 +18,7 @@
 # project
 from logger import log
 
+
 class Result(object):
     """
         Collect image building results
